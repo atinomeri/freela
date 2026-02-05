@@ -1,0 +1,2 @@
+﻿ALTER TABLE "Profile" ADD COLUMN "hourlyGEL" INTEGER;
+ALTER TABLE "Profile" ADD COLUMN "skills" JSON;

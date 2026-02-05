@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ci_dummy_secret_please_override
+      DATABASE_URL: postgresql://freela:freela_password@localhost:5432/freela?schema=public
+      REDIS_URL: redis://localhost:6379
+      SENTRY_DSN: ""
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: freela
+          POSTGRES_USER: freela
+          POSTGRES_PASSWORD: freela_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U freela -d freela"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prisma generate
+        run: npm run prisma:generate
+
+      - name: Prisma validate
+        run: npm run prisma:validate
+
+      - name: Reset test DB schema
+        run: npm run ci:db:reset
+
+      - name: Prisma migrate (test DB)
+        run: npm run prisma:migrate:deploy
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E smoke tests
+        run: npm run test:e2e

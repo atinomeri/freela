@@ -1,0 +1,25 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5" />
+      <stop offset="1" stop-color="#0EA5E9" />
+    </linearGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="50" />
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="#0B1020" />
+  <circle cx="260" cy="110" r="220" fill="url(#g)" opacity="0.55" filter="url(#blur)" />
+  <circle cx="980" cy="520" r="260" fill="url(#g)" opacity="0.45" filter="url(#blur)" />
+  <rect x="96" y="96" width="1008" height="438" rx="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.14)" />
+  <text x="140" y="260" fill="white" font-family="Inter, ui-sans-serif, system-ui" font-size="72" font-weight="700">
+    Freela
+  </text>
+  <text x="140" y="330" fill="rgba(255,255,255,0.78)" font-family="Inter, ui-sans-serif, system-ui" font-size="32" font-weight="500">
+    ფრილანსერების პლატფორმა საქართველოსთვის
+  </text>
+  <text x="140" y="400" fill="rgba(255,255,255,0.62)" font-family="Inter, ui-sans-serif, system-ui" font-size="24" font-weight="400">
+    პროექტები · ფრილანსერები · შეფასებები · GEL
+  </text>
+</svg>
+

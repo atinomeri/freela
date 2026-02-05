@@ -1,0 +1,142 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { Card } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
+import { ApplyForm } from "@/app/projects/[id]/apply-form";
+import { Badge } from "@/components/ui/badge";
+import { proposalStatusLabel } from "@/lib/proposal-status";
+import { StartChatButton } from "@/app/projects/[id]/start-chat-button";
+import { getFreelancerCategoryLabel } from "@/lib/categories";
+import { formatLongDate } from "@/lib/date";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const project = await prisma.project.findUnique({
+    where: { id },
+    select: { title: true, description: true }
+  });
+  if (!project) return {};
+  return {
+    title: project.title,
+    description: project.description
+  };
+}
+
+export default async function ProjectDetailPage({ params }: Props) {
+  const locale = await getLocale();
+  const t = await getTranslations("projectDetailPage");
+  const tCategories = await getTranslations("categories");
+  const tStatuses = await getTranslations("proposalStatus");
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect("/auth/login");
+  if (session.user.role !== "FREELANCER") redirect("/dashboard");
+
+  const { id } = await params;
+  const project = await prisma.project.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      description: true,
+      createdAt: true,
+      budgetGEL: true,
+      isOpen: true,
+      employerId: true,
+      employer: { select: { id: true, name: true } }
+    }
+  });
+
+  if (!project) {
+    redirect("/projects");
+  }
+
+  const [proposal, employerProjectsCount, employerAcceptedProposalsCount] = await Promise.all([
+    prisma.proposal.findFirst({
+      where: { projectId: id, freelancerId: session.user.id },
+      select: { id: true, status: true, createdAt: true }
+    }),
+    prisma.project.count({ where: { employerId: project.employerId } }),
+    prisma.proposal.count({ where: { status: "ACCEPTED", project: { employerId: project.employerId } } })
+  ]);
+
+  return (
+    <Container className="py-12 sm:py-16">
+      <div className="text-sm text-muted-foreground">
+        <Link className="underline hover:text-foreground" href="/projects">
+          {t("breadcrumbProjects")}
+        </Link>{" "}
+        / <span className="text-foreground">{project.title}</span>
+      </div>
+      <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
+        <Card className="p-6">
+          <h1 className="text-3xl font-semibold tracking-tight">{project.title}</h1>
+          {project.category ? (
+            <div className="mt-3">
+              <Badge className="border-primary/30 bg-primary/5 text-primary">
+                {getFreelancerCategoryLabel(project.category, tCategories)}
+              </Badge>
+            </div>
+          ) : null}
+          <div className="mt-2 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{t("added")}:</span> {formatLongDate(project.createdAt, locale)}
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground">{project.description}</div>
+          <div className="mt-2 text-sm">
+            <span className="text-muted-foreground">{t("budget")} </span>
+            {project.budgetGEL ? `${project.budgetGEL} ₾` : t("notSpecified")}
+          </div>
+        </Card>
+
+        <div className="grid gap-6">
+          <Card className="p-6">
+            <div className="text-sm font-medium text-muted-foreground">{t("employerTitle")}</div>
+            <div className="mt-3 font-medium">{project.employer.name}</div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div className="text-xs text-muted-foreground">{t("employerProjectsLabel")}</div>
+                <div className="mt-1 font-medium">{employerProjectsCount}</div>
+              </div>
+              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+                <div className="text-xs text-muted-foreground">{t("employerAcceptedLabel")}</div>
+                <div className="mt-1 font-medium">{employerAcceptedProposalsCount}</div>
+              </div>
+            </div>
+          </Card>
+
+          {!project.isOpen && !proposal?.id ? (
+            <Card className="p-6">
+              <div className="text-sm font-medium text-muted-foreground">{t("closedTitle")}</div>
+              <div className="mt-3 text-sm text-muted-foreground">{t("closedBody")}</div>
+            </Card>
+          ) : proposal?.id ? (
+            <Card className="p-6">
+              <div className="text-sm font-medium text-muted-foreground">{t("yourProposal")}</div>
+              <div className="mt-3 flex items-center justify-between">
+                <Badge>{proposalStatusLabel(proposal.status, tStatuses)}</Badge>
+                <div className="text-xs text-muted-foreground">
+                  {t("sent")}:{" "}
+                  {new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(
+                    new Date(proposal.createdAt)
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 text-sm text-muted-foreground">{t("alreadySent")}</div>
+              <StartChatButton projectId={project.id} />
+            </Card>
+          ) : (
+            <ApplyForm projectId={project.id} />
+          )}
+        </div>
+      </div>
+    </Container>
+  );
+}

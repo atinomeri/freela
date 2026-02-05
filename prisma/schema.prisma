@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  EMPLOYER
+  FREELANCER
+  ADMIN
+}
+
+enum EmployerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum NotificationType {
+  MESSAGE
+  PROPOSAL_STATUS
+  NEW_PROPOSAL
+}
+
+enum FreelancerCategory {
+  IT_DEVELOPMENT
+  DESIGN_CREATIVE
+  MARKETING_CONTENT
+  FINANCE
+  LOGISTICS
+  BUSINESS_ADMIN
+  CONSTRUCTION
+  TRANSPORT
+  OTHER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  role         Role     @default(EMPLOYER)
+  passwordHash String?
+
+  phone       String?
+  personalId  String?   @unique
+  birthDate   DateTime?
+  employerType EmployerType?
+  companyName String?
+  companyId   String?   @unique
+
+  profile  Profile?
+  projects Project[] @relation("UserProjects")
+  proposals Proposal[] @relation("UserProposals")
+  employerThreads Thread[] @relation("EmployerThreads")
+  freelancerThreads Thread[] @relation("FreelancerThreads")
+  sentMessages Message[] @relation("MessageSender")
+  notifications Notification[]
+  passwordResetTokens PasswordResetToken[]
+  reviewsGiven    Review[] @relation("ReviewsGiven")
+  reviewsReceived Review[] @relation("ReviewsReceived")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Profile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  category FreelancerCategory?
+
+  city  String?
+  title String?
+  bio   String?
+  rate  String?
+  hourlyGEL Int?
+
+  skills    Json?
+  tags      Json?
+  portfolio Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}
+
+model Project {
+  id String @id @default(cuid())
+
+  employerId String
+  employer   User   @relation("UserProjects", fields: [employerId], references: [id], onDelete: Cascade)
+
+  category FreelancerCategory?
+
+  title       String
+  description String
+
+  city   String
+  budgetGEL Int?
+  tags      Json?
+
+  isOpen Boolean @default(true)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proposals Proposal[]
+  threads Thread[]
+  reviews Review[]
+
+  @@index([employerId])
+  @@index([city])
+  @@index([category])
+  @@index([completedAt])
+}
+
+model Proposal {
+  id           String   @id @default(cuid())
+  projectId    String
+  freelancerId String
+  message      String
+  priceGEL     Int?
+  status       ProposalStatus @default(PENDING)
+  createdAt    DateTime @default(now())
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  freelancer User    @relation("UserProposals", fields: [freelancerId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, freelancerId])
+  @@index([projectId])
+  @@index([freelancerId])
+}
+
+model Thread {
+  id           String   @id @default(cuid())
+  projectId    String
+  employerId   String
+  freelancerId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employer   User    @relation("EmployerThreads", fields: [employerId], references: [id], onDelete: Cascade)
+  freelancer User    @relation("FreelancerThreads", fields: [freelancerId], references: [id], onDelete: Cascade)
+  messages   Message[]
+
+  @@unique([projectId, freelancerId])
+  @@index([employerId])
+  @@index([freelancerId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  threadId  String
+  senderId  String
+  body      String
+  deliveredAt DateTime?
+  readAt      DateTime?
+  createdAt DateTime @default(now())
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  attachments MessageAttachment[]
+
+  @@index([threadId])
+  @@index([senderId])
+  @@index([threadId, deliveredAt])
+  @@index([threadId, readAt])
+}
+
+model MessageAttachment {
+  id           String   @id @default(cuid())
+  messageId    String
+  originalName String
+  storagePath  String
+  mimeType     String?
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  projectId   String
+  freelancerId String
+  reviewerId  String
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  freelancer User    @relation("ReviewsReceived", fields: [freelancerId], references: [id], onDelete: Cascade)
+  reviewer   User    @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, freelancerId])
+  @@index([freelancerId, createdAt])
+  @@index([reviewerId, createdAt])
+}

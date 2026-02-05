@@ -1,0 +1,801 @@
+{
+  "nav": {
+    "projects": "Projects",
+    "freelancers": "Freelancers",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "authButtons": {
+    "login": "Log in",
+    "register": "Sign up",
+    "dashboard": "Dashboard",
+    "logout": "Log out"
+  },
+  "footer": {
+    "support": "Support",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "rights": "All rights reserved."
+  },
+  "language": {
+    "label": "Language",
+    "ka": "ქართული",
+    "en": "English",
+    "ru": "Русский"
+  },
+  "categories": {
+    "IT_DEVELOPMENT": "IT / Development",
+    "DESIGN_CREATIVE": "Design / Creative",
+    "MARKETING_CONTENT": "Marketing / Content",
+    "FINANCE": "Finance",
+    "LOGISTICS": "Logistics",
+    "BUSINESS_ADMIN": "Business / Administrative",
+    "CONSTRUCTION": "Construction",
+    "TRANSPORT": "Transport",
+    "OTHER": "Other"
+  },
+  "filters": {
+    "search": "Search",
+    "searchProjectsPlaceholder": "e.g. Python, design...",
+    "searchFreelancersPlaceholder": "e.g. Python, UX...",
+    "category": "Category",
+    "allCategories": "All categories",
+    "minBudget": "Min. budget",
+    "maxBudget": "Max. budget",
+    "minRate": "Min. rate (GEL)",
+    "maxRate": "Max. rate (GEL)",
+    "sort": "Sort",
+    "sortNewest": "Newest",
+    "sortLowPrice": "Low price",
+    "sortHighPrice": "High price",
+    "apply": "Apply",
+    "clear": "Clear"
+  },
+  "projects": {
+    "title": "Projects",
+    "description": "Active projects available for freelancers.",
+    "myProposals": "My proposals",
+    "found": "Found: {count}",
+    "emptyTitle": "No projects yet",
+    "emptyDescription": "Check back later.",
+    "added": "Added",
+    "budgetMissing": "Budget not specified",
+    "pageInfo": "Page {page} / {pages} · Total {total}",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "freelancers": {
+    "title": "Freelancers",
+    "description": "Pick a specialist and explore their profile and experience.",
+    "createProfile": "Create a freelancer profile",
+    "found": "Found: {count}",
+    "emptyTitle": "No freelancers found",
+    "emptyDescription": "Try a different query or clear filters.",
+    "defaultTitle": "Freelancer",
+    "bioMissing": "Bio not provided",
+    "rateLabel": "Rate",
+    "rateMissing": "Not specified",
+    "rateValue": "{rate} ₾/h",
+    "viewProfile": "View profile",
+    "pageInfo": "Page {page} / {pages} · Total {total}",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "authLogin": {
+    "title": "Log in",
+    "subtitle": "Sign in to your account.",
+    "loading": "Loading...",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up"
+  },
+  "authLoginForm": {
+    "errors": {
+      "invalidCredentials": "Email or password is incorrect.",
+      "generic": "Couldn't sign in. Please try again."
+    },
+    "email": "Email",
+    "password": "Password",
+    "loading": "Loading...",
+    "submit": "Log in",
+    "forgotPassword": "Forgot password?"
+  },
+  "home": {
+    "badge": "Freelance platform for Georgia",
+    "title": "Find a freelancer — or find a project — fast and safely",
+    "subtitle": "{siteName} connects clients and professionals in Georgia: profiles with portfolios, project listings, and budgets in GEL.",
+    "cta": {
+      "findProject": "Find a project",
+      "findFreelancer": "Find a freelancer"
+    },
+    "stats": {
+      "postProjectValue": "1–3 min",
+      "postProjectLabel": "Post a project",
+      "gelValue": "GEL",
+      "gelLabel": "Budgets in GEL",
+      "availabilityValue": "24/7",
+      "availabilityLabel": "In-app messaging"
+    },
+    "features": {
+      "fastSelection": {
+        "title": "Fast search",
+        "description": "Find specialists by category, price, and experience. Short listings and detailed profiles."
+      },
+      "secureProcess": {
+        "title": "Safe process",
+        "description": "Agreements, delivery, and reviews in one place. Transparent communication and history."
+      },
+      "gelBudget": {
+        "title": "GEL budgets",
+        "description": "Set budgets in GEL with simple invoicing and reporting for businesses."
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Explore popular directions.",
+      "viewAll": "View all",
+      "items": {
+        "webApps": { "title": "Web / Apps", "description": "Frontend, backend, mobile, QA, DevOps." },
+        "design": { "title": "Design", "description": "UI/UX, branding, graphic design." },
+        "content": { "title": "Content", "description": "Copywriting, editing, translation." },
+        "marketing": { "title": "Marketing", "description": "SMM, PPC, SEO, email campaigns." },
+        "video": { "title": "Video / Multimedia", "description": "Editing, motion design, covers." },
+        "ecommerce": { "title": "E-commerce", "description": "Online stores, product content, integrations." }
+      }
+    },
+    "steps": {
+      "title": "3 steps to get started",
+      "subtitle": "For clients and freelancers — everything in one place.",
+      "items": [
+        {
+          "title": "Post a project or pick a freelancer",
+          "description": "Describe requirements, budget, and timeline. Get proposals or message top specialists directly."
+        },
+        {
+          "title": "Confirm the agreement",
+          "description": "Agree on scope, milestones, and communication — all in one workspace."
+        },
+        {
+          "title": "Get results and leave a review",
+          "description": "After delivery, leave feedback — it builds trust and quality."
+        }
+      ]
+    },
+    "ctaCard": {
+      "title": "Get started today",
+      "description": "Create a profile, add a portfolio, and get your first jobs in Georgia.",
+      "signUp": "Sign up",
+      "postProject": "Post a project",
+      "termsPrefix": "By signing up you agree to the",
+      "and": "and",
+      "terms": "Terms",
+      "privacy": "Privacy Policy"
+    },
+    "testimonials": {
+      "title": "What users say",
+      "items": [
+        {
+          "name": "Nino, Marketing Manager",
+          "role": "Tbilisi",
+          "quote": "I found a designer in two days who matched our brand perfectly. The agreement and communication were very smooth."
+        },
+        {
+          "name": "Giorgi, Freelance Developer",
+          "role": "Kutaisi",
+          "quote": "With portfolios and reviews, clients trust me faster. Great projects show up often."
+        },
+        {
+          "name": "Mariam, Small Business Owner",
+          "role": "Batumi",
+          "quote": "Posting budgets in GEL helped a lot. The process is transparent and saves us time."
+        }
+      ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Popular questions and answers.",
+      "contact": "Contact us",
+      "items": [
+        { "q": "How do I post a project?", "a": "Go to the “Post a project” page, describe the task, budget, and timeline." },
+        { "q": "How do I choose a freelancer?", "a": "Compare profiles, portfolios, and reviews, then reach out." },
+        { "q": "Is there a fee?", "a": "At launch we keep pricing simple. See details in Terms." },
+        { "q": "Is support available in Georgian?", "a": "Yes — support is available via email and (soon) chat." }
+      ]
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "Check the link or go back to the home page.",
+    "home": "Home",
+    "projects": "Projects"
+  },
+  "aboutPage": {
+    "title": "About",
+    "subtitle": "Freela is a freelance marketplace built for Georgia — find specialists by category, budget, and experience, then talk in chat.",
+    "stats": [
+      { "value": "9", "label": "Static categories" },
+      { "value": "Filters", "label": "Category • budget • sorting" },
+      { "value": "Chat", "label": "Messages + file sharing" },
+      { "value": "Security", "label": "Accounts, password reset" }
+    ],
+    "missionTitle": "Our mission",
+    "missionBody": "Make cooperation between clients and freelancers in Georgia simple and clear — with stable categories, quick search, and communication in one place.",
+    "missionPoints": [
+      "For clients — post a project and review proposals.",
+      "For freelancers — create a profile and pick exactly one category.",
+      "For everyone — chat and share files with full history."
+    ],
+    "howTitle": "How it works",
+    "howSteps": [
+      { "title": "Create an account", "description": "Sign up as a client or freelancer. Freelancers choose one required category." },
+      { "title": "Browse and match", "description": "Search projects or freelancers using category, budget, and sorting." },
+      { "title": "Chat and deliver", "description": "Discuss details in chat, send files, and keep everything organized." }
+    ],
+    "valuesTitle": "What we value",
+    "valuesSubtitle": "Principles we build Freela with.",
+    "cards": [
+      { "title": "Clear categories", "description": "Static categories prevent duplicates and make search predictable." },
+      { "title": "Simple filtering", "description": "Category, budget, and sorting help you find the right match faster." },
+      { "title": "Built-in chat", "description": "Messages and file sharing keep collaboration organized." }
+    ],
+    "ctaTitle": "Ready to get started?",
+    "ctaSubtitle": "Create your account or browse freelancers in the directory.",
+    "ctaPrimary": "Sign up",
+    "ctaSecondary": "Browse freelancers"
+  },
+  "contactPage": {
+    "title": "Contact",
+    "subtitle": "Have questions? Message us and we’ll help.",
+    "emailTitle": "Email",
+    "hoursTitle": "Working hours",
+    "hoursValue": "Mon–Fri: 10:00–19:00 (Tbilisi time)."
+  },
+  "pricingPage": {
+    "title": "Pricing",
+    "subtitle": "Choose a plan that fits your needs. You can always upgrade later.",
+    "plans": {
+      "start": {
+        "name": "Start",
+        "price": "0 ₾",
+        "subtitle": "Starter profile",
+        "features": ["Appear in directory", "Add a portfolio", "Receive messages"]
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "29 ₾/month",
+        "subtitle": "More visibility",
+        "features": ["Priority listing", "Additional filters", "Stats & insights"]
+      },
+      "business": {
+        "name": "Business",
+        "price": "Custom",
+        "subtitle": "For companies",
+        "features": ["Company dashboard", "Tenders & team roles", "Reporting"]
+      }
+    },
+    "ctaStartFree": "Start free",
+    "ctaConsultation": "Consultation"
+  },
+  "legalTermsPage": {
+    "title": "Terms & Conditions",
+    "subtitle": "Terms that govern the use of Freela.",
+    "lastUpdated": "Last updated: {date}",
+    "sections": {
+      "0": {
+        "title": "1. Overview",
+        "body": "Freela is a marketplace that connects employers and freelancers. Using the website means you agree to these terms."
+      },
+      "1": {
+        "title": "2. Accounts",
+        "body": "You are responsible for keeping your login credentials safe and for the actions performed under your account."
+      },
+      "2": {
+        "title": "3. Projects & communication",
+        "body": "Users must provide accurate information and communicate respectfully. We may suspend accounts for abuse or fraud."
+      },
+      "3": {
+        "title": "4. Disclaimer",
+        "body": "Freela is a platform. We do not guarantee outcomes of agreements between users."
+      }
+    }
+  },
+  "legalPrivacyPage": {
+    "title": "Privacy Policy",
+    "subtitle": "How we collect and use your information.",
+    "lastUpdated": "Last updated: {date}",
+    "sections": {
+      "0": {
+        "title": "1. What we collect",
+        "body": "We may collect account information, profile details, and usage data necessary to provide the service."
+      },
+      "1": {
+        "title": "2. How we use data",
+        "body": "We use data to operate the marketplace, improve the product, prevent abuse, and provide support."
+      },
+      "2": {
+        "title": "3. Sharing",
+        "body": "We do not sell personal data. We may share limited data with service providers (e.g. email) to run the service."
+      },
+      "3": {
+        "title": "4. Your choices",
+        "body": "You can update your account information and request support for data-related questions."
+      }
+    }
+  },
+  "authForgotPassword": {
+    "title": "Password reset",
+    "subtitle": "Enter your email and we’ll send a reset link.",
+    "backToLogin": "Back to log in"
+  },
+  "authForgotPasswordForm": {
+    "devLink": "Dev link:",
+    "errors": { "generic": "Something went wrong. Please try again." },
+    "successGeneric": "If this email exists, you’ll receive a link shortly.",
+    "email": "Email",
+    "loading": "Loading...",
+    "submit": "Send link"
+  },
+  "authResetPassword": {
+    "title": "Change password",
+    "subtitle": "Enter a new password.",
+    "backToLogin": "Back to log in"
+  },
+  "authResetPasswordForm": {
+    "errors": {
+      "invalidToken": "The link is invalid or has expired.",
+      "passwordMin": "Password must be at least 8 characters.",
+      "confirmRequired": "Please confirm your password.",
+      "passwordsMismatch": "Passwords do not match.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "successRedirect": "Password updated. Redirecting...",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "loading": "Loading...",
+    "submit": "Change password"
+  },
+  "proposalStatus": {
+    "PENDING": "Pending",
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected"
+  },
+  "projectsNewPage": {
+    "title": "Post a project",
+    "subtitle": "Fill in details and publish your project."
+  },
+  "newProjectForm": {
+    "errors": {
+      "categoryRequired": "Please select a category.",
+      "titleMin": "Title must be at least 5 characters.",
+      "descriptionMin": "Description must be at least 20 characters.",
+      "budgetNumeric": "Budget must be a number.",
+      "createFailed": "Could not create the project."
+    },
+    "category": "Category",
+    "categoryPlaceholder": "Select a category…",
+    "requiredHint": "Required",
+    "title": "Title",
+    "titlePlaceholder": "e.g. Landing page design",
+    "titleHint": "At least 5 characters",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe details, timeline and requirements...",
+    "descriptionHint": "At least 20 characters",
+    "budget": "Budget (GEL)",
+    "budgetPlaceholder": "e.g. 1200",
+    "optionalHint": "Optional",
+    "sending": "Sending...",
+    "submit": "Create project"
+  },
+  "projectDetailPage": {
+    "breadcrumbProjects": "Projects",
+    "added": "Added",
+    "budget": "Budget:",
+    "notSpecified": "Not specified",
+    "employerTitle": "Employer",
+    "employerProjectsLabel": "Published projects",
+    "employerAcceptedLabel": "Accepted proposals",
+    "closedTitle": "Project is closed",
+    "closedBody": "The employer canceled this project. You can't send a proposal.",
+    "yourProposal": "Your proposal",
+    "sent": "Sent",
+    "alreadySent": "Your proposal has already been sent. You can wait for a response."
+  },
+  "projectApplyForm": {
+    "errors": {
+      "messageMin": "Message must be at least 20 characters.",
+      "priceNumeric": "Price must be a number.",
+      "sendFailed": "Could not send your proposal."
+    },
+    "success": "Proposal sent.",
+    "message": "Message",
+    "messagePlaceholder": "Briefly: experience, timeline, questions...",
+    "price": "Proposed price (GEL) — optional",
+    "pricePlaceholder": "e.g. 900",
+    "sending": "Sending...",
+    "submit": "Apply"
+  },
+  "projectStartChat": {
+    "errors": { "createFailed": "Could not start the chat." },
+    "opening": "Opening...",
+    "button": "Message the client"
+  },
+  "dashboardHome": {
+    "title": "Dashboard",
+    "subtitle": "Your account dashboard.",
+    "hello": "Hello,",
+    "home": "Home",
+    "stats": {
+      "projectsPublished": "Published projects",
+      "acceptedProposals": "Accepted proposals"
+    },
+    "actions": {
+      "postProject": "Post a project",
+      "myProjects": "My projects",
+      "profile": "Profile",
+      "myProposals": "My proposals",
+      "chat": "Chat",
+      "notifications": "Notifications",
+      "admin": "Admin panel"
+    }
+  },
+  "dashboardProjects": {
+    "title": "My projects",
+    "subtitle": "Here are the projects you posted.",
+    "postProject": "Post a project",
+    "emptyTitle": "You haven't posted any projects yet",
+    "emptySubtitle": "Start by posting your first project.",
+    "added": "Added",
+    "budgetMissing": "Budget not specified",
+    "proposalsCount": "{count, plural, one {# proposal} other {# proposals}}",
+    "statusOpen": "Active",
+    "statusCanceled": "Canceled",
+    "statusCompleted": "Completed",
+    "viewProposals": "View proposals",
+    "backToDashboard": "Back to dashboard"
+  },
+  "dashboardProjectStatus": {
+    "cancel": "Cancel project",
+    "restore": "Restore project",
+    "updating": "Updating...",
+    "errors": { "updateFailed": "Couldn't update project status." }
+  },
+  "reviewForm": {
+    "title": "Leave a review",
+    "rating": "Rating",
+    "comment": "Comment (optional)",
+    "commentPlaceholder": "Share what went well and what could be improved...",
+    "commentHint": "Up to 1000 characters.",
+    "submit": "Submit review",
+    "submitting": "Submitting...",
+    "success": "Review submitted for {name}.",
+    "errors": { "submitFailed": "Couldn't submit the review." }
+  },
+  "mobileNav": {
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "realtimeNotifications": {
+    "label": "Notifications"
+  },
+  "leadForm": {
+    "name": "Name",
+    "namePlaceholder": "e.g. Jane Doe",
+    "email": "Email",
+    "message": "Message",
+    "messagePlaceholder": "Briefly: experience, timeline, questions...",
+    "sending": "Sending..."
+  },
+  "site": {
+    "description": "Professional freelance marketplace for Georgia: projects, freelancers, reviews, and payments in GEL."
+  },
+  "dashboardProposalActions": {
+    "errors": { "updateFailed": "Could not update status." },
+    "accept": "Accept",
+    "reject": "Reject"
+  },
+  "dashboardStartChat": {
+    "errors": { "createFailed": "Could not start the chat." },
+    "opening": "Opening...",
+    "button": "Message freelancer"
+  },
+  "dashboardProjectDetail": {
+    "title": "Project details",
+    "subtitle": "View project information and proposals.",
+    "breadcrumbMyProjects": "My projects",
+    "added": "Added",
+    "budget": "Budget:",
+    "notSpecified": "Not specified",
+    "statusOpen": "Active",
+    "statusCanceled": "Canceled",
+    "statusCompleted": "Completed",
+    "complete": "Mark as completed",
+    "completing": "Completing...",
+    "reviewedAlready": "Review submitted.",
+    "errors": { "completeFailed": "Couldn't complete the project." },
+    "proposalsTitle": "Proposals",
+    "proposalsEmpty": "No proposals yet.",
+    "price": "Price:"
+  },
+  "dashboardProposals": {
+    "title": "My proposals",
+    "subtitle": "All proposals you've sent and their status.",
+    "viewProjects": "Browse projects",
+    "emptyTitle": "You haven't sent any proposals yet",
+    "emptySubtitle": "Go to projects and submit your first proposal.",
+    "sent": "Sent",
+    "budget": "Budget:",
+    "notSpecified": "Not specified",
+    "viewProject": "View project"
+  },
+  "dashboardNotifications": {
+    "title": "Notifications",
+    "subtitle": "New events and updates.",
+    "dashboard": "Dashboard",
+    "emptyTitle": "No notifications yet",
+    "emptySubtitle": "When something happens, it will appear here.",
+    "unread": "Unread: {count}"
+  },
+  "dashboardNotificationsList": {
+    "errors": { "markAllFailed": "Could not mark all as read." },
+    "sending": "Sending...",
+    "markAllRead": "Mark all as read"
+  },
+  "dashboardMessages": {
+    "title": "Messages",
+    "subtitle": "Conversations grouped by project.",
+    "dashboard": "Dashboard",
+    "emptyTitle": "No messages yet",
+    "emptySubtitle": "A conversation will appear once chat starts.",
+    "with": "With",
+    "noMessages": "No messages"
+  },
+  "dashboardThread": {
+    "title": "Chat",
+    "subtitle": "Project conversation.",
+    "conversation": "Conversation",
+    "allConversations": "All conversations"
+  },
+  "messageComposer": {
+    "errors": {
+      "maxLength": "Message must be at most 2000 characters.",
+      "required": "Message or file is required.",
+      "sendFailed": "Could not send.",
+      "maxFiles": "Maximum {count} files are allowed.",
+      "fileTooLarge": "File is too large (max {size} each)."
+    },
+    "placeholder": "Type a message...",
+    "pickFiles": "Choose files",
+    "limits": "Max {count} files • {size} each",
+    "sending": "Sending...",
+    "send": "Send",
+    "selected": "Selected: {count} files • {size}",
+    "clear": "Clear",
+    "removeFile": "Remove file"
+  },
+  "messageThread": {
+    "empty": "No messages yet.",
+    "status": {
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read"
+    }
+  },
+  "dashboardProfile": {
+    "title": "Profile",
+    "subtitle": "Update your professional info, skills, and rate."
+  },
+  "dashboardProfileForm": {
+    "errors": {
+      "titleMin": "Title must be at least 2 characters.",
+      "bioMin": "Bio must be at least 20 characters.",
+      "bioMax": "Bio must be at most 1000 characters.",
+      "rateNumeric": "Rate must be a number.",
+      "saveFailed": "Could not save profile."
+    },
+    "saved": "Profile saved.",
+    "title": "Title",
+    "titlePlaceholder": "e.g. UI/UX Designer",
+    "bio": "Bio",
+    "bioPlaceholder": "Briefly describe your experience, directions and results...",
+    "skills": "Skills (comma-separated)",
+    "skillsPlaceholder": "e.g. figma, ux, research",
+    "rate": "Hourly rate (GEL) — optional",
+    "ratePlaceholder": "e.g. 40",
+    "saving": "Saving...",
+    "save": "Save"
+  },
+  "roles": {
+    "EMPLOYER": "Employer",
+    "FREELANCER": "Freelancer",
+    "ADMIN": "Admin",
+    "UNKNOWN": "Unknown"
+  },
+  "adminPage": {
+    "title": "Admin",
+    "subtitle": "Admin panel.",
+    "dashboard": "Dashboard",
+    "usersTitle": "Users",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only."
+  },
+  "freelancerDetail": {
+    "breadcrumbFreelancers": "Freelancers",
+    "defaultTitle": "Freelancer",
+    "rateMissing": "Rate not specified",
+    "rateValue": "{rate} ₾/h",
+    "ratingBadge": "Rating {rating}",
+    "ratingNone": "No rating yet",
+    "ratingLabel": "Rating",
+    "ratingValue": "{rating}",
+    "ratingNoneValue": "—",
+    "reviewsLabel": "Reviews",
+    "reviewsValue": "{count}",
+    "completedJobsLabel": "Completed jobs",
+    "completedJobsValue": "{count}",
+    "bioTitle": "Bio",
+    "bioMissing": "Bio not provided.",
+    "detailsTitle": "Details",
+    "detailsBody": "Full profile details will appear here.",
+    "detailsFootnote": "Contact information is hidden for privacy."
+  },
+  "globalError": {
+    "title": "Something went wrong",
+    "subtitle": "Please try again. If the problem continues, contact support.",
+    "retry": "Try again",
+    "home": "Go to home"
+  },
+  "site": {
+    "description": "A professional freelance marketplace for the Georgian market.",
+    "metaDescription": "A professional freelance marketplace for Georgia: projects, freelancers, ratings, and payments in GEL."
+  },
+  "notifications": {
+    "title": {
+      "NEW_PROPOSAL": "New proposal",
+      "MESSAGE": "New message"
+    },
+    "proposalStatus": {
+      "ACCEPTED": "Proposal accepted",
+      "REJECTED": "Proposal rejected"
+    },
+    "body": {
+      "attachments": "Files ({count})",
+      "attachment": "File: {name}"
+    }
+  },
+  "apiMessages": {
+    "PASSWORD_RESET_SENT": "If this email exists, you will receive a password reset link shortly."
+  },
+  "apiErrors": {
+    "UNAUTHORIZED": "Authorization required.",
+    "FORBIDDEN": "You don't have access.",
+    "NOT_FOUND": "Not found.",
+    "INVALID_REQUEST": "Invalid request.",
+    "INVALID_FORM": "Invalid form data.",
+    "ROLE_INVALID": "Invalid role.",
+    "EMAIL_INVALID": "Please enter a valid email.",
+    "PHONE_REQUIRED": "Phone number is required.",
+    "PHONE_INVALID": "Invalid phone number.",
+    "PASSWORD_MIN": "Password must be at least 8 characters.",
+    "CONFIRM_REQUIRED": "Please confirm your password.",
+    "PASSWORDS_MISMATCH": "Passwords do not match.",
+    "CATEGORY_REQUIRED": "Category is required.",
+    "CATEGORY_INVALID": "Invalid category.",
+    "EMPLOYER_TYPE_INVALID": "Please choose an employer type.",
+    "NAME_REQUIRED": "Full name is required.",
+    "PERSONAL_ID_LENGTH": "Personal ID must be 11 digits.",
+    "BIRTHDATE_INVALID": "Invalid birth date.",
+    "COMPANY_NAME_REQUIRED": "Company name is required.",
+    "COMPANY_ID_LENGTH": "Company ID must be 9 digits.",
+    "USER_EXISTS": "An account with this email already exists.",
+    "DUPLICATE_ID": "This data is already in use (personal/company ID).",
+    "REGISTER_FAILED": "Registration failed. Please try again.",
+    "RATE_LIMITED": "Too many attempts. Please try again later.",
+    "SERVER_RESTART_REQUIRED": "Server restart required. Please try again shortly.",
+    "EMAIL_SERVICE_UNAVAILABLE": "Email service is not configured.",
+    "REQUEST_FAILED": "Something went wrong. Please try again later.",
+    "TOKEN_INVALID": "Invalid or expired link.",
+    "FILTER_INVALID": "Invalid filters.",
+    "TITLE_MIN": "Title must be at least 5 characters.",
+    "DESCRIPTION_MIN": "Description must be at least 20 characters.",
+    "BUDGET_INVALID": "Invalid budget.",
+    "PROJECT_CREATE_FAILED": "Could not create the project.",
+    "MESSAGE_MIN": "Message must be at least 20 characters.",
+    "PRICE_INVALID": "Invalid price.",
+    "SESSION_STALE": "Session expired. Please sign in again.",
+    "PROJECT_NOT_FOUND": "Project not found.",
+    "PROJECT_CLOSED": "This project is closed.",
+    "PROJECT_COMPLETED": "This project is already completed.",
+    "PROJECT_ALREADY_COMPLETED": "This project is already completed.",
+    "PROJECT_NOT_COMPLETED": "Complete the project before leaving a review.",
+    "BAD_REQUEST": "Invalid request.",
+    "RATING_INVALID": "Rating must be between 1 and 5.",
+    "COMMENT_TOO_LONG": "Comment is too long.",
+    "REVIEW_NOT_ALLOWED": "You can only review freelancers you hired for this project.",
+    "DUPLICATE_REVIEW": "You already left a review for this project.",
+    "REVIEW_CREATE_FAILED": "Could not submit the review.",
+    "DUPLICATE_PROPOSAL": "You already applied to this project.",
+    "FK_VIOLATION": "Session expired or data is invalid. Please sign in again.",
+    "APPLY_FAILED": "Could not send the proposal.",
+    "STATUS_INVALID": "Invalid status.",
+    "STATUS_ALREADY_DECIDED": "Status is already decided.",
+    "MESSAGE_TOO_LONG": "Message must be at most 2000 characters.",
+    "MAX_FILES": "Too many files.",
+    "REQUIRED": "Message or file is required.",
+    "THREAD_NOT_FOUND": "Conversation not found.",
+    "FILE_UPLOAD_FAILED": "File upload failed.",
+    "ATTACHMENT_QUOTA_EXCEEDED": "Attachment quota exceeded for this conversation.",
+    "SEND_FAILED": "Could not send.",
+    "PROFILE_TITLE_MIN": "Title must be at least 2 characters.",
+    "PROFILE_BIO_MIN": "Bio must be at least 20 characters.",
+    "PROFILE_BIO_MAX": "Bio must be at most 1000 characters.",
+    "PROFILE_RATE_INVALID": "Invalid hourly rate."
+  },
+  "authRegister": {
+    "title": "Sign up",
+    "subtitle": "Create your Freela account.",
+    "loading": "Loading..."
+  },
+  "authRegisterForm": {
+    "successSigningIn": "Account created. Signing you in...",
+    "sections": {
+      "accountType": "Account type",
+      "employerType": "Employer type",
+      "companyInfo": "Company info",
+      "freelancerInfo": "Freelancer info",
+      "individualInfo": "Personal info"
+    },
+    "roles": {
+      "employer": { "label": "Employer", "hint": "Post projects and hire freelancers." },
+      "freelancer": { "label": "Freelancer", "hint": "Find projects and get hired." }
+    },
+    "employerTypes": {
+      "individual": "Individual",
+      "company": "Company"
+    },
+    "fields": {
+      "companyName": { "label": "Company name", "hint": "Your legal company name.", "placeholder": "e.g. Acme LLC" },
+      "companyId": { "label": "Company ID", "hint": "9-digit identification code.", "placeholder": "e.g. 123456789" },
+      "category": { "label": "Category", "placeholder": "Choose a category…" },
+      "name": { "label": "Full name", "placeholder": "e.g. Nika Beridze" },
+      "personalId": { "label": "Personal ID", "hint": "11 digits.", "placeholder": "e.g. 01010101010" },
+      "birthDate": { "label": "Birth date", "hint": "Select your date of birth.", "year": "Year", "month": "Month", "day": "Day" },
+      "phone": { "label": "Phone", "hint": "Include country code if needed.", "placeholder": "+995..." },
+      "email": { "label": "Email" },
+      "password": { "label": "Password", "hint": "Minimum 8 characters." },
+      "confirmPassword": { "label": "Confirm password" }
+    },
+    "months": {
+      "01": "January",
+      "02": "February",
+      "03": "March",
+      "04": "April",
+      "05": "May",
+      "06": "June",
+      "07": "July",
+      "08": "August",
+      "09": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "buttons": {
+      "submitting": "Creating...",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "login": "Log in"
+    },
+    "errors": {
+      "emailInvalid": "Please enter a valid email.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "passwordMin": "Password must be at least 8 characters.",
+      "confirmRequired": "Please confirm your password.",
+      "passwordsMismatch": "Passwords do not match.",
+      "categoryRequired": "Category is required for freelancers.",
+      "companyNameRequired": "Company name is required.",
+      "companyIdLength": "Company ID must be 9 digits.",
+      "nameRequired": "Full name is required.",
+      "personalIdLength": "Personal ID must be 11 digits.",
+      "birthDateInvalid": "Please select a valid birth date.",
+      "submitFailed": "Registration failed. Please try again."
+    }
+  }
+}
