@@ -22,9 +22,15 @@ import { Container } from "@/components/ui/container";
 import { site } from "@/lib/site";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
+import { getLocale } from "next-intl/server";
+import { getPageOverride } from "@/lib/site-page-content";
+import { SitePageOverride } from "@/components/site-page-override";
 
 export default async function HomePage() {
   if (!(await isPageEnabled("/"))) notFound();
+  const locale = await getLocale();
+  const override = await getPageOverride("/", locale);
+  if (override) return <SitePageOverride title={override.title} body={override.body} />;
   const t = await getTranslations("home");
 
   const stats = [

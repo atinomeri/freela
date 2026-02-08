@@ -5,6 +5,9 @@ import { Container } from "@/components/ui/container";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
+import { getLocale } from "next-intl/server";
+import { getPageOverride } from "@/lib/site-page-content";
+import { SitePageOverride } from "@/components/site-page-override";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("aboutPage");
@@ -13,6 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   if (!(await isPageEnabled("/about"))) notFound();
+  const locale = await getLocale();
+  const override = await getPageOverride("/about", locale);
+  if (override) return <SitePageOverride title={override.title} body={override.body} />;
   const t = await getTranslations("aboutPage");
   return (
     <Container className="py-12 sm:py-16">

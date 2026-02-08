@@ -14,6 +14,8 @@ import { formatLongDate } from "@/lib/date";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
+import { getPageOverride } from "@/lib/site-page-content";
+import { SitePageOverride } from "@/components/site-page-override";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("projects");
@@ -25,11 +27,13 @@ type Props = { searchParams?: Promise<Record<string, string | string[] | undefin
 export default async function ProjectsPage({ searchParams }: Props) {
   if (!(await isPageEnabled("/projects"))) notFound();
   const locale = await getLocale();
+  const override = await getPageOverride("/projects", locale);
   const t = await getTranslations("projects");
   const tCategories = await getTranslations("categories");
 
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect(`/auth/login`);
+  if (override) return <SitePageOverride title={override.title} body={override.body} />;
   if (session.user.role !== "FREELANCER") redirect(`/dashboard`);
 
   const sp = (await searchParams) ?? {};

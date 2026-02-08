@@ -6,6 +6,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { getSiteContentMap, getSiteContentValues } from "@/lib/site-content";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
+import { getPageOverride } from "@/lib/site-page-content";
+import { SitePageOverride } from "@/components/site-page-override";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("contactPage");
@@ -15,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPage() {
   if (!(await isPageEnabled("/contact"))) notFound();
   const locale = await getLocale();
+  const override = await getPageOverride("/contact", locale);
+  if (override) return <SitePageOverride title={override.title} body={override.body} />;
   const t = await getTranslations("contactPage");
   const [pageOverrides, siteOverrides] = await Promise.all([
     getSiteContentMap({ prefix: "contactPage.", locale }),

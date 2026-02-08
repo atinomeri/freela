@@ -32,11 +32,6 @@ function fmtDate(value: string | null) {
   return d.toISOString().slice(0, 10);
 }
 
-const builtinEditLinks: Record<string, string> = {
-  "/pricing": "/admin/content/pricing",
-  "/contact": "/admin/content/contact"
-};
-
 export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
   const t = useTranslations("adminPages");
   const tErrors = useTranslations("apiErrors");
@@ -81,7 +76,10 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
           <tbody>
             {sorted.map((p) => {
               const pending = pendingPath === p.path;
-              const editLink = p.kind === "custom" && p.id ? `/admin/pages/${encodeURIComponent(p.id)}` : builtinEditLinks[p.path];
+              const editLink =
+                p.kind === "custom" && p.id
+                  ? `/admin/pages/${encodeURIComponent(p.id)}`
+                  : `/admin/pages/builtin?path=${encodeURIComponent(p.path)}`;
               return (
                 <tr key={`${p.kind}:${p.path}`} className="border-t border-border">
                   <td className="px-3 py-2">

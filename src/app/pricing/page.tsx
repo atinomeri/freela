@@ -6,6 +6,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { getSiteContentMap } from "@/lib/site-content";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
+import { getPageOverride } from "@/lib/site-page-content";
+import { SitePageOverride } from "@/components/site-page-override";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("pricingPage");
@@ -15,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PricingPage() {
   if (!(await isPageEnabled("/pricing"))) notFound();
   const locale = await getLocale();
+  const override = await getPageOverride("/pricing", locale);
+  if (override) return <SitePageOverride title={override.title} body={override.body} />;
   const t = await getTranslations("pricingPage");
   const overrides = await getSiteContentMap({ prefix: "pricingPage.", locale });
   const c = (key: string, fallback: string) => overrides[`pricingPage.${key}`] ?? fallback;

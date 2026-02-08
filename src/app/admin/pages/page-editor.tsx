@@ -26,12 +26,14 @@ export function PageEditor({
   mode,
   pageId,
   initialPath,
-  initialContents
+  initialContents,
+  pathReadonly = false
 }: {
   mode: "create" | "edit";
   pageId: string | null;
   initialPath: string;
   initialContents: ContentValues;
+  pathReadonly?: boolean;
 }) {
   const t = useTranslations("adminPageEditor");
   const tErrors = useTranslations("apiErrors");
@@ -105,7 +107,7 @@ export function PageEditor({
 
       <label className="grid gap-1">
         <div className="text-xs text-muted-foreground">{t("pathLabel")}</div>
-        <Input value={path} onChange={(e) => setPath(e.target.value)} placeholder="/help" />
+        <Input value={path} onChange={(e) => setPath(e.target.value)} placeholder="/help" disabled={pathReadonly} />
         <div className="text-[11px] text-muted-foreground">{t("pathHint")}</div>
       </label>
 
@@ -143,4 +145,3 @@ export function PageEditor({
     </div>
   );
 }
-
