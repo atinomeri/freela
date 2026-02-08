@@ -48,6 +48,9 @@ model User {
   role         Role     @default(EMPLOYER)
   passwordHash String?
   emailVerifiedAt DateTime?
+  isDisabled   Boolean  @default(false)
+  disabledAt   DateTime?
+  disabledReason String?
 
   phone       String?
   personalId  String?   @unique
@@ -234,6 +237,19 @@ model EmailVerificationToken {
 
   @@index([userId, createdAt])
   @@index([expiresAt])
+}
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String
+  locale    String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, locale])
+  @@index([key])
+  @@index([locale])
 }
 
 model Review {

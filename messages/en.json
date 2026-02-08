@@ -617,10 +617,69 @@
   "adminPage": {
     "title": "Admin",
     "subtitle": "Admin panel.",
-    "dashboard": "Dashboard",
-    "usersTitle": "Users",
+    "cards": {
+      "users": "Users",
+      "projects": "Projects",
+      "openProjects": "Open projects",
+      "disabledUsers": "Disabled users"
+    },
     "forbiddenTitle": "Access restricted",
     "forbiddenSubtitle": "Admins only."
+  },
+  "adminNav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "projects": "Projects",
+    "content": "Content",
+    "backToDashboard": "Back to dashboard"
+  },
+  "adminUsers": {
+    "title": "Users",
+    "subtitle": "Manage users, roles and access.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only."
+  },
+  "adminUsersTable": {
+    "filterPlaceholder": "Filter by name or email...",
+    "refresh": "Refresh",
+    "cols": { "user": "User", "role": "Role", "verified": "Verified", "disabled": "Disabled", "created": "Created", "actions": "Actions" },
+    "yes": "Yes",
+    "no": "No",
+    "verifyEmail": "Verify email",
+    "disable": "Disable",
+    "enable": "Enable",
+    "disablePrompt": "Enter a disable reason (will be shown in admin only):",
+    "empty": "No users found."
+  },
+  "adminProjects": {
+    "title": "Projects",
+    "subtitle": "Manage projects status.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only."
+  },
+  "adminProjectsTable": {
+    "filterPlaceholder": "Filter by title or city...",
+    "refresh": "Refresh",
+    "cols": { "project": "Project", "employer": "Employer", "status": "Status", "created": "Created", "actions": "Actions" },
+    "open": "Open",
+    "closed": "Closed",
+    "completedAt": "Completed",
+    "close": "Close",
+    "reopen": "Reopen",
+    "markCompleted": "Mark completed",
+    "empty": "No projects found."
+  },
+  "adminContentPricing": {
+    "title": "Pricing content",
+    "subtitle": "Override pricing page text per locale. Leave empty to use the default translation.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only.",
+    "refresh": "Refresh",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved.",
+    "emptyPlaceholder": "Leave empty to use default",
+    "emptyHint": "Empty value removes the override."
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Freelancers",

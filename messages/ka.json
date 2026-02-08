@@ -617,10 +617,69 @@
   "adminPage": {
     "title": "Admin",
     "subtitle": "ადმინისტრაციის პანელი.",
-    "dashboard": "კაბინეტი",
-    "usersTitle": "მომხმარებლები",
+    "cards": {
+      "users": "მომხმარებლები",
+      "projects": "პროექტები",
+      "openProjects": "ღია პროექტები",
+      "disabledUsers": "დაბლოკილი მომხმარებლები"
+    },
     "forbiddenTitle": "წვდომა შეზღუდულია",
     "forbiddenSubtitle": "მხოლოდ admin."
+  },
+  "adminNav": {
+    "dashboard": "ადმინი",
+    "users": "მომხმარებლები",
+    "projects": "პროექტები",
+    "content": "კონტენტი",
+    "backToDashboard": "კაბინეტზე დაბრუნება"
+  },
+  "adminUsers": {
+    "title": "მომხმარებლები",
+    "subtitle": "მომხმარებლების, როლებისა და წვდომის მართვა.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ admin."
+  },
+  "adminUsersTable": {
+    "filterPlaceholder": "ფილტრი სახელით ან ელ-ფოსტით...",
+    "refresh": "განახლება",
+    "cols": { "user": "მომხმარებელი", "role": "როლი", "verified": "დადასტურებული", "disabled": "დაბლოკილი", "created": "შექმნილია", "actions": "ქმედებები" },
+    "yes": "კი",
+    "no": "არა",
+    "verifyEmail": "ელ-ფოსტის დადასტურება",
+    "disable": "დაბლოკვა",
+    "enable": "განბლოკვა",
+    "disablePrompt": "შეიყვანე დაბლოკვის მიზეზი (მხოლოდ ადმინისთვის):",
+    "empty": "მომხმარებლები ვერ მოიძებნა."
+  },
+  "adminProjects": {
+    "title": "პროექტები",
+    "subtitle": "პროექტების სტატუსის მართვა.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ admin."
+  },
+  "adminProjectsTable": {
+    "filterPlaceholder": "ფილტრი სათაურით ან ქალაქით...",
+    "refresh": "განახლება",
+    "cols": { "project": "პროექტი", "employer": "დამსაქმებელი", "status": "სტატუსი", "created": "შექმნილია", "actions": "ქმედებები" },
+    "open": "ღია",
+    "closed": "დახურული",
+    "completedAt": "დასრულდა",
+    "close": "დახურვა",
+    "reopen": "გახსნა",
+    "markCompleted": "დასრულებულად მონიშვნა",
+    "empty": "პროექტები ვერ მოიძებნა."
+  },
+  "adminContentPricing": {
+    "title": "ფასების კონტენტი",
+    "subtitle": "ფასების გვერდის ტექსტის შეცვლა ენის მიხედვით. ცარიელი დატოვე — გამოიყენებს ნაგულისხმევ თარგმანს.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ admin.",
+    "refresh": "განახლება",
+    "save": "შენახვა",
+    "saving": "ინახება...",
+    "saved": "შენახულია.",
+    "emptyPlaceholder": "ცარიელი დატოვე — default",
+    "emptyHint": "ცარიელი მნიშვნელობა წაშლის override-ს."
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "ფრილანსერები",

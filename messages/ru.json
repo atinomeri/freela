@@ -617,10 +617,69 @@
   "adminPage": {
     "title": "Админ",
     "subtitle": "Панель администратора.",
-    "dashboard": "Кабинет",
-    "usersTitle": "Пользователи",
+    "cards": {
+      "users": "Пользователи",
+      "projects": "Проекты",
+      "openProjects": "Открытые проекты",
+      "disabledUsers": "Заблокированные пользователи"
+    },
     "forbiddenTitle": "Доступ ограничен",
     "forbiddenSubtitle": "Только для админов."
+  },
+  "adminNav": {
+    "dashboard": "Админ",
+    "users": "Пользователи",
+    "projects": "Проекты",
+    "content": "Контент",
+    "backToDashboard": "Назад в кабинет"
+  },
+  "adminUsers": {
+    "title": "Пользователи",
+    "subtitle": "Управление пользователями, ролями и доступом.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов."
+  },
+  "adminUsersTable": {
+    "filterPlaceholder": "Фильтр по имени или email...",
+    "refresh": "Обновить",
+    "cols": { "user": "Пользователь", "role": "Роль", "verified": "Подтвержден", "disabled": "Заблокирован", "created": "Создан", "actions": "Действия" },
+    "yes": "Да",
+    "no": "Нет",
+    "verifyEmail": "Подтвердить email",
+    "disable": "Заблокировать",
+    "enable": "Разблокировать",
+    "disablePrompt": "Введите причину блокировки (видно только в админке):",
+    "empty": "Пользователи не найдены."
+  },
+  "adminProjects": {
+    "title": "Проекты",
+    "subtitle": "Управление статусом проектов.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов."
+  },
+  "adminProjectsTable": {
+    "filterPlaceholder": "Фильтр по названию или городу...",
+    "refresh": "Обновить",
+    "cols": { "project": "Проект", "employer": "Заказчик", "status": "Статус", "created": "Создан", "actions": "Действия" },
+    "open": "Открыт",
+    "closed": "Закрыт",
+    "completedAt": "Завершен",
+    "close": "Закрыть",
+    "reopen": "Открыть",
+    "markCompleted": "Отметить завершенным",
+    "empty": "Проекты не найдены."
+  },
+  "adminContentPricing": {
+    "title": "Контент цен",
+    "subtitle": "Переопределение текста страницы цен по языку. Оставьте пустым — будет использован перевод по умолчанию.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов.",
+    "refresh": "Обновить",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "saved": "Сохранено.",
+    "emptyPlaceholder": "Оставьте пустым — по умолчанию",
+    "emptyHint": "Пустое значение удаляет override."
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Фрилансеры",
