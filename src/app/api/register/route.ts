@@ -4,11 +4,25 @@ import { prisma } from "@/lib/prisma";
 import { isFreelancerCategory, type FreelancerCategory } from "@/lib/categories";
 import { EmployerType, Role } from "@prisma/client";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import crypto from "node:crypto";
+import { cookies } from "next/headers";
+import { isEmailConfigured, sendEmail } from "@/lib/email";
+import { verifyEmailTemplate } from "@/lib/email-templates/verify-email";
+import { reportError } from "@/lib/log";
 
 const isDev = process.env.NODE_ENV !== "production";
+const VERIFY_TOKEN_TTL_HOURS = 24;
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
+}
+
+function baseUrl() {
+  return process.env.NEXTAUTH_URL || "http://localhost:3000";
+}
+
+function sha256(input: string) {
+  return crypto.createHash("sha256").update(input).digest("hex");
 }
 
 function digitsOnly(value: string) {
@@ -65,6 +79,7 @@ type Payload =
     };
 
 export async function POST(req: Request) {
+  const locale = (await cookies()).get("NEXT_LOCALE")?.value ?? "ka";
   const raw = (await req.json().catch(() => null)) as Partial<Record<string, unknown>> | null;
   if (!raw) return jsonError("INVALID_REQUEST", 400);
 
@@ -170,6 +185,14 @@ export async function POST(req: Request) {
   const companyId = payload.role === "employer" && payload.employerType === "company" ? payload.companyId : null;
 
   try {
+    if (!(prisma as any).emailVerificationToken) {
+      return jsonError("SERVER_RESTART_REQUIRED", 500);
+    }
+
+    if (process.env.NODE_ENV === "production" && !isEmailConfigured()) {
+      return jsonError("EMAIL_SERVICE_UNAVAILABLE", 500);
+    }
+
     const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     if (existing) {
       if (isDev) console.info(`[register] 409 email exists email=${email}`);
@@ -195,8 +218,49 @@ export async function POST(req: Request) {
       select: { id: true, email: true, role: true }
     });
 
+    const token = crypto.randomBytes(32).toString("base64url");
+    const tokenHash = sha256(token);
+    const expiresAt = new Date(Date.now() + VERIFY_TOKEN_TTL_HOURS * 60 * 60_000);
+
+    await prisma.emailVerificationToken.create({ data: { userId: user.id, tokenHash, expiresAt } });
+
+    const verifyUrl = `${baseUrl()}/auth/verify-email?token=${encodeURIComponent(token)}`;
+    const { subject, text, html } = verifyEmailTemplate({ verifyUrl, ttlHours: VERIFY_TOKEN_TTL_HOURS, locale });
+
+    const okResponse = (debugVerifyUrl?: string) =>
+      NextResponse.json(
+        {
+          ok: true,
+          user,
+          messageCode: "EMAIL_VERIFICATION_SENT",
+          ...(process.env.NODE_ENV !== "production" && debugVerifyUrl ? { debugVerifyUrl } : {})
+        },
+        { status: 200 }
+      );
+
+    if (isEmailConfigured()) {
+      try {
+        await sendEmail({ to: email, subject, text, html });
+      } catch (e) {
+        reportError("[register] failed to send verification email", e, { email });
+        if (process.env.NODE_ENV === "production") {
+          try {
+            await prisma.user.delete({ where: { id: user.id } });
+          } catch (cleanupErr) {
+            reportError("[register] cleanup after email send failure failed", cleanupErr, { userId: user.id, email });
+          }
+          return jsonError("REQUEST_FAILED", 500);
+        }
+        console.info(`[register] ${email} -> ${verifyUrl}`);
+        return okResponse(verifyUrl);
+      }
+    } else if (process.env.NODE_ENV !== "production") {
+      console.info(`[register] ${email} -> ${verifyUrl}`);
+      return okResponse(verifyUrl);
+    }
+
     if (isDev) console.info(`[register] 201 created id=${user.id} email=${user.email} role=${user.role}`);
-    return NextResponse.json({ ok: true, user }, { status: 200 });
+    return okResponse();
   } catch (err: any) {
     const message = String(err?.message ?? "");
     if (message.includes("Unique constraint") || message.includes("unique")) {

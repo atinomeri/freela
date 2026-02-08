@@ -3,6 +3,9 @@
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Check } from "lucide-react";
+import { Dropdown, DropdownContent, DropdownItem, DropdownLabel, DropdownTrigger } from "@/components/ui/dropdown";
+import { cn } from "@/lib/utils";
 
 const LOCALES = ["ka", "en", "ru"] as const;
 type Locale = (typeof LOCALES)[number];
@@ -16,25 +19,38 @@ export function LocaleSwitcher() {
 
   const current = useMemo(() => (LOCALES.includes(locale) ? locale : "ka"), [locale]);
 
+  const changeLocale = (next: Locale) => {
+    if (next === current) return;
+    // eslint-disable-next-line react-hooks/immutability -- Persist user locale preference in a cookie.
+    window.document.cookie = `NEXT_LOCALE=${encodeURIComponent(next)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    const qs = searchParams.toString();
+    router.push(`${pathname}${qs ? `?${qs}` : ""}`);
+    router.refresh();
+  };
+
   return (
-    <label className="hidden items-center gap-2 rounded-lg border border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground sm:inline-flex">
-      <span className="sr-only">{t("label")}</span>
-      <select
-        className="bg-transparent text-xs text-foreground outline-none"
-        value={current}
-        onChange={(e) => {
-          const next = e.target.value as Locale;
-          // Persist language preference without changing the URL structure.
-          document.cookie = `NEXT_LOCALE=${encodeURIComponent(next)}; Path=/; Max-Age=31536000; SameSite=Lax`;
-          const qs = searchParams.toString();
-          router.push(`${pathname}${qs ? `?${qs}` : ""}`);
-          router.refresh();
-        }}
-      >
-        <option value="ka">{t("ka")}</option>
-        <option value="en">{t("en")}</option>
-        <option value="ru">{t("ru")}</option>
-      </select>
-    </label>
+    <div className="hidden sm:inline-flex">
+      <Dropdown>
+        <DropdownTrigger
+          className="gap-2 border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-background/70"
+          aria-label={t("label")}
+        >
+          <span className="text-foreground">{t(current)}</span>
+        </DropdownTrigger>
+        <DropdownContent align="end" className="min-w-[140px]">
+          <DropdownLabel>{t("label")}</DropdownLabel>
+          {LOCALES.map((loc) => (
+            <DropdownItem
+              key={loc}
+              onClick={() => changeLocale(loc)}
+              icon={loc === current ? <Check className="h-4 w-4" /> : undefined}
+              className={cn(loc === current && "font-medium")}
+            >
+              {t(loc)}
+            </DropdownItem>
+          ))}
+        </DropdownContent>
+      </Dropdown>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -125,8 +126,22 @@ interface ToastContainerProps {
   dismiss: (id: string) => void;
 }
 
+// SSR-safe mounted check (avoids hydration mismatch for portals)
+function subscribe(_callback: () => void) {
+  return () => {};
+}
+
+function getSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 function ToastContainer({ toasts, dismiss }: ToastContainerProps) {
-  if (typeof window === "undefined") return null;
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  if (!mounted) return null;
 
   return createPortal(
     <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">

@@ -8,11 +8,11 @@ export async function SiteFooter() {
   const tNav = await getTranslations("nav");
   const tFooter = await getTranslations("footer");
   const tSite = await getTranslations("site");
-  
+
   const platformLinks = [
     { href: "/projects", label: tNav("projects") },
     { href: "/freelancers", label: tNav("freelancers") },
-    { href: "/pricing", label: "ფასები" },
+    { href: "/pricing", label: tNav("pricing") },
   ] as const;
   
   const companyLinks = [
@@ -55,7 +55,7 @@ export async function SiteFooter() {
 
           {/* Platform */}
           <div>
-            <h3 className="font-semibold">პლატფორმა</h3>
+            <h3 className="font-semibold">{tFooter("platform")}</h3>
             <ul className="mt-4 space-y-3">
               {platformLinks.map((l) => (
                 <li key={l.href}>
@@ -69,7 +69,7 @@ export async function SiteFooter() {
 
           {/* Company */}
           <div>
-            <h3 className="font-semibold">კომპანია</h3>
+            <h3 className="font-semibold">{tFooter("company")}</h3>
             <ul className="mt-4 space-y-3">
               {companyLinks.map((l) => (
                 <li key={l.href}>
@@ -90,7 +90,7 @@ export async function SiteFooter() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold">კონტაქტი</h3>
+            <h3 className="font-semibold">{tFooter("contact")}</h3>
             <div className="mt-4 space-y-3">
               <a 
                 href={`mailto:${site.supportEmail}`} 
@@ -111,11 +111,7 @@ export async function SiteFooter() {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} {site.name}. {tFooter("rights")}
           </p>
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <span>Made with</span>
-            <span className="text-destructive">❤</span>
-            <span>in Georgia</span>
-          </div>
+          <div className="text-sm text-muted-foreground">{tFooter("madeWith")}</div>
         </div>
       </Container>
     </footer>

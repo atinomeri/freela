@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -92,10 +91,9 @@ function Field({
 export function RegisterForm() {
   const t = useTranslations("authRegisterForm");
   const tApiErrors = useTranslations("apiErrors");
+  const tApiMessages = useTranslations("apiMessages");
   const tCategories = useTranslations("categories");
   const router = useRouter();
-  const sp = useSearchParams();
-  const callbackUrl = sp.get("callbackUrl") ?? "/dashboard";
 
   const [role, setRole] = useState<Role>("employer");
   const [employerType, setEmployerType] = useState<EmployerType>("individual");
@@ -140,7 +138,8 @@ export function RegisterForm() {
   const [pending, setPending] = useState(false);
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [error, setError] = useState("");
-  const [ok, setOk] = useState(false);
+  const [okMessage, setOkMessage] = useState("");
+  const [debugVerifyUrl, setDebugVerifyUrl] = useState<string | null>(null);
 
   const isEmployerCompany = role === "employer" && employerType === "company";
   const isIndividualFlow = role === "freelancer" || (role === "employer" && employerType === "individual");
@@ -191,8 +190,16 @@ export function RegisterForm() {
   return (
     <Card className="mt-6 p-6 sm:p-7">
       {error ? <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm">{error}</div> : null}
-      {ok ? (
-        <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">{t("successSigningIn")}</div>
+      {okMessage ? (
+        <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">{okMessage}</div>
+      ) : null}
+      {debugVerifyUrl ? (
+        <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs">
+          {t("devLink")}{" "}
+          <a className="underline break-all" href={debugVerifyUrl}>
+            {debugVerifyUrl}
+          </a>
+        </div>
       ) : null}
 
       <form
@@ -203,7 +210,8 @@ export function RegisterForm() {
           if (!canSubmit) return;
           setPending(true);
           setError("");
-          setOk(false);
+          setOkMessage("");
+          setDebugVerifyUrl(null);
           try {
             const payload: Record<string, unknown> = {
               role,
@@ -230,14 +238,18 @@ export function RegisterForm() {
               headers: { "content-type": "application/json" },
               body: JSON.stringify(payload)
             });
-            const json = (await res.json().catch(() => null)) as { ok?: boolean; error?: string; errorCode?: string } | null;
+            const json = (await res.json().catch(() => null)) as
+              | { ok?: boolean; error?: string; errorCode?: string; messageCode?: string; debugVerifyUrl?: string }
+              | null;
             if (!res.ok || !json?.ok) {
               setError(json?.errorCode ? tApiErrors(json.errorCode) : json?.error || t("errors.submitFailed"));
               return;
             }
 
-            setOk(true);
-            await signIn("credentials", { email: email.trim().toLowerCase(), password, callbackUrl });
+            setOkMessage(json.messageCode ? tApiMessages(json.messageCode) : t("successCheckEmail"));
+            if (json.debugVerifyUrl) setDebugVerifyUrl(json.debugVerifyUrl);
+            // Email verification is required before logging in.
+            // Keep the user here so they can follow instructions.
           } finally {
             setPending(false);
           }

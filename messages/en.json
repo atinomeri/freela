@@ -2,6 +2,7 @@
   "nav": {
     "projects": "Projects",
     "freelancers": "Freelancers",
+    "pricing": "Pricing",
     "about": "About",
     "contact": "Contact"
   },
@@ -12,10 +13,14 @@
     "logout": "Log out"
   },
   "footer": {
+    "platform": "Platform",
+    "company": "Company",
+    "contact": "Contact",
     "support": "Support",
     "terms": "Terms",
     "privacy": "Privacy",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "madeWith": "Created by Freela"
   },
   "language": {
     "label": "Language",
@@ -300,24 +305,24 @@
   },
   "legalPrivacyPage": {
     "title": "Privacy Policy",
-    "subtitle": "How we collect and use your information.",
+    "subtitle": "This policy explains how Freela collects, uses, and protects personal data when you use the service.",
     "lastUpdated": "Last updated: {date}",
     "sections": {
       "0": {
-        "title": "1. What we collect",
-        "body": "We may collect account information, profile details, and usage data necessary to provide the service."
+        "title": "1. Information we collect",
+        "body": "We collect information you provide (such as account details, profile information, and content you submit on the platform) and information generated through your use of Freela (such as log data, device and browser information, and cookies). We may also process communications you send to other users or to support to operate the service and keep it safe."
       },
       "1": {
-        "title": "2. How we use data",
-        "body": "We use data to operate the marketplace, improve the product, prevent abuse, and provide support."
+        "title": "2. How we use personal data",
+        "body": "We use personal data to create and manage accounts, provide core marketplace functionality, personalize and improve features, communicate with you about your account and service updates, provide customer support, and detect, prevent, and investigate fraud, abuse, and security issues. We may also use data to comply with applicable legal obligations and enforce our terms."
       },
       "2": {
-        "title": "3. Sharing",
-        "body": "We do not sell personal data. We may share limited data with service providers (e.g. email) to run the service."
+        "title": "3. Sharing and disclosures",
+        "body": "We do not sell personal data. We may share limited information with service providers that help us operate Freela (for example, hosting, analytics, email delivery, and customer support tools), and with other users as part of normal platform functionality (for example, information shown on your profile and in project communications). We may disclose information if required by law, to protect our rights, users, or the public, or in connection with a corporate transaction (such as a merger or asset sale)."
       },
       "3": {
-        "title": "4. Your choices",
-        "body": "You can update your account information and request support for data-related questions."
+        "title": "4. Your rights and choices",
+        "body": "You can access and update certain account and profile information in your settings. Depending on your location and applicable law, you may have additional rights such as requesting access, correction, deletion, or portability of your personal data, or objecting to certain processing. To make a request or ask questions about this policy, contact us at {email}. We may need to verify your identity before fulfilling requests."
       }
     }
   },
@@ -637,6 +642,17 @@
     "detailsBody": "Full profile details will appear here.",
     "detailsFootnote": "Contact information is hidden for privacy."
   },
+  "chatbox": {
+    "title": "Chat",
+    "subtitle": "Support (beta)",
+    "intro": "Hi! Leave a message here, or email us at {email}.",
+    "disclaimer": "This chat is for quick questions and doesn’t replace official support.",
+    "placeholder": "Type your message...",
+    "autoReply": "Thanks! If you need urgent help, email {email}.",
+    "open": "Open chat",
+    "close": "Close chat",
+    "send": "Send"
+  },
   "globalError": {
     "title": "Something went wrong",
     "subtitle": "Please try again. If the problem continues, contact support.",
@@ -662,7 +678,8 @@
     }
   },
   "apiMessages": {
-    "PASSWORD_RESET_SENT": "If this email exists, you will receive a password reset link shortly."
+    "PASSWORD_RESET_SENT": "If this email exists, you will receive a password reset link shortly.",
+    "EMAIL_VERIFICATION_SENT": "Account created. Please check your email to verify your address."
   },
   "apiErrors": {
     "UNAUTHORIZED": "Authorization required.",
@@ -692,6 +709,7 @@
     "SERVER_RESTART_REQUIRED": "Server restart required. Please try again shortly.",
     "EMAIL_SERVICE_UNAVAILABLE": "Email service is not configured.",
     "REQUEST_FAILED": "Something went wrong. Please try again later.",
+    "RESPONSE_FAILED": "There was a problem getting a response.",
     "TOKEN_INVALID": "Invalid or expired link.",
     "FILTER_INVALID": "Invalid filters.",
     "TITLE_MIN": "Title must be at least 5 characters.",
@@ -735,7 +753,8 @@
     "loading": "Loading..."
   },
   "authRegisterForm": {
-    "successSigningIn": "Account created. Signing you in...",
+    "successCheckEmail": "Account created. Please check your email to verify your address.",
+    "devLink": "Dev link:",
     "sections": {
       "accountType": "Account type",
       "employerType": "Employer type",
@@ -797,5 +816,14 @@
       "birthDateInvalid": "Please select a valid birth date.",
       "submitFailed": "Registration failed. Please try again."
     }
+  },
+  "authVerifyEmail": {
+    "title": "Verify email",
+    "subtitle": "Confirming your email address.",
+    "success": "Email verified. You can now log in.",
+    "missingToken": "Verification link is missing or invalid.",
+    "invalidToken": "The link is invalid or has expired.",
+    "serverRestartRequired": "Server restart required. Please try again in a moment.",
+    "backToLogin": "Back to log in"
   }
 }

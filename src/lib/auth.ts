@@ -60,13 +60,13 @@ export const authOptions: NextAuthOptions = {
         if (!emailLimit.allowed) return null;
 
         let user:
-          | { id: string; name: string; email: string; role: Role; passwordHash: string | null }
+          | { id: string; name: string; email: string; role: Role; passwordHash: string | null; emailVerifiedAt: Date | null }
           | null = null;
 
         try {
           user = await prisma.user.findUnique({
             where: { email },
-            select: { id: true, name: true, email: true, role: true, passwordHash: true }
+            select: { id: true, name: true, email: true, role: true, passwordHash: true, emailVerifiedAt: true }
           });
         } catch (err) {
           if (process.env.NODE_ENV !== "production") {
@@ -76,6 +76,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (!user || !user.passwordHash) return null;
+        if (!user.emailVerifiedAt) return null;
 
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;

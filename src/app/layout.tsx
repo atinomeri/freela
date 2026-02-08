@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
+import { Chatbox } from "@/components/chatbox";
 import { site } from "@/lib/site";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -77,6 +78,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   </main>
                   <SiteFooter />
                 </div>
+                <Chatbox />
               </ToastProvider>
             </AuthSessionProvider>
           </NextIntlClientProvider>

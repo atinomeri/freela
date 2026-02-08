@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
 
 type Theme = "light" | "dark";
 
@@ -33,6 +33,26 @@ function getServerSnapshot() {
   return false;
 }
 
+function themeSubscribe(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  window.addEventListener("storage", callback);
+  window.addEventListener("freela-theme", callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("freela-theme", callback);
+  };
+}
+
+function getThemeSnapshot(storageKey: string, defaultTheme: Theme) {
+  if (typeof window === "undefined") return defaultTheme;
+
+  const stored = localStorage.getItem(storageKey) as Theme | null;
+  if (stored === "light" || stored === "dark") return stored;
+  return defaultTheme;
+}
+
 interface ThemeProviderProps {
   children: ReactNode;
   defaultTheme?: Theme;
@@ -45,13 +65,11 @@ export function ThemeProvider({
   storageKey = "freela-theme",
 }: ThemeProviderProps) {
   const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return defaultTheme;
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    if (stored === "light" || stored === "dark") return stored;
-    return defaultTheme;
-  });
+  const theme = useSyncExternalStore(
+    themeSubscribe,
+    () => getThemeSnapshot(storageKey, defaultTheme),
+    () => defaultTheme
+  );
 
   // Apply theme class to document
   useEffect(() => {
@@ -63,8 +81,10 @@ export function ThemeProvider({
   }, [theme, mounted]);
 
   const setTheme = useCallback((newTheme: Theme) => {
+    if (typeof window === "undefined") return;
+
     localStorage.setItem(storageKey, newTheme);
-    setThemeState(newTheme);
+    window.dispatchEvent(new Event("freela-theme"));
   }, [storageKey]);
 
   const toggleTheme = useCallback(() => {

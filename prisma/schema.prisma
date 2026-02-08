@@ -47,6 +47,7 @@ model User {
   email        String   @unique
   role         Role     @default(EMPLOYER)
   passwordHash String?
+  emailVerifiedAt DateTime?
 
   phone       String?
   personalId  String?   @unique
@@ -63,6 +64,7 @@ model User {
   sentMessages Message[] @relation("MessageSender")
   notifications Notification[]
   passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
   reviewsGiven    Review[] @relation("ReviewsGiven")
   reviewsReceived Review[] @relation("ReviewsReceived")
 
@@ -209,6 +211,19 @@ model Notification {
 }
 
 model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
 import { getLocale, getTranslations } from "next-intl/server";
 import { formatLongDate } from "@/lib/date";
+import { site } from "@/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legalPrivacyPage");
@@ -27,7 +28,9 @@ export default async function PrivacyPage() {
         {[0, 1, 2, 3].map((i) => (
           <section key={i} className="grid gap-2">
             <h2 className="text-base font-semibold">{t(`sections.${i}.title`)}</h2>
-            <p className="text-sm text-muted-foreground">{t(`sections.${i}.body`)}</p>
+            <p className="text-sm text-muted-foreground">
+              {t(`sections.${i}.body`, i === 3 ? { email: site.supportEmail } : undefined)}
+            </p>
           </section>
         ))}
       </div>
