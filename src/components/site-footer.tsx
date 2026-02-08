@@ -3,6 +3,7 @@ import { site } from "@/lib/site";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Github, Linkedin, Twitter, Mail } from "lucide-react";
+import { getDisabledPaths } from "@/lib/site-pages";
 
 export async function SiteFooter() {
   const tNav = await getTranslations("nav");
@@ -12,6 +13,7 @@ export async function SiteFooter() {
   const platformLinks = [
     { href: "/projects", label: tNav("projects") },
     { href: "/freelancers", label: tNav("freelancers") },
+    { href: "/pricing", label: tNav("pricing") }
   ] as const;
   
   const companyLinks = [
@@ -23,6 +25,16 @@ export async function SiteFooter() {
     { href: "/legal/terms", label: tFooter("terms") },
     { href: "/legal/privacy", label: tFooter("privacy") },
   ] as const;
+
+  const disabled = await getDisabledPaths([
+    ...platformLinks.map((l) => l.href),
+    ...companyLinks.map((l) => l.href),
+    ...legalLinks.map((l) => l.href)
+  ]);
+
+  const platformVisible = platformLinks.filter((l) => !disabled.has(l.href));
+  const companyVisible = companyLinks.filter((l) => !disabled.has(l.href));
+  const legalVisible = legalLinks.filter((l) => !disabled.has(l.href));
 
   return (
     <footer className="border-t bg-muted/30">
@@ -56,7 +68,7 @@ export async function SiteFooter() {
           <div>
             <h3 className="font-semibold">{tFooter("platform")}</h3>
             <ul className="mt-4 space-y-3">
-              {platformLinks.map((l) => (
+              {platformVisible.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {l.label}
@@ -70,14 +82,14 @@ export async function SiteFooter() {
           <div>
             <h3 className="font-semibold">{tFooter("company")}</h3>
             <ul className="mt-4 space-y-3">
-              {companyLinks.map((l) => (
+              {companyVisible.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {l.label}
                   </Link>
                 </li>
               ))}
-              {legalLinks.map((l) => (
+              {legalVisible.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {l.label}

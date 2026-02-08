@@ -5,20 +5,23 @@ import { formatLongDate } from "@/lib/date";
 import { site } from "@/lib/site";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
-import { getPageOverride } from "@/lib/site-page-content";
-import { SitePageOverride } from "@/components/site-page-override";
+import { getSiteContentMap } from "@/lib/site-content";
+import { withOverrides } from "@/lib/i18n-overrides";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("legalPrivacyPage");
+  const locale = await getLocale();
+  const baseT = await getTranslations("legalPrivacyPage");
+  const overrides = await getSiteContentMap({ prefix: "legalPrivacyPage.", locale });
+  const t = withOverrides(baseT, overrides, "legalPrivacyPage.");
   return { title: t("title"), description: t("subtitle") };
 }
 
 export default async function PrivacyPage() {
   if (!(await isPageEnabled("/legal/privacy"))) notFound();
   const locale = await getLocale();
-  const override = await getPageOverride("/legal/privacy", locale);
-  if (override) return <SitePageOverride title={override.title} body={override.body} />;
-  const t = await getTranslations("legalPrivacyPage");
+  const baseT = await getTranslations("legalPrivacyPage");
+  const overrides = await getSiteContentMap({ prefix: "legalPrivacyPage.", locale });
+  const t = withOverrides(baseT, overrides, "legalPrivacyPage.");
   const updatedAt = new Date("2026-02-04T00:00:00.000Z");
   return (
     <Container className="py-12 sm:py-16">

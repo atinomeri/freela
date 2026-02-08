@@ -23,15 +23,15 @@ import { site } from "@/lib/site";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
 import { getLocale } from "next-intl/server";
-import { getPageOverride } from "@/lib/site-page-content";
-import { SitePageOverride } from "@/components/site-page-override";
+import { getSiteContentMap } from "@/lib/site-content";
+import { withOverrides } from "@/lib/i18n-overrides";
 
 export default async function HomePage() {
   if (!(await isPageEnabled("/"))) notFound();
   const locale = await getLocale();
-  const override = await getPageOverride("/", locale);
-  if (override) return <SitePageOverride title={override.title} body={override.body} />;
-  const t = await getTranslations("home");
+  const baseT = await getTranslations("home");
+  const overrides = await getSiteContentMap({ prefix: "home.", locale });
+  const t = withOverrides(baseT, overrides, "home.");
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },

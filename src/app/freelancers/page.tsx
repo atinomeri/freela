@@ -11,11 +11,14 @@ import { getFreelancerCategoryLabel, isFreelancerCategory } from "@/lib/categori
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link as I18nLink } from "@/i18n/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
-import { getPageOverride } from "@/lib/site-page-content";
-import { SitePageOverride } from "@/components/site-page-override";
+import { getSiteContentMap } from "@/lib/site-content";
+import { withOverrides } from "@/lib/i18n-overrides";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("freelancers");
+  const locale = await getLocale();
+  const baseT = await getTranslations("freelancers");
+  const overrides = await getSiteContentMap({ prefix: "freelancers.", locale });
+  const t = withOverrides(baseT, overrides, "freelancers.");
   return { title: t("title"), description: t("description") };
 }
 
@@ -35,12 +38,12 @@ function normalizeSkills(input: unknown) {
 }
 
 export default async function FreelancersPage({ searchParams }: Props) {
-  const locale = await getLocale();
-  const override = await getPageOverride("/freelancers", locale);
   if (!(await isPageEnabled("/freelancers"))) notFound();
-  const t = await getTranslations("freelancers");
+  const locale = await getLocale();
+  const baseT = await getTranslations("freelancers");
+  const overrides = await getSiteContentMap({ prefix: "freelancers.", locale });
+  const t = withOverrides(baseT, overrides, "freelancers.");
   const tCategories = await getTranslations("categories");
-  if (override) return <SitePageOverride title={override.title} body={override.body} />;
 
   const sp = (await searchParams) ?? {};
   const qRaw = typeof sp.q === "string" ? sp.q.trim() : "";

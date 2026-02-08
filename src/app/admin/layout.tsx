@@ -20,9 +20,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link className="rounded-md border border-border bg-background/60 px-3 py-1.5 hover:bg-muted/40" href="/admin/pages">
           {t("pages")}
         </Link>
-        <Link className="rounded-md border border-border bg-background/60 px-3 py-1.5 hover:bg-muted/40" href="/admin/content">
-          {t("content")}
-        </Link>
         <Link className="ml-auto text-muted-foreground underline hover:text-foreground" href="/dashboard">
           {t("backToDashboard")}
         </Link>

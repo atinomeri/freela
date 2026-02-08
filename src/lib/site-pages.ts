@@ -31,3 +31,15 @@ export async function isPageEnabled(path: string) {
   if (!page) return true;
   return page.isEnabled;
 }
+
+export async function getDisabledPaths(paths: readonly string[]) {
+  if (process.env.NEXT_PHASE === "phase-production-build") return new Set<string>();
+  if (paths.length === 0) return new Set<string>();
+
+  const rows = await prisma.sitePage.findMany({
+    where: { path: { in: [...paths] }, isEnabled: false },
+    select: { path: true }
+  });
+
+  return new Set(rows.map((r) => r.path));
+}

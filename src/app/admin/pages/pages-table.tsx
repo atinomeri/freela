@@ -79,7 +79,7 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
               const editLink =
                 p.kind === "custom" && p.id
                   ? `/admin/pages/${encodeURIComponent(p.id)}`
-                  : `/admin/pages/builtin?path=${encodeURIComponent(p.path)}`;
+                  : `/admin/pages/edit?path=${encodeURIComponent(p.path)}`;
               return (
                 <tr key={`${p.kind}:${p.path}`} className="border-t border-border">
                   <td className="px-3 py-2">

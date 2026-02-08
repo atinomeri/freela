@@ -2,24 +2,26 @@ import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
-import { getLocale } from "next-intl/server";
-import { getPageOverride } from "@/lib/site-page-content";
-import { SitePageOverride } from "@/components/site-page-override";
+import { getSiteContentMap } from "@/lib/site-content";
+import { withOverrides } from "@/lib/i18n-overrides";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("aboutPage");
+  const locale = await getLocale();
+  const baseT = await getTranslations("aboutPage");
+  const overrides = await getSiteContentMap({ prefix: "aboutPage.", locale });
+  const t = withOverrides(baseT, overrides, "aboutPage.");
   return { title: t("title"), description: t("subtitle") };
 }
 
 export default async function AboutPage() {
   if (!(await isPageEnabled("/about"))) notFound();
   const locale = await getLocale();
-  const override = await getPageOverride("/about", locale);
-  if (override) return <SitePageOverride title={override.title} body={override.body} />;
-  const t = await getTranslations("aboutPage");
+  const baseT = await getTranslations("aboutPage");
+  const overrides = await getSiteContentMap({ prefix: "aboutPage.", locale });
+  const t = withOverrides(baseT, overrides, "aboutPage.");
   return (
     <Container className="py-12 sm:py-16">
       <div className="flex flex-col gap-3">

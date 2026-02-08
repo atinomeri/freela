@@ -1099,5 +1099,20 @@
     "invalidToken": "ბმული არასწორია ან ვადა გაუვიდა.",
     "serverRestartRequired": "სერვერის გადატვირთვა საჭიროა. სცადე ცოტახანში.",
     "backToLogin": "შესვლაზე დაბრუნება"
+  },
+  "adminPageContent": {
+    "title": "Page content",
+    "subtitle": "Editing content for: {path}",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ admin.",
+    "notFoundTitle": "Page not found",
+    "notFoundSubtitle": "This page is not editable here.",
+    "filterPlaceholder": "Filter keys...",
+    "refresh": "განახლება",
+    "save": "შენახვა",
+    "saving": "ინახება...",
+    "saved": "შენახულია.",
+    "emptyPlaceholder": "Leave empty to use default",
+    "emptyHint": "Empty value removes the override."
   }
 }

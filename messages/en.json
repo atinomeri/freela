@@ -692,6 +692,21 @@
     "bodyPlaceholder": "Write your page content here...",
     "bodyHint": "Line breaks are preserved."
   },
+  "adminPageContent": {
+    "title": "Page content",
+    "subtitle": "Editing content for: {path}",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only.",
+    "notFoundTitle": "Page not found",
+    "notFoundSubtitle": "This page is not editable here.",
+    "filterPlaceholder": "Filter keys...",
+    "refresh": "Refresh",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved.",
+    "emptyPlaceholder": "Leave empty to use default",
+    "emptyHint": "Empty value removes the override."
+  },
   "adminProjects": {
     "title": "Projects",
     "subtitle": "Manage projects status.",

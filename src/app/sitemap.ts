@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
+import { getDisabledPaths } from "@/lib/site-pages";
 
 const routes = [
   "/",
   "/projects",
   "/projects/new",
   "/freelancers",
+  "/pricing",
   "/about",
   "/contact",
   "/auth/login",
@@ -14,7 +16,10 @@ const routes = [
   "/legal/privacy"
 ] as const;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  return routes.map((path) => ({ url: `${site.url}${path}`, lastModified: now }));
+  const disabled = await getDisabledPaths(routes);
+  return routes
+    .filter((path) => !disabled.has(path))
+    .map((path) => ({ url: `${site.url}${path}`, lastModified: now }));
 }
