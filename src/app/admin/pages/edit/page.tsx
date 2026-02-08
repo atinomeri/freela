@@ -15,8 +15,8 @@ const PATH_TO_NAMESPACES: Record<string, string[]> = {
   "/pricing": ["pricingPage"],
   "/legal/terms": ["legalTermsPage"],
   "/legal/privacy": ["legalPrivacyPage"],
-  "/projects": ["projects"],
-  "/freelancers": ["freelancers"]
+  "/projects": ["projects", "categories"],
+  "/freelancers": ["freelancers", "categories"]
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -78,4 +78,3 @@ export default async function AdminEditBuiltInPage({
     </div>
   );
 }
-

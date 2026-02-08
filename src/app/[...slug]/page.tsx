@@ -1,43 +1,27 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/ui/container";
+import { Card } from "@/components/ui/card";
+import { prisma } from "@/lib/prisma";
 import { getLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-function pathFromSlug(slug: string[] | undefined) {
-  const parts = Array.isArray(slug) ? slug : [];
-  const cleaned = parts.filter(Boolean).map((s) => String(s).replace(/^\/+|\/+$/g, ""));
-  const path = `/${cleaned.filter(Boolean).join("/")}`;
-  return path === "/" ? "/" : path;
+function toPath(slug: string[] | undefined) {
+  const parts = (slug ?? []).map((s) => String(s || "").trim()).filter(Boolean);
+  return `/${parts.join("/")}`.replace(/\/{2,}/g, "/");
 }
 
-async function getPageForLocale(path: string, locale: string) {
-  const page = await prisma.sitePage.findUnique({
-    where: { path },
-    select: {
-      id: true,
-      isEnabled: true,
-      contents: {
-        where: { locale },
-        select: { title: true, body: true }
-      }
-    }
-  });
-
-  if (!page || !page.isEnabled) return null;
-  const content = page.contents[0] ?? null;
-  if (content) return { pageId: page.id, content };
-
-  const fallback = await prisma.sitePageContent.findFirst({
-    where: { pageId: page.id },
-    orderBy: { createdAt: "asc" },
-    select: { title: true, body: true }
-  });
-
-  if (!fallback) return null;
-  return { pageId: page.id, content: fallback };
+function pickContent(
+  contents: Array<{ locale: string; title: string; body: string }>,
+  locale: string
+): { title: string; body: string } | null {
+  const byExact = contents.find((c) => c.locale === locale);
+  if (byExact) return { title: byExact.title, body: byExact.body };
+  const byLang = contents.find((c) => c.locale === locale.split("-")[0]);
+  if (byLang) return { title: byLang.title, body: byLang.body };
+  const byEn = contents.find((c) => c.locale === "en");
+  if (byEn) return { title: byEn.title, body: byEn.body };
+  const first = contents[0];
+  return first ? { title: first.title, body: first.body } : null;
 }
 
 export async function generateMetadata({
@@ -45,37 +29,56 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata> {
-  const locale = await getLocale();
+  if (process.env.NEXT_PHASE === "phase-production-build") return {};
   const { slug } = await params;
-  const path = pathFromSlug(slug);
-  const page = await getPageForLocale(path, locale);
-  if (!page) return {};
+  const path = toPath(slug);
+  const locale = await getLocale();
 
-  const title = page.content.title.trim();
-  const description = page.content.body.trim().slice(0, 160);
-  return { title: title || undefined, description: description || undefined };
+  const page = await prisma.sitePage.findUnique({
+    where: { path },
+    select: {
+      isEnabled: true,
+      contents: { select: { locale: true, title: true, body: true } }
+    }
+  });
+
+  if (!page?.isEnabled) return {};
+  const content = pickContent(page.contents, locale);
+  if (!content) return {};
+
+  const description = content.body.replace(/\s+/g, " ").trim().slice(0, 160);
+  return { title: content.title, description };
 }
 
-export default async function DynamicPage({ params }: { params: Promise<{ slug?: string[] }> }) {
-  const locale = await getLocale();
+export default async function CustomSitePage({
+  params
+}: {
+  params: Promise<{ slug?: string[] }>;
+}) {
+  if (process.env.NEXT_PHASE === "phase-production-build") notFound();
   const { slug } = await params;
-  const path = pathFromSlug(slug);
-  const page = await getPageForLocale(path, locale);
-  if (!page) notFound();
+  const path = toPath(slug);
+  const locale = await getLocale();
 
-  const title = page.content.title.trim();
-  const body = page.content.body.trim();
+  const page = await prisma.sitePage.findUnique({
+    where: { path },
+    select: {
+      isEnabled: true,
+      contents: { select: { locale: true, title: true, body: true } }
+    }
+  });
+
+  if (!page || !page.isEnabled) notFound();
+
+  const content = pickContent(page.contents, locale);
+  if (!content) notFound();
 
   return (
     <Container className="py-12 sm:py-16">
-      <div className="mx-auto max-w-3xl">
-        {title ? <h1 className="text-3xl font-semibold tracking-tight">{title}</h1> : null}
-        {body ? (
-          <div className={["mt-4", "text-sm", "leading-relaxed", "text-muted-foreground", "whitespace-pre-wrap"].join(" ")}>
-            {body}
-          </div>
-        ) : null}
-      </div>
+      <Card className="p-6 sm:p-8">
+        <h1 className="text-2xl font-semibold tracking-tight">{content.title}</h1>
+        <div className="mt-4 whitespace-pre-wrap text-sm text-muted-foreground">{content.body}</div>
+      </Card>
     </Container>
   );
 }

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type PageRow = {
   id: string | null;
@@ -35,6 +35,7 @@ function fmtDate(value: string | null) {
 export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
   const t = useTranslations("adminPages");
   const tErrors = useTranslations("apiErrors");
+  const locale = useLocale();
   const router = useRouter();
 
   const [pages, setPages] = useState<PageRow[]>(initialPages);
@@ -79,7 +80,7 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
               const editLink =
                 p.kind === "custom" && p.id
                   ? `/admin/pages/${encodeURIComponent(p.id)}`
-                  : `/admin/pages/edit?path=${encodeURIComponent(p.path)}`;
+                  : `/admin/pages/edit?path=${encodeURIComponent(p.path)}&locale=${encodeURIComponent(locale)}`;
               return (
                 <tr key={`${p.kind}:${p.path}`} className="border-t border-border">
                   <td className="px-3 py-2">
