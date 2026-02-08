@@ -252,6 +252,34 @@ model SiteContent {
   @@index([locale])
 }
 
+model SitePage {
+  id        String   @id @default(cuid())
+  path      String   @unique
+  isEnabled Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contents SitePageContent[]
+
+  @@index([path])
+}
+
+model SitePageContent {
+  id        String   @id @default(cuid())
+  pageId    String
+  locale    String
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  page SitePage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, locale])
+  @@index([pageId])
+  @@index([locale])
+}
+
 model Review {
   id          String   @id @default(cuid())
   projectId   String

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { FreelancersFilters } from "@/app/freelancers/freelancers-filters";
 import { getFreelancerCategoryLabel, isFreelancerCategory } from "@/lib/categories";
 import { getTranslations } from "next-intl/server";
 import { Link as I18nLink } from "@/i18n/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("freelancers");
@@ -32,6 +33,7 @@ function normalizeSkills(input: unknown) {
 }
 
 export default async function FreelancersPage({ searchParams }: Props) {
+  if (!(await isPageEnabled("/freelancers"))) notFound();
   const t = await getTranslations("freelancers");
   const tCategories = await getTranslations("categories");
 

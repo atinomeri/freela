@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getSiteContentMap } from "@/lib/site-content";
+import { notFound } from "next/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("pricingPage");
@@ -11,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PricingPage() {
+  if (!(await isPageEnabled("/pricing"))) notFound();
   const locale = await getLocale();
   const t = await getTranslations("pricingPage");
   const overrides = await getSiteContentMap({ prefix: "pricingPage.", locale });

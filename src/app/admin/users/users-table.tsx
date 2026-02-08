@@ -196,6 +196,28 @@ export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
                       >
                         {u.isDisabled ? t("enable") : t("disable")}
                       </Button>
+
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={pending}
+                        onClick={async () => {
+                          const confirm = window.prompt(t("deletePrompt", { email: u.email })) ?? "";
+                          if (confirm.trim() !== u.email) return;
+                          setPendingId(u.id);
+                          setError("");
+                          try {
+                            await postJson(`/api/admin/users/${encodeURIComponent(u.id)}/delete`, {});
+                            setUsers((prev) => prev.filter((x) => x.id !== u.id));
+                          } catch (e: any) {
+                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } finally {
+                            setPendingId(null);
+                          }
+                        }}
+                      >
+                        {t("delete")}
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -214,4 +236,3 @@ export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
     </div>
   );
 }
-

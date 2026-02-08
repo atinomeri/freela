@@ -20,8 +20,11 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { site } from "@/lib/site";
+import { notFound } from "next/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export default async function HomePage() {
+  if (!(await isPageEnabled("/"))) notFound();
   const t = await getTranslations("home");
 
   const stats = [

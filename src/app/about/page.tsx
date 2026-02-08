@@ -3,6 +3,8 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("aboutPage");
@@ -10,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
+  if (!(await isPageEnabled("/about"))) notFound();
   const t = await getTranslations("aboutPage");
   return (
     <Container className="py-12 sm:py-16">

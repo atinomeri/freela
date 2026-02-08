@@ -3,6 +3,8 @@ import { Container } from "@/components/ui/container";
 import { getLocale, getTranslations } from "next-intl/server";
 import { formatLongDate } from "@/lib/date";
 import { site } from "@/lib/site";
+import { notFound } from "next/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legalPrivacyPage");
@@ -10,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PrivacyPage() {
+  if (!(await isPageEnabled("/legal/privacy"))) notFound();
   const locale = await getLocale();
   const t = await getTranslations("legalPrivacyPage");
   const updatedAt = new Date("2026-02-04T00:00:00.000Z");

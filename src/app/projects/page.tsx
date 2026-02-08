@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
@@ -13,6 +13,7 @@ import { getFreelancerCategoryLabel, isFreelancerCategory } from "@/lib/categori
 import { formatLongDate } from "@/lib/date";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("projects");
@@ -22,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type Props = { searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function ProjectsPage({ searchParams }: Props) {
+  if (!(await isPageEnabled("/projects"))) notFound();
   const locale = await getLocale();
   const t = await getTranslations("projects");
   const tCategories = await getTranslations("categories");

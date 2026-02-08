@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui/container";
 import { getLocale, getTranslations } from "next-intl/server";
 import { formatLongDate } from "@/lib/date";
+import { notFound } from "next/navigation";
+import { isPageEnabled } from "@/lib/site-pages";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("legalTermsPage");
@@ -9,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TermsPage() {
+  if (!(await isPageEnabled("/legal/terms"))) notFound();
   const locale = await getLocale();
   const t = await getTranslations("legalTermsPage");
   const updatedAt = new Date("2026-02-04T00:00:00.000Z");
