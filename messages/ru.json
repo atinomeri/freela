@@ -681,6 +681,28 @@
     "emptyPlaceholder": "Оставьте пустым — по умолчанию",
     "emptyHint": "Пустое значение удаляет override."
   },
+  "adminContent": {
+    "title": "Контент",
+    "subtitle": "Управление редактируемыми текстами сайта.",
+    "pricingTitle": "Страница цен",
+    "pricingSubtitle": "Редактирование планов, цен и CTA.",
+    "contactTitle": "Страница контактов",
+    "contactSubtitle": "Редактирование текста контактов и support email.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов."
+  },
+  "adminContentContact": {
+    "title": "Контент контактов",
+    "subtitle": "Переопределение текста страницы контактов по языку. Оставьте пустым — будет использован перевод по умолчанию.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов.",
+    "refresh": "Обновить",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "saved": "Сохранено.",
+    "emptyPlaceholder": "Оставьте пустым — по умолчанию",
+    "emptyHint": "Пустое значение удаляет override."
+  },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Фрилансеры",
     "defaultTitle": "Фрилансер",

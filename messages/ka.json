@@ -681,6 +681,28 @@
     "emptyPlaceholder": "ცარიელი დატოვე — default",
     "emptyHint": "ცარიელი მნიშვნელობა წაშლის override-ს."
   },
+  "adminContent": {
+    "title": "კონტენტი",
+    "subtitle": "საიტის რედაქტირებადი ტექსტების მართვა.",
+    "pricingTitle": "ფასების გვერდი",
+    "pricingSubtitle": "გეგმების, ფასების და CTA ტექსტების შეცვლა.",
+    "contactTitle": "კონტაქტის გვერდი",
+    "contactSubtitle": "კონტაქტის გვერდის ტექსტისა და support email-ის შეცვლა.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ admin."
+  },
+  "adminContentContact": {
+    "title": "კონტაქტის კონტენტი",
+    "subtitle": "კონტაქტის გვერდის ტექსტის შეცვლა ენის მიხედვით. ცარიელი დატოვე — გამოიყენებს ნაგულისხმევ თარგმანს.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ admin.",
+    "refresh": "განახლება",
+    "save": "შენახვა",
+    "saving": "ინახება...",
+    "saved": "შენახულია.",
+    "emptyPlaceholder": "ცარიელი დატოვე — default",
+    "emptyHint": "ცარიელი მნიშვნელობა წაშლის override-ს."
+  },
   "freelancerDetail": {
     "breadcrumbFreelancers": "ფრილანსერები",
     "defaultTitle": "ფრილანსერი",

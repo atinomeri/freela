@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { site } from "@/lib/site";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getSiteContentMap, getSiteContentValues } from "@/lib/site-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("contactPage");
@@ -10,23 +11,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContactPage() {
+  const locale = await getLocale();
   const t = await getTranslations("contactPage");
+  const [pageOverrides, siteOverrides] = await Promise.all([
+    getSiteContentMap({ prefix: "contactPage.", locale }),
+    getSiteContentValues({ keys: ["site.supportEmail"], locale })
+  ]);
+
+  const c = (key: string, fallback: string) => pageOverrides[key] ?? fallback;
+  const supportEmail = siteOverrides["site.supportEmail"] ?? site.supportEmail;
+
   return (
     <Container className="py-12 sm:py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{t("subtitle")}</p>
+      <h1 className="text-3xl font-semibold tracking-tight">{c("contactPage.title", t("title"))}</h1>
+      <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{c("contactPage.subtitle", t("subtitle"))}</p>
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <Card className="p-6">
-          <div className="font-medium">{t("emailTitle")}</div>
+          <div className="font-medium">{c("contactPage.emailTitle", t("emailTitle"))}</div>
           <p className="mt-2 text-sm text-muted-foreground">
-            <a className="underline hover:text-foreground" href={`mailto:${site.supportEmail}`}>
-              {site.supportEmail}
+            <a className="underline hover:text-foreground" href={`mailto:${supportEmail}`}>
+              {supportEmail}
             </a>
           </p>
         </Card>
         <Card className="p-6">
-          <div className="font-medium">{t("hoursTitle")}</div>
-          <p className="mt-2 text-sm text-muted-foreground">{t("hoursValue")}</p>
+          <div className="font-medium">{c("contactPage.hoursTitle", t("hoursTitle"))}</div>
+          <p className="mt-2 text-sm text-muted-foreground">{c("contactPage.hoursValue", t("hoursValue"))}</p>
         </Card>
       </div>
     </Container>

@@ -681,6 +681,28 @@
     "emptyPlaceholder": "Leave empty to use default",
     "emptyHint": "Empty value removes the override."
   },
+  "adminContent": {
+    "title": "Content",
+    "subtitle": "Manage editable website text.",
+    "pricingTitle": "Pricing page",
+    "pricingSubtitle": "Edit pricing plans, prices, and call-to-actions.",
+    "contactTitle": "Contact page",
+    "contactSubtitle": "Edit contact page text and support email.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only."
+  },
+  "adminContentContact": {
+    "title": "Contact content",
+    "subtitle": "Override contact page text per locale. Leave empty to use the default translation.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only.",
+    "refresh": "Refresh",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved.",
+    "emptyPlaceholder": "Leave empty to use default",
+    "emptyHint": "Empty value removes the override."
+  },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Freelancers",
     "defaultTitle": "Freelancer",
