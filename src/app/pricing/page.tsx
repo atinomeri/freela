@@ -15,18 +15,21 @@ export default async function PricingPage() {
   const t = await getTranslations("pricingPage");
   const overrides = await getSiteContentMap({ prefix: "pricingPage.", locale });
   const c = (key: string, fallback: string) => overrides[`pricingPage.${key}`] ?? fallback;
+  const title = c("title", t("title")).trim();
+  const subtitle = c("subtitle", t("subtitle")).trim();
+  const startPlanName = c("plans.start.name", t("plans.start.name")).trim();
+  const proPlanName = c("plans.pro.name", t("plans.pro.name")).trim();
+  const businessPlanName = c("plans.business.name", t("plans.business.name")).trim();
 
   return (
     <Container className="py-12 sm:py-16">
       <div className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">{c("title", t("title"))}</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          {c("subtitle", t("subtitle"))}
-        </p>
+        {title ? <h1 className="text-3xl font-semibold tracking-tight">{title}</h1> : null}
+        {subtitle ? <p className="max-w-2xl text-sm text-muted-foreground">{subtitle}</p> : null}
       </div>
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <Card className="p-6">
-          <div className="text-sm font-medium text-muted-foreground">{c("plans.start.name", t("plans.start.name"))}</div>
+          {startPlanName ? <div className="text-sm font-medium text-muted-foreground">{startPlanName}</div> : null}
           <div className="mt-2 text-3xl font-semibold">{c("plans.start.price", t("plans.start.price"))}</div>
           <div className="mt-1 text-sm text-muted-foreground">{c("plans.start.subtitle", t("plans.start.subtitle"))}</div>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -36,7 +39,7 @@ export default async function PricingPage() {
           </ul>
         </Card>
         <Card className="p-6 border-primary/40">
-          <div className="text-sm font-medium text-muted-foreground">{c("plans.pro.name", t("plans.pro.name"))}</div>
+          {proPlanName ? <div className="text-sm font-medium text-muted-foreground">{proPlanName}</div> : null}
           <div className="mt-2 text-3xl font-semibold">{c("plans.pro.price", t("plans.pro.price"))}</div>
           <div className="mt-1 text-sm text-muted-foreground">{c("plans.pro.subtitle", t("plans.pro.subtitle"))}</div>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -46,7 +49,7 @@ export default async function PricingPage() {
           </ul>
         </Card>
         <Card className="p-6">
-          <div className="text-sm font-medium text-muted-foreground">{c("plans.business.name", t("plans.business.name"))}</div>
+          {businessPlanName ? <div className="text-sm font-medium text-muted-foreground">{businessPlanName}</div> : null}
           <div className="mt-2 text-3xl font-semibold">{c("plans.business.price", t("plans.business.price"))}</div>
           <div className="mt-1 text-sm text-muted-foreground">{c("plans.business.subtitle", t("plans.business.subtitle"))}</div>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
