@@ -187,12 +187,17 @@ export function RegisterForm() {
 
   const canSubmit = Object.keys(errors).length === 0;
 
+  if (okMessage) {
+    return (
+      <Card className="mt-6 p-6 sm:p-7">
+        <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">{okMessage}</div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="mt-6 p-6 sm:p-7">
       {error ? <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm">{error}</div> : null}
-      {okMessage ? (
-        <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">{okMessage}</div>
-      ) : null}
       {debugVerifyUrl ? (
         <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs">
           {t("devLink")}{" "}
