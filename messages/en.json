@@ -400,6 +400,10 @@
     "employerAcceptedLabel": "Accepted proposals",
     "closedTitle": "Project is closed",
     "closedBody": "The employer canceled this project. You can't send a proposal.",
+    "applyLoginTitle": "Want to apply?",
+    "applyLoginBody": "Log in or create a freelancer account to send a proposal.",
+    "applyOnlyFreelancersTitle": "Only freelancers can apply",
+    "applyOnlyFreelancersBody": "Switch to a freelancer account to send a proposal for this project.",
     "yourProposal": "Your proposal",
     "sent": "Sent",
     "alreadySent": "Your proposal has already been sent. You can wait for a response."

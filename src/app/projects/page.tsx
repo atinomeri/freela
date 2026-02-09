@@ -36,8 +36,7 @@ export default async function ProjectsPage({ searchParams }: Props) {
   const tCategories = await getTranslations("categories");
 
   const session = await getServerSession(authOptions);
-  if (!session?.user) redirect(`/auth/login`);
-  if (session.user.role !== "FREELANCER") redirect(`/dashboard`);
+  const canViewMyProposals = session?.user?.role === "FREELANCER";
 
   const sp = (await searchParams) ?? {};
   const qRaw = typeof sp.q === "string" ? sp.q.trim() : "";
@@ -114,9 +113,11 @@ export default async function ProjectsPage({ searchParams }: Props) {
           <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("description")}</p>
         </div>
-        <ButtonLink href="/dashboard/proposals" variant="secondary">
-          {t("myProposals")}
-        </ButtonLink>
+        {canViewMyProposals ? (
+          <ButtonLink href="/dashboard/proposals" variant="secondary">
+            {t("myProposals")}
+          </ButtonLink>
+        ) : null}
       </div>
 
       <div className="mt-6">

@@ -13,6 +13,7 @@ import { getFreelancerCategoryLabel } from "@/lib/categories";
 import { formatLongDate } from "@/lib/date";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { ButtonLink } from "@/components/ui/button";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -32,12 +33,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectDetailPage({ params }: Props) {
   const locale = await getLocale();
   const t = await getTranslations("projectDetailPage");
+  const tAuth = await getTranslations("authLogin");
   const tCategories = await getTranslations("categories");
   const tStatuses = await getTranslations("proposalStatus");
 
   const session = await getServerSession(authOptions);
-  if (!session?.user) redirect("/auth/login");
-  if (session.user.role !== "FREELANCER") redirect("/dashboard");
+  const user = session?.user ?? null;
+  const canApply = user?.role === "FREELANCER";
 
   const { id } = await params;
   const project = await prisma.project.findUnique({
@@ -60,10 +62,12 @@ export default async function ProjectDetailPage({ params }: Props) {
   }
 
   const [proposal, employerProjectsCount, employerAcceptedProposalsCount] = await Promise.all([
-    prisma.proposal.findFirst({
-      where: { projectId: id, freelancerId: session.user.id },
-      select: { id: true, status: true, createdAt: true }
-    }),
+    canApply
+      ? prisma.proposal.findFirst({
+          where: { projectId: id, freelancerId: user!.id },
+          select: { id: true, status: true, createdAt: true }
+        })
+      : Promise.resolve(null),
     prisma.project.count({ where: { employerId: project.employerId } }),
     prisma.proposal.count({ where: { status: "ACCEPTED", project: { employerId: project.employerId } } })
   ]);
@@ -132,8 +136,26 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="mt-3 text-sm text-muted-foreground">{t("alreadySent")}</div>
               <StartChatButton projectId={project.id} />
             </Card>
-          ) : (
+          ) : canApply ? (
             <ApplyForm projectId={project.id} />
+          ) : user ? (
+            <Card className="p-6">
+              <div className="text-sm font-medium text-muted-foreground">{t("applyOnlyFreelancersTitle")}</div>
+              <div className="mt-3 text-sm text-muted-foreground">{t("applyOnlyFreelancersBody")}</div>
+            </Card>
+          ) : (
+            <Card className="p-6">
+              <div className="text-sm font-medium text-muted-foreground">{t("applyLoginTitle")}</div>
+              <div className="mt-3 text-sm text-muted-foreground">{t("applyLoginBody")}</div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <ButtonLink href={`/auth/login?callbackUrl=${encodeURIComponent(`/projects/${project.id}`)}`} variant="secondary">
+                  {tAuth("title")}
+                </ButtonLink>
+                <ButtonLink href={`/auth/register?callbackUrl=${encodeURIComponent(`/projects/${project.id}`)}`}>
+                  {tAuth("signUp")}
+                </ButtonLink>
+              </div>
+            </Card>
           )}
         </div>
       </div>
