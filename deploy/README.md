@@ -86,8 +86,26 @@ docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml exec app npm run prisma:migrate:deploy
 ```
 
+## GitHub Actions auto deploy
+
+This repository includes `.github/workflows/deploy.yml`.
+It deploys automatically after `CI` succeeds on `main` (and supports manual `workflow_dispatch`).
+
+Add these repository secrets in GitHub:
+
+- `VPS_HOST` (example: `76.13.144.121`)
+- `VPS_USER` (example: `root`)
+- `VPS_SSH_PORT` (example: `22`)
+- `VPS_APP_DIR` (example: `/root/freela`)
+- `VPS_SSH_PRIVATE_KEY` (private key content for the deploy user)
+- Optional: `DEPLOY_HEALTHCHECK_URL` (example: `https://your-domain.com/api/health`)
+
+Notes:
+
+- The server must already have Docker + compose and the project checked out.
+- The deploy user must have access to run `docker compose` and write in `VPS_APP_DIR`.
+
 ## Backups (recommended)
 
 - Use `scripts/pg-backup.mjs` on a schedule, or run `pg_dump` from the VPS.
 - Keep `uploads` volume backed up (contains chat attachments).
-
