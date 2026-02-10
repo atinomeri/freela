@@ -35,7 +35,7 @@ export default async function HomePage() {
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
   const session = await getServerSession(authOptions);
-  const authT = await getTranslations("authButtons");
+  const authButtonsT = await getTranslations("authButtons");
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
@@ -78,7 +78,7 @@ export default async function HomePage() {
                 <p className="text-sm text-muted-foreground">{t("welcomeBack")}</p>
               </div>
               <ButtonLink href="/dashboard" variant="secondary" size="sm">
-                {authT("dashboard")}
+                {authButtonsT("dashboard")}
               </ButtonLink>
             </div>
           </Container>
