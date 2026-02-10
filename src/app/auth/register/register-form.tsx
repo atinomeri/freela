@@ -460,7 +460,7 @@ export function RegisterForm() {
         ) : null}
 
         <div className="grid gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4">
             <Field label={t("fields.phone.label")} error={submitAttempted ? errors.phone : undefined} hint={t("fields.phone.hint")}>
               <div className="flex gap-2">
                 <label className="sr-only" htmlFor="phone-country">
