@@ -105,6 +105,8 @@
     "forgotPassword": "Forgot password?"
   },
   "home": {
+    "greeting": "Hello, {name}!",
+    "welcomeBack": "Welcome back to the platform.",
     "badge": "Freelance platform for Georgia",
     "title": "Find a freelancer — or find a project — fast and safely",
     "subtitle": "{siteName} connects clients and professionals in Georgia: profiles with portfolios, project listings, and budgets in GEL.",
