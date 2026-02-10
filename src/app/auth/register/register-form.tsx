@@ -34,6 +34,22 @@ const PHONE_COUNTRIES: Array<{ country: PhoneCountry; label: string }> = [
   { country: "DE", label: "Germany (+49)" }
 ];
 
+const PHONE_NUMBER_PLACEHOLDERS: Record<PhoneCountry, string> = {
+  GE: "555 123 456",
+  TR: "532 123 45 67",
+  RU: "912 345 67 89",
+  AM: "77 123456",
+  AZ: "50 123 45 67",
+  UA: "50 123 45 67",
+  US: "(201) 555-0123",
+  GB: "7400 123456",
+  DE: "1512 3456789"
+};
+
+function isPhoneCountry(value: string): value is PhoneCountry {
+  return PHONE_COUNTRIES.some((country) => country.country === value);
+}
+
 function isValidDateYmd(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(value);
@@ -147,17 +163,24 @@ export function RegisterForm() {
 
   const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>("GE");
   const [phoneNationalDigits, setPhoneNationalDigits] = useState("");
+  const phoneCountryCallingCode = useMemo(() => getCountryCallingCode(phoneCountry), [phoneCountry]);
   const phoneNationalFormatted = useMemo(() => {
     const digits = digitsOnly(phoneNationalDigits);
     if (!digits) return "";
     const fmt = new AsYouType(phoneCountry);
     return fmt.input(digits);
   }, [phoneCountry, phoneNationalDigits]);
+  const parsedPhoneForCountry = useMemo(() => {
+    const phoneNorm = normalizePhone(phoneNationalDigits);
+    if (!phoneNorm) return null;
+    return parsePhoneNumberFromString(phoneNorm, phoneCountry);
+  }, [phoneCountry, phoneNationalDigits]);
   const phoneE164 = useMemo(() => {
     const digits = digitsOnly(phoneNationalDigits);
     if (!digits) return "";
-    return `+${getCountryCallingCode(phoneCountry)}${digits}`;
-  }, [phoneCountry, phoneNationalDigits]);
+    if (parsedPhoneForCountry?.number) return parsedPhoneForCountry.number;
+    return `+${phoneCountryCallingCode}${digits}`;
+  }, [parsedPhoneForCountry, phoneCountryCallingCode, phoneNationalDigits]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -197,7 +220,8 @@ export function RegisterForm() {
     if (!phoneNorm) e.phone = t("errors.phoneInvalid");
     else {
       const parsed = parsePhoneNumberFromString(phoneNorm);
-      if (!parsed?.isValid()) e.phone = t("errors.phoneInvalid");
+      const isCountryMatch = parsed?.countryCallingCode === phoneCountryCallingCode;
+      if (!parsed?.isValid() || !isCountryMatch) e.phone = t("errors.phoneInvalid");
     }
     if (password.length < 8) e.password = t("errors.passwordMin");
     if (confirmPassword.trim().length === 0) e.confirmPassword = t("errors.confirmRequired");
@@ -215,7 +239,22 @@ export function RegisterForm() {
     }
 
     return e;
-  }, [birthDate, category, companyId, companyName, confirmPassword, email, isEmployerCompany, name, password, personalId, phoneE164, role, t]);
+  }, [
+    birthDate,
+    category,
+    companyId,
+    companyName,
+    confirmPassword,
+    email,
+    isEmployerCompany,
+    name,
+    password,
+    personalId,
+    phoneCountryCallingCode,
+    phoneE164,
+    role,
+    t
+  ]);
 
   const canSubmit = Object.keys(errors).length === 0;
 
@@ -469,7 +508,11 @@ export function RegisterForm() {
                 <select
                   id="phone-country"
                   value={phoneCountry}
-                  onChange={(e) => setPhoneCountry(e.target.value as PhoneCountry)}
+                  onChange={(e) => {
+                    const nextCountry = e.target.value;
+                    if (!isPhoneCountry(nextCountry)) return;
+                    setPhoneCountry(nextCountry);
+                  }}
                   className="h-10 w-[180px] shrink-0 rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
                 >
                   {PHONE_COUNTRIES.map((c) => (
@@ -485,10 +528,33 @@ export function RegisterForm() {
                 <Input
                   id="phone-number"
                   value={phoneNationalFormatted}
-                  onChange={(e) => setPhoneNationalDigits(digitsOnly(e.target.value))}
+                  onChange={(e) => {
+                    const raw = normalizePhone(e.target.value);
+                    if (!raw) {
+                      setPhoneNationalDigits("");
+                      return;
+                    }
+
+                    if (raw.startsWith("+")) {
+                      const parsed = parsePhoneNumberFromString(raw);
+                      if (parsed?.country && isPhoneCountry(parsed.country)) {
+                        setPhoneCountry(parsed.country);
+                        setPhoneNationalDigits(parsed.nationalNumber);
+                        return;
+                      }
+                    }
+
+                    const parsed = parsePhoneNumberFromString(raw, phoneCountry);
+                    if (parsed?.isPossible()) {
+                      setPhoneNationalDigits(parsed.nationalNumber);
+                      return;
+                    }
+
+                    setPhoneNationalDigits(digitsOnly(raw));
+                  }}
                   inputMode="numeric"
                   autoComplete="tel-national"
-                  placeholder={t("fields.phone.numberPlaceholder")}
+                  placeholder={PHONE_NUMBER_PLACEHOLDERS[phoneCountry] || t("fields.phone.numberPlaceholder")}
                   className="min-w-0 flex-1"
                   required
                 />
