@@ -25,6 +25,8 @@ import { isPageEnabled } from "@/lib/site-pages";
 import { getLocale } from "next-intl/server";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export default async function HomePage() {
   if (!(await isPageEnabled("/"))) notFound();
@@ -32,6 +34,8 @@ export default async function HomePage() {
   const baseT = await getTranslations("home");
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
+  const session = await getServerSession(authOptions);
+  const authButtonsT = await getTranslations("authButtons");
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
@@ -63,6 +67,23 @@ export default async function HomePage() {
 
   return (
     <>
+      {session?.user && (
+        <div className="border-b bg-gradient-to-r from-primary/10 via-primary/5 to-background">
+          <Container className="py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  {t("greeting", { name: session.user.name || "User" })}
+                </h2>
+                <p className="text-sm text-muted-foreground">{t("welcomeBack")}</p>
+              </div>
+              <ButtonLink href="/dashboard" variant="secondary" size="sm">
+                {authButtonsT("dashboard")}
+              </ButtonLink>
+            </div>
+          </Container>
+        </div>
+      )}
       <section className="relative overflow-hidden border-b">
         {/* Animated gradient background */}
         <div className="absolute inset-0 -z-10">
