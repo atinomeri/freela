@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { isEmailConfigured, sendEmail } from "@/lib/email";
 import { verifyEmailTemplate } from "@/lib/email-templates/verify-email";
 import { reportError } from "@/lib/log";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 const isDev = process.env.NODE_ENV !== "production";
 const VERIFY_TOKEN_TTL_HOURS = 24;
@@ -86,11 +87,15 @@ export async function POST(req: Request) {
   const roleInput = String(raw.role ?? "").trim().toLowerCase();
   const email = String(raw.email ?? "").trim().toLowerCase();
   const password = String(raw.password ?? "");
-  const phone = normalizePhone(String(raw.phone ?? ""));
+  const phoneRaw = normalizePhone(String(raw.phone ?? ""));
 
   if (roleInput !== "employer" && roleInput !== "freelancer") return jsonError("ROLE_INVALID", 400);
   if (!email || !email.includes("@")) return jsonError("EMAIL_INVALID", 400);
-  if (!phone) return jsonError("PHONE_REQUIRED", 400);
+  if (!phoneRaw) return jsonError("PHONE_REQUIRED", 400);
+  if (!phoneRaw.startsWith("+")) return jsonError("PHONE_INVALID", 400);
+  const parsedPhone = parsePhoneNumberFromString(phoneRaw);
+  if (!parsedPhone?.isValid()) return jsonError("PHONE_INVALID", 400);
+  const phone = parsedPhone.number;
 
   const ip = getClientIp(req);
   const ipLimit = await checkRateLimit({ scope: "register:ip", key: ip, limit: 20, windowSeconds: 15 * 60 });

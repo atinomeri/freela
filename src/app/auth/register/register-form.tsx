@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FREELANCER_CATEGORIES, isFreelancerCategory } from "@/lib/categories";
+import { AsYouType, getCountryCallingCode, parsePhoneNumberFromString } from "libphonenumber-js";
 
 type Role = "employer" | "freelancer";
 type EmployerType = "individual" | "company";
@@ -18,6 +19,20 @@ function digitsOnly(value: string) {
 function normalizePhone(value: string) {
   return value.replace(/[^\d+]/g, "");
 }
+
+type PhoneCountry = "GE" | "RU" | "TR" | "AM" | "AZ" | "UA" | "US" | "GB" | "DE";
+
+const PHONE_COUNTRIES: Array<{ country: PhoneCountry; label: string }> = [
+  { country: "GE", label: "Georgia (+995)" },
+  { country: "TR", label: "Turkey (+90)" },
+  { country: "RU", label: "Russia (+7)" },
+  { country: "AM", label: "Armenia (+374)" },
+  { country: "AZ", label: "Azerbaijan (+994)" },
+  { country: "UA", label: "Ukraine (+380)" },
+  { country: "US", label: "United States (+1)" },
+  { country: "GB", label: "United Kingdom (+44)" },
+  { country: "DE", label: "Germany (+49)" }
+];
 
 function isValidDateYmd(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -130,7 +145,20 @@ export function RegisterForm() {
   const [companyName, setCompanyName] = useState("");
   const [companyId, setCompanyId] = useState("");
 
-  const [phone, setPhone] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>("GE");
+  const [phoneNationalDigits, setPhoneNationalDigits] = useState("");
+  const phoneNationalFormatted = useMemo(() => {
+    const digits = digitsOnly(phoneNationalDigits);
+    if (!digits) return "";
+    const fmt = new AsYouType(phoneCountry);
+    return fmt.input(digits);
+  }, [phoneCountry, phoneNationalDigits]);
+  const phoneE164 = useMemo(() => {
+    const digits = digitsOnly(phoneNationalDigits);
+    if (!digits) return "";
+    return `+${getCountryCallingCode(phoneCountry)}${digits}`;
+  }, [phoneCountry, phoneNationalDigits]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -163,10 +191,14 @@ export function RegisterForm() {
     const e: Record<string, string> = {};
 
     const emailNorm = email.trim().toLowerCase();
-    const phoneNorm = normalizePhone(phone);
+    const phoneNorm = phoneE164.trim();
 
     if (!emailNorm.includes("@")) e.email = t("errors.emailInvalid");
-    if (digitsOnly(phoneNorm).length < 9) e.phone = t("errors.phoneInvalid");
+    if (!phoneNorm) e.phone = t("errors.phoneInvalid");
+    else {
+      const parsed = parsePhoneNumberFromString(phoneNorm);
+      if (!parsed?.isValid()) e.phone = t("errors.phoneInvalid");
+    }
     if (password.length < 8) e.password = t("errors.passwordMin");
     if (confirmPassword.trim().length === 0) e.confirmPassword = t("errors.confirmRequired");
     if (confirmPassword && password !== confirmPassword) e.confirmPassword = t("errors.passwordsMismatch");
@@ -183,7 +215,7 @@ export function RegisterForm() {
     }
 
     return e;
-  }, [birthDate, category, companyId, companyName, confirmPassword, email, isEmployerCompany, name, password, personalId, phone, role, t]);
+  }, [birthDate, category, companyId, companyName, confirmPassword, email, isEmployerCompany, name, password, personalId, phoneE164, role, t]);
 
   const canSubmit = Object.keys(errors).length === 0;
 
@@ -221,7 +253,7 @@ export function RegisterForm() {
             const payload: Record<string, unknown> = {
               role,
               email: email.trim().toLowerCase(),
-              phone: normalizePhone(phone),
+              phone: phoneE164.trim(),
               password,
               confirmPassword
             };
@@ -430,14 +462,36 @@ export function RegisterForm() {
         <div className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("fields.phone.label")} error={submitAttempted ? errors.phone : undefined} hint={t("fields.phone.hint")}>
-              <Input
-                value={phone}
-                onChange={(e) => setPhone(normalizePhone(e.target.value))}
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder={t("fields.phone.placeholder")}
-                required
-              />
+              <div className="grid grid-cols-[160px_1fr] gap-2">
+                <label className="sr-only" htmlFor="phone-country">
+                  {t("fields.phone.countryLabel")}
+                </label>
+                <select
+                  id="phone-country"
+                  value={phoneCountry}
+                  onChange={(e) => setPhoneCountry(e.target.value as PhoneCountry)}
+                  className="h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+                >
+                  {PHONE_COUNTRIES.map((c) => (
+                    <option key={c.country} value={c.country}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+
+                <label className="sr-only" htmlFor="phone-number">
+                  {t("fields.phone.numberLabel")}
+                </label>
+                <Input
+                  id="phone-number"
+                  value={phoneNationalFormatted}
+                  onChange={(e) => setPhoneNationalDigits(digitsOnly(e.target.value))}
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  placeholder={t("fields.phone.numberPlaceholder")}
+                  required
+                />
+              </div>
             </Field>
             <Field label={t("fields.email.label")} error={submitAttempted ? errors.email : undefined}>
               <Input

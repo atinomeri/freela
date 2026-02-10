@@ -33,6 +33,7 @@ export default async function AdminPagesPage() {
       id: true,
       path: true,
       isEnabled: true,
+      isVisible: true,
       updatedAt: true,
       contents: {
         where: { locale: "ka" },
@@ -52,6 +53,7 @@ export default async function AdminPagesPage() {
       path,
       kind: "builtin" as const,
       isEnabled: row?.isEnabled ?? true,
+      isVisible: row?.isVisible ?? true,
       updatedAt: row?.updatedAt?.toISOString() ?? null,
       titlePreview: null
     };
@@ -64,6 +66,7 @@ export default async function AdminPagesPage() {
       path: p.path,
       kind: "custom" as const,
       isEnabled: p.isEnabled,
+      isVisible: p.isVisible,
       updatedAt: p.updatedAt.toISOString(),
       titlePreview: p.contents[0]?.title ?? null
     }));
@@ -78,4 +81,3 @@ export default async function AdminPagesPage() {
     </div>
   );
 }
-

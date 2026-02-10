@@ -755,28 +755,31 @@
     "empty": "Пользователи не найдены."
   },
   "adminPages": {
-    "title": "Pages",
-    "subtitle": "Enable or disable built-in pages and manage custom pages.",
-    "forbiddenTitle": "Доступ ограничен",
-    "forbiddenSubtitle": "Только для админов.",
+    "title": "Страницы",
+    "subtitle": "Управление страницами: скрыть/показать, включить/отключить и редактировать.",
+    "forbiddenTitle": "Доступ запрещён",
+    "forbiddenSubtitle": "Только для администраторов.",
     "refresh": "Обновить",
-    "newPage": "New page",
+    "newPage": "Новая страница",
     "cols": {
-      "path": "Path",
-      "type": "Type",
-      "enabled": "Enabled",
-      "updated": "Updated",
-      "title": "Title",
-      "actions": "Actions"
+      "path": "Путь",
+      "type": "Тип",
+      "visible": "Видимость",
+      "enabled": "Доступ",
+      "updated": "Обновлено",
+      "title": "Заголовок",
+      "actions": "Действия"
     },
-    "builtin": "Built-in",
-    "custom": "Custom",
-    "enable": "Enable",
-    "disable": "Disable",
-    "edit": "Edit",
-    "delete": "Delete",
-    "deletePrompt": "Type the page path to delete: {path}",
-    "empty": "No pages found."
+    "builtin": "Встроенная",
+    "custom": "Пользовательская",
+    "show": "Показать",
+    "hide": "Скрыть",
+    "enable": "Включить",
+    "disable": "Отключить",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "deletePrompt": "Введите путь страницы, чтобы удалить: {path}",
+    "empty": "Страниц не найдено."
   },
   "adminPageEditor": {
     "newTitle": "New page",
@@ -1046,8 +1049,11 @@
       },
       "phone": {
         "label": "Телефон",
-        "hint": "При необходимости укажите код страны.",
-        "placeholder": "+995..."
+        "countryLabel": "Страна",
+        "numberLabel": "Номер телефона",
+        "hint": "Выберите код страны и введите номер телефона.",
+        "placeholder": "+995...",
+        "numberPlaceholder": "555 123 456"
       },
       "email": {
         "label": "Email"

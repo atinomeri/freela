@@ -3,7 +3,7 @@ import { site } from "@/lib/site";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Github, Linkedin, Twitter, Mail } from "lucide-react";
-import { getDisabledPaths } from "@/lib/site-pages";
+import { getUnlistedPaths } from "@/lib/site-pages";
 
 export async function SiteFooter() {
   const tNav = await getTranslations("nav");
@@ -26,15 +26,15 @@ export async function SiteFooter() {
     { href: "/legal/privacy", label: tFooter("privacy") },
   ] as const;
 
-  const disabled = await getDisabledPaths([
+  const unlisted = await getUnlistedPaths([
     ...platformLinks.map((l) => l.href),
     ...companyLinks.map((l) => l.href),
     ...legalLinks.map((l) => l.href)
   ]);
 
-  const platformVisible = platformLinks.filter((l) => !disabled.has(l.href));
-  const companyVisible = companyLinks.filter((l) => !disabled.has(l.href));
-  const legalVisible = legalLinks.filter((l) => !disabled.has(l.href));
+  const platformVisible = platformLinks.filter((l) => !unlisted.has(l.href));
+  const companyVisible = companyLinks.filter((l) => !unlisted.has(l.href));
+  const legalVisible = legalLinks.filter((l) => !unlisted.has(l.href));
 
   return (
     <footer className="border-t bg-muted/30">

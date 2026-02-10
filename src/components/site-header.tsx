@@ -10,7 +10,7 @@ import { MobileNav } from "@/components/mobile-nav";
 import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Link } from "@/i18n/navigation";
-import { getDisabledPaths } from "@/lib/site-pages";
+import { getUnlistedPaths } from "@/lib/site-pages";
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");
@@ -26,8 +26,8 @@ export async function SiteHeader() {
     { href: "/contact", label: t("contact") }
   ] as const;
 
-  const disabled = await getDisabledPaths(navAll.map((n) => n.href));
-  const nav = navAll.filter((n) => !disabled.has(n.href));
+  const unlisted = await getUnlistedPaths(navAll.map((n) => n.href));
+  const nav = navAll.filter((n) => !unlisted.has(n.href));
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -256,6 +256,7 @@ model SitePage {
   id        String   @id @default(cuid())
   path      String   @unique
   isEnabled Boolean  @default(true)
+  isVisible Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

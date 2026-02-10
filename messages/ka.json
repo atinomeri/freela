@@ -755,28 +755,31 @@
     "empty": "მომხმარებლები ვერ მოიძებნა."
   },
   "adminPages": {
-    "title": "Pages",
-    "subtitle": "Enable or disable built-in pages and manage custom pages.",
+    "title": "გვერდები",
+    "subtitle": "გვერდების მართვა: დამალვა/გამოჩენა, ჩართვა/გათიშვა და რედაქტირება.",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin.",
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის.",
     "refresh": "განახლება",
-    "newPage": "New page",
+    "newPage": "ახალი გვერდი",
     "cols": {
-      "path": "Path",
-      "type": "Type",
-      "enabled": "Enabled",
-      "updated": "Updated",
-      "title": "Title",
-      "actions": "Actions"
+      "path": "ბმული",
+      "type": "ტიპი",
+      "visible": "ხილვადობა",
+      "enabled": "აქტიურია",
+      "updated": "განახლდა",
+      "title": "სათაური",
+      "actions": "მოქმედებები"
     },
-    "builtin": "Built-in",
-    "custom": "Custom",
-    "enable": "Enable",
-    "disable": "Disable",
-    "edit": "Edit",
-    "delete": "Delete",
-    "deletePrompt": "Type the page path to delete: {path}",
-    "empty": "No pages found."
+    "builtin": "ჩაშენებული",
+    "custom": "მორგებული",
+    "show": "გამოჩენა",
+    "hide": "დამალვა",
+    "enable": "ჩართვა",
+    "disable": "გათიშვა",
+    "edit": "რედაქტირება",
+    "delete": "წაშლა",
+    "deletePrompt": "შეიყვანე გვერდის ბმული წასაშლელად: {path}",
+    "empty": "გვერდები ვერ მოიძებნა."
   },
   "adminPageEditor": {
     "newTitle": "New page",
@@ -1046,8 +1049,11 @@
       },
       "phone": {
         "label": "ტელეფონი",
-        "hint": "საჭიროების შემთხვევაში მიუთითე ქვეყნის კოდი.",
-        "placeholder": "+995..."
+        "countryLabel": "ქვეყანა",
+        "numberLabel": "ტელეფონის ნომერი",
+        "hint": "აირჩიე ქვეყნის კოდი და შეიყვანე ტელეფონის ნომერი.",
+        "placeholder": "+995...",
+        "numberPlaceholder": "555 123 456"
       },
       "email": {
         "label": "ელ-ფოსტა"

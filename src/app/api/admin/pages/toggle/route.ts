@@ -14,17 +14,26 @@ export async function POST(req: Request) {
   if (!session) return jsonError("UNAUTHORIZED", 401);
   if (role !== "ADMIN") return jsonError("FORBIDDEN", 403);
 
-  const body = (await req.json().catch(() => null)) as { path?: unknown; isEnabled?: unknown } | null;
+  const body = (await req.json().catch(() => null)) as
+    | { path?: unknown; field?: unknown; value?: unknown }
+    | { path?: unknown; isEnabled?: unknown }
+    | null;
   const path = String(body?.path ?? "").trim();
-  const isEnabled = Boolean(body?.isEnabled);
   if (!isValidPagePath(path)) return jsonError("PAGE_PATH_INVALID", 400);
+
+  // Backwards compatible: older UI posted {isEnabled}.
+  const fieldRaw = "field" in (body ?? {}) ? String((body as any)?.field ?? "").trim() : "";
+  const value =
+    "value" in (body ?? {}) ? Boolean((body as any)?.value) : "isEnabled" in (body ?? {}) ? Boolean((body as any)?.isEnabled) : null;
+
+  const field = fieldRaw === "isVisible" ? "isVisible" : "isEnabled";
+  if (value === null) return jsonError("BAD_REQUEST", 400);
 
   await prisma.sitePage.upsert({
     where: { path },
-    create: { path, isEnabled },
-    update: { isEnabled }
+    create: field === "isVisible" ? { path, isVisible: value } : { path, isEnabled: value },
+    update: field === "isVisible" ? { isVisible: value } : { isEnabled: value }
   });
 
   return NextResponse.json({ ok: true }, { status: 200 });
 }
-

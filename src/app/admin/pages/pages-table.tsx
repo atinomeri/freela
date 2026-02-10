@@ -10,6 +10,7 @@ type PageRow = {
   path: string;
   kind: "builtin" | "custom";
   isEnabled: boolean;
+  isVisible: boolean;
   updatedAt: string | null;
   titlePreview: string | null;
 };
@@ -68,6 +69,7 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
             <tr>
               <th className="px-3 py-2">{t("cols.path")}</th>
               <th className="px-3 py-2">{t("cols.type")}</th>
+              <th className="px-3 py-2">{t("cols.visible")}</th>
               <th className="px-3 py-2">{t("cols.enabled")}</th>
               <th className="px-3 py-2">{t("cols.updated")}</th>
               <th className="px-3 py-2">{t("cols.title")}</th>
@@ -90,6 +92,28 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
                   <td className="px-3 py-2">
                     <Button
                       size="sm"
+                      variant={p.isVisible ? "secondary" : "destructive"}
+                      disabled={pending}
+                      onClick={async () => {
+                        setPendingPath(p.path);
+                        setError("");
+                        try {
+                          const nextVisible = !p.isVisible;
+                          await postJson("/api/admin/pages/toggle", { path: p.path, field: "isVisible", value: nextVisible });
+                          setPages((prev) => prev.map((x) => (x.path === p.path ? { ...x, isVisible: nextVisible } : x)));
+                        } catch (e: any) {
+                          setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                        } finally {
+                          setPendingPath(null);
+                        }
+                      }}
+                    >
+                      {p.isVisible ? t("hide") : t("show")}
+                    </Button>
+                  </td>
+                  <td className="px-3 py-2">
+                    <Button
+                      size="sm"
                       variant={p.isEnabled ? "secondary" : "destructive"}
                       disabled={pending}
                       onClick={async () => {
@@ -97,7 +121,7 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
                         setError("");
                         try {
                           const nextEnabled = !p.isEnabled;
-                          await postJson("/api/admin/pages/toggle", { path: p.path, isEnabled: nextEnabled });
+                          await postJson("/api/admin/pages/toggle", { path: p.path, field: "isEnabled", value: nextEnabled });
                           setPages((prev) => prev.map((x) => (x.path === p.path ? { ...x, isEnabled: nextEnabled } : x)));
                         } catch (e: any) {
                           setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
@@ -154,7 +178,7 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
 
             {sorted.length === 0 ? (
               <tr>
-                <td className="px-3 py-6 text-center text-sm text-muted-foreground" colSpan={6}>
+                <td className="px-3 py-6 text-center text-sm text-muted-foreground" colSpan={7}>
                   {t("empty")}
                 </td>
               </tr>

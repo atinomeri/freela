@@ -665,9 +665,11 @@
     "forbiddenSubtitle": "Admins only.",
     "refresh": "Refresh",
     "newPage": "New page",
-    "cols": { "path": "Path", "type": "Type", "enabled": "Enabled", "updated": "Updated", "title": "Title", "actions": "Actions" },
+    "cols": { "path": "Path", "type": "Type", "visible": "Visible", "enabled": "Enabled", "updated": "Updated", "title": "Title", "actions": "Actions" },
     "builtin": "Built-in",
     "custom": "Custom",
+    "show": "Show",
+    "hide": "Hide",
     "enable": "Enable",
     "disable": "Disable",
     "edit": "Edit",
@@ -924,7 +926,14 @@
       "name": { "label": "Full name", "placeholder": "e.g. Nika Beridze" },
       "personalId": { "label": "Personal ID", "hint": "11 digits.", "placeholder": "e.g. 01010101010" },
       "birthDate": { "label": "Birth date", "hint": "Select your date of birth.", "year": "Year", "month": "Month", "day": "Day" },
-      "phone": { "label": "Phone", "hint": "Include country code if needed.", "placeholder": "+995..." },
+      "phone": {
+        "label": "Phone",
+        "countryLabel": "Country",
+        "numberLabel": "Phone number",
+        "hint": "Select a country code and enter your phone number.",
+        "placeholder": "+995...",
+        "numberPlaceholder": "555 123 456"
+      },
       "email": { "label": "Email" },
       "password": { "label": "Password", "hint": "Minimum 8 characters." },
       "confirmPassword": { "label": "Confirm password" }
