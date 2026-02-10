@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FREELANCER_CATEGORIES, isFreelancerCategory } from "@/lib/categories";
-import { AsYouType, getCountryCallingCode, parsePhoneNumberFromString } from "libphonenumber-js";
+import { AsYouType, getCountryCallingCode, parsePhoneNumberFromString, validatePhoneNumberLength } from "libphonenumber-js";
 
 type Role = "employer" | "freelancer";
 type EmployerType = "individual" | "company";
@@ -48,6 +48,14 @@ const PHONE_NUMBER_PLACEHOLDERS: Record<PhoneCountry, string> = {
 
 function isPhoneCountry(value: string): value is PhoneCountry {
   return PHONE_COUNTRIES.some((country) => country.country === value);
+}
+
+function clampNationalDigits(country: PhoneCountry, value: string) {
+  let digits = digitsOnly(value);
+  while (digits && validatePhoneNumberLength(digits, country) === "TOO_LONG") {
+    digits = digits.slice(0, -1);
+  }
+  return digits;
 }
 
 function isValidDateYmd(value: string) {
@@ -512,6 +520,7 @@ export function RegisterForm() {
                     const nextCountry = e.target.value;
                     if (!isPhoneCountry(nextCountry)) return;
                     setPhoneCountry(nextCountry);
+                    setPhoneNationalDigits((prev) => clampNationalDigits(nextCountry, prev));
                   }}
                   className="h-10 w-[180px] shrink-0 rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
                 >
@@ -539,18 +548,18 @@ export function RegisterForm() {
                       const parsed = parsePhoneNumberFromString(raw);
                       if (parsed?.country && isPhoneCountry(parsed.country)) {
                         setPhoneCountry(parsed.country);
-                        setPhoneNationalDigits(parsed.nationalNumber);
+                        setPhoneNationalDigits(clampNationalDigits(parsed.country, parsed.nationalNumber));
                         return;
                       }
                     }
 
                     const parsed = parsePhoneNumberFromString(raw, phoneCountry);
-                    if (parsed?.isPossible()) {
-                      setPhoneNationalDigits(parsed.nationalNumber);
+                    if (parsed?.nationalNumber) {
+                      setPhoneNationalDigits(clampNationalDigits(phoneCountry, parsed.nationalNumber));
                       return;
                     }
 
-                    setPhoneNationalDigits(digitsOnly(raw));
+                    setPhoneNationalDigits(clampNationalDigits(phoneCountry, raw));
                   }}
                   inputMode="numeric"
                   autoComplete="tel-national"
