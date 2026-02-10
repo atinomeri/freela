@@ -462,7 +462,7 @@ export function RegisterForm() {
         <div className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t("fields.phone.label")} error={submitAttempted ? errors.phone : undefined} hint={t("fields.phone.hint")}>
-              <div className="grid grid-cols-[160px_1fr] gap-2">
+              <div className="flex gap-2">
                 <label className="sr-only" htmlFor="phone-country">
                   {t("fields.phone.countryLabel")}
                 </label>
@@ -470,7 +470,7 @@ export function RegisterForm() {
                   id="phone-country"
                   value={phoneCountry}
                   onChange={(e) => setPhoneCountry(e.target.value as PhoneCountry)}
-                  className="h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+                  className="h-10 w-[180px] shrink-0 rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
                 >
                   {PHONE_COUNTRIES.map((c) => (
                     <option key={c.country} value={c.country}>
@@ -489,6 +489,7 @@ export function RegisterForm() {
                   inputMode="numeric"
                   autoComplete="tel-national"
                   placeholder={t("fields.phone.numberPlaceholder")}
+                  className="min-w-0 flex-1"
                   required
                 />
               </div>
