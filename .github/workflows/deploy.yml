@@ -36,7 +36,7 @@ jobs:
       - name: Validate required secrets
         run: |
           set -euo pipefail
-          for v in VPS_HOST VPS_USER VPS_PORT VPS_APP_DIR SSH_PRIVATE_KEY VPS_HOST_KEY; do
+          for v in VPS_HOST VPS_USER VPS_PORT VPS_APP_DIR SSH_PRIVATE_KEY; do
             if [ -z "${!v}" ]; then
               echo "::error::Missing required secret: $v"
               exit 1
@@ -50,7 +50,12 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
+          if [ -n "$VPS_HOST_KEY" ]; then
+            printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
+          else
+            echo "::warning::VPS_HOST_KEY is not set; using ssh-keyscan fallback."
+            ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" > ~/.ssh/known_hosts
+          fi
           chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy on server

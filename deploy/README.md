@@ -98,7 +98,7 @@ Add these repository secrets in GitHub:
 - `VPS_SSH_PORT` (example: `22`)
 - `VPS_APP_DIR` (example: `/root/freela`)
 - `VPS_SSH_PRIVATE_KEY` (private key content for the deploy user)
-- `VPS_HOST_KEY` (pinned host key line for `known_hosts`, example: `76.13.144.121 ssh-ed25519 AAAA...`)
+- Optional (recommended): `VPS_HOST_KEY` (pinned host key line for `known_hosts`, example: `76.13.144.121 ssh-ed25519 AAAA...`)
 - Optional: `DEPLOY_HEALTHCHECK_URL` (example: `https://your-domain.com/api/health`)
 
 Notes:
@@ -107,6 +107,7 @@ Notes:
 - The deploy user must have access to run `docker compose` and write in `VPS_APP_DIR`.
 - Generate/pin host key from a trusted machine:
   - `ssh-keyscan -p 22 76.13.144.121`
+- If `VPS_HOST_KEY` is not set, workflow uses `ssh-keyscan` fallback.
 
 ## Backups (recommended)
 
