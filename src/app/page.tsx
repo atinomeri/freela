@@ -135,6 +135,8 @@ export default async function HomePage() {
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
   const heroScene = getHeroSceneCopy(locale);
+  const homeTitle =
+    locale === "ka" ? "იპოვე ფრილანსერი — ან იპოვე შეკვეთა — სწრაფად და მარტივად" : t("title");
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
@@ -180,10 +182,10 @@ export default async function HomePage() {
                 {t("badge")}
               </Badge>
               <h1
-                className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3.2rem] md:text-[3.75rem] lg:mx-0 lg:text-[4.1rem]"
+                className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3rem] md:text-[3.5rem] lg:mx-0 lg:text-[3.85rem]"
                 style={{ animationDelay: "100ms" }}
               >
-                {renderHighlightedHomeTitle(t("title"), locale)}
+                {renderHighlightedHomeTitle(homeTitle, locale)}
               </h1>
               <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-xl" style={{ animationDelay: "200ms" }}>
                 {t("subtitle", { siteName: site.name })}
