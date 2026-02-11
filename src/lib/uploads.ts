@@ -1,9 +1,11 @@
 import "server-only";
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+let cachedUploadsRoot: string | null = null;
 
 export type SavedUpload = {
   storagePath: string; // relative to uploads root
@@ -12,10 +14,38 @@ export type SavedUpload = {
   sizeBytes: number;
 };
 
+function canWriteToDir(dir: string) {
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    const marker = path.join(dir, `.write-test-${process.pid}-${Date.now()}`);
+    fs.writeFileSync(marker, "ok");
+    fs.unlinkSync(marker);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function uploadsRoot() {
-  const root = process.env.UPLOADS_DIR?.trim();
-  if (root) return root;
-  return path.join(process.cwd(), "data", "uploads");
+  if (cachedUploadsRoot) return cachedUploadsRoot;
+
+  const fromEnv = process.env.UPLOADS_DIR?.trim();
+  const candidates = [
+    ...(fromEnv ? [fromEnv] : []),
+    path.join(process.cwd(), "data", "uploads"),
+    path.join(process.cwd(), ".uploads"),
+    path.join(os.tmpdir(), "freela-uploads")
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    if (canWriteToDir(candidate)) {
+      cachedUploadsRoot = candidate;
+      return candidate;
+    }
+  }
+
+  throw new Error("No writable uploads directory found");
 }
 
 function safeFilename(name: string) {
