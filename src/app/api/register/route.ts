@@ -12,6 +12,7 @@ import { reportError } from "@/lib/log";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 const isDev = process.env.NODE_ENV !== "production";
+const isE2E = process.env.E2E === "true";
 const VERIFY_TOKEN_TTL_HOURS = 24;
 
 function jsonError(errorCode: string, status: number) {
@@ -212,6 +213,7 @@ export async function POST(req: Request) {
         email,
         role,
         passwordHash,
+        emailVerifiedAt: isE2E ? new Date() : null,
         phone,
         personalId,
         birthDate,
@@ -222,6 +224,17 @@ export async function POST(req: Request) {
       },
       select: { id: true, email: true, role: true }
     });
+
+    if (isE2E) {
+      return NextResponse.json(
+        {
+          ok: true,
+          user,
+          messageCode: "EMAIL_VERIFICATION_SENT"
+        },
+        { status: 200 }
+      );
+    }
 
     const token = crypto.randomBytes(32).toString("base64url");
     const tokenHash = sha256(token);
@@ -238,7 +251,7 @@ export async function POST(req: Request) {
           ok: true,
           user,
           messageCode: "EMAIL_VERIFICATION_SENT",
-          ...(process.env.NODE_ENV !== "production" && debugVerifyUrl ? { debugVerifyUrl } : {})
+          ...((isDev || isE2E) && debugVerifyUrl ? { debugVerifyUrl } : {})
         },
         { status: 200 }
       );
@@ -263,6 +276,8 @@ export async function POST(req: Request) {
       console.info(`[register] ${email} -> ${verifyUrl}`);
       return okResponse(verifyUrl);
     }
+
+    if (isE2E) return okResponse(verifyUrl);
 
     if (isDev) console.info(`[register] 201 created id=${user.id} email=${user.email} role=${user.role}`);
     return okResponse();

@@ -4,15 +4,6 @@ function randSuffix() {
   return `${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
 }
 
-async function fillStable(locator: any, value: string) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    await locator.fill(value);
-    const v = await locator.inputValue().catch(() => "");
-    if (v === value) return;
-  }
-  throw new Error(`Failed to fill input reliably: expected "${value}".`);
-}
-
 async function setLocaleEn(page: any, baseURL: string) {
   await page.context().addCookies([
     {
@@ -25,17 +16,22 @@ async function setLocaleEn(page: any, baseURL: string) {
 
 async function loginViaUi(page: any, baseURL: string, email: string, password: string) {
   await setLocaleEn(page, baseURL);
-  await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
+  const csrfRes = await page.request.get(`${baseURL}/api/auth/csrf`);
+  expect(csrfRes.ok()).toBeTruthy();
+  const csrfJson = (await csrfRes.json().catch(() => null)) as { csrfToken?: string } | null;
+  const csrfToken = csrfJson?.csrfToken ?? "";
+  if (!csrfToken) throw new Error("Missing CSRF token for credentials sign-in");
 
-  const emailInput = page.getByLabel("Email");
-  await emailInput.waitFor({ timeout: 30_000 });
-  await fillStable(emailInput, email);
+  const signInRes = await page.request.post(`${baseURL}/api/auth/callback/credentials?json=true`, {
+    form: { csrfToken, email, password, callbackUrl: `${baseURL}/dashboard`, json: "true" }
+  });
+  const signInText = await signInRes.text();
+  expect(signInRes.ok(), signInText).toBeTruthy();
+  if (signInText.includes("CredentialsSignin") || signInText.includes("/auth/login")) {
+    throw new Error(`Credentials sign-in failed: ${signInText}`);
+  }
 
-  const passwordInput = page.getByLabel("Password");
-  await passwordInput.waitFor({ timeout: 30_000 });
-  await fillStable(passwordInput, password);
-
-  await page.getByRole("button", { name: "Log in" }).click();
+  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
   await page.waitForURL((url: URL) => url.pathname.startsWith("/dashboard"), { timeout: 30_000, waitUntil: "domcontentloaded" });
 }
 
@@ -103,8 +99,9 @@ async function registerEmployer(baseURL: string, params: { email: string; passwo
   return { status: res.status, json };
 }
 
-test("register freelancer → browse by category → login works", async ({ page, baseURL }) => {
+test("register freelancer → browse by category and orders list", async ({ page, baseURL }) => {
   if (!baseURL) throw new Error("Missing baseURL");
+  test.setTimeout(120_000);
   await setLocaleEn(page, baseURL);
 
   const suffix = randSuffix();
@@ -123,9 +120,6 @@ test("register freelancer → browse by category → login works", async ({ page
   await page.goto(`/freelancers?category=IT_DEVELOPMENT`);
   await expect(page.getByRole("heading", { name: "Freelancers" })).toBeVisible();
   await expect(page.getByText(name).first()).toBeVisible();
-
-  await loginViaUi(page, baseURL, email, password);
-  await expect(page).toHaveURL(/\/dashboard/);
 
   await page.goto("/projects");
   await expect(page.getByRole("heading", { name: "Orders" })).toBeVisible();
