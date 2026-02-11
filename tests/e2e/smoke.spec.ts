@@ -25,7 +25,7 @@ async function setLocaleEn(page: any, baseURL: string) {
 
 async function loginViaUi(page: any, baseURL: string, email: string, password: string) {
   await setLocaleEn(page, baseURL);
-  await page.goto("/auth/login");
+  await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
 
   const emailInput = page.getByLabel("Email");
   await emailInput.waitFor({ timeout: 30_000 });
@@ -128,7 +128,7 @@ test("register freelancer → browse by category → login works", async ({ page
   await expect(page).toHaveURL(/\/dashboard/);
 
   await page.goto("/projects");
-  await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Orders" })).toBeVisible();
 });
 
 test("registration rejects missing category for freelancers", async ({ baseURL }) => {
@@ -195,7 +195,7 @@ test("employer can cancel and restore a project", async ({ page, baseURL }) => {
 
   const [cancelRes] = await Promise.all([
     page.waitForResponse((r) => r.request().method() === "PATCH" && r.url().includes(`/api/projects/${projectId}/status`)),
-    page.getByRole("button", { name: "Cancel project" }).first().click()
+    page.getByRole("button", { name: "Cancel order" }).first().click()
   ]);
   expect(cancelRes.status(), await cancelRes.text()).toBe(200);
   await page.reload();
@@ -203,7 +203,7 @@ test("employer can cancel and restore a project", async ({ page, baseURL }) => {
 
   const [restoreRes] = await Promise.all([
     page.waitForResponse((r) => r.request().method() === "PATCH" && r.url().includes(`/api/projects/${projectId}/status`)),
-    page.getByRole("button", { name: "Restore project" }).first().click()
+    page.getByRole("button", { name: "Restore order" }).first().click()
   ]);
   expect(restoreRes.status(), await restoreRes.text()).toBe(200);
   await page.reload();
