@@ -64,41 +64,122 @@ export default async function HomePage() {
   return (
     <>
       <section className="relative overflow-hidden border-b">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-[radial-gradient(65%_55%_at_50%_0%,hsl(var(--primary)/0.15)_0%,transparent_60%)]" />
-          <div className="absolute -left-1/4 top-0 h-96 w-96 animate-pulse rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute -right-1/4 top-1/4 h-96 w-96 animate-pulse rounded-full bg-primary/5 blur-3xl" style={{ animationDelay: '1s' }} />
-        </div>
-        <Container className="py-20 sm:py-32">
-          <div className="mx-auto max-w-3xl text-center">
-            <Badge className="animate-fade-in">{t("badge")}</Badge>
-            <h1 className="mt-6 animate-fade-in text-4xl font-bold tracking-tight leading-[1.1] sm:text-5xl md:text-6xl" style={{ animationDelay: '100ms' }}>
-              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">
-                {t("title")}
-              </span>
-            </h1>
-            <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-xl" style={{ animationDelay: '200ms' }}>
-              {t("subtitle", { siteName: site.name })}
-            </p>
-            <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row sm:justify-center" style={{ animationDelay: '300ms' }}>
-              <ButtonLink href="/projects" size="lg" className="group gap-2 px-8 shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30">
-                {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </ButtonLink>
-              <ButtonLink href="/freelancers" size="lg" variant="secondary" className="px-8">
-                {t("cta.findFreelancer")}
-              </ButtonLink>
+        <div className="hero-mesh absolute inset-0 -z-20" />
+        <div className="hero-pattern absolute inset-0 -z-10" />
+        <div className="pointer-events-none absolute -left-20 top-8 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
+
+        <Container className="py-16 sm:py-24 lg:py-28">
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left">
+              <Badge className="inline-flex animate-fade-in items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" />
+                {t("badge")}
+              </Badge>
+              <h1 className="mt-6 animate-fade-in text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl" style={{ animationDelay: "100ms" }}>
+                <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">
+                  {t("title")}
+                </span>
+              </h1>
+              <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-xl" style={{ animationDelay: "200ms" }}>
+                {t("subtitle", { siteName: site.name })}
+              </p>
+
+              <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start" style={{ animationDelay: "300ms" }}>
+                <ButtonLink href="/projects" size="lg" className="group gap-2 px-8 shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30">
+                  {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </ButtonLink>
+                <ButtonLink href="/freelancers" size="lg" variant="secondary" className="px-8">
+                  {t("cta.findFreelancer")}
+                </ButtonLink>
+              </div>
+
+              <div className="mt-10 grid animate-fade-in grid-cols-1 gap-4 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
+                {stats.map((s) => (
+                  <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-5 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="text-3xl font-bold text-primary">{s.value}</div>
+                      <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
-            <div className="mt-12 grid animate-fade-in grid-cols-1 gap-4 sm:grid-cols-3" style={{ animationDelay: '400ms' }}>
-              {stats.map((s, i) => (
-                <Card key={s.label} className="group relative overflow-hidden border-border/50 p-6 text-left transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <div className="relative">
-                    <div className="text-3xl font-bold text-primary">{s.value}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
+
+            <div className="relative mx-auto w-full max-w-[560px] animate-fade-in" style={{ animationDelay: "220ms" }}>
+              <Card className="relative overflow-hidden border-border/70 bg-card/75 p-5 shadow-2xl backdrop-blur-md sm:p-6">
+                <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-primary/20 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 -left-14 h-52 w-52 rounded-full bg-success/20 blur-3xl" />
+
+                <div className="relative">
+                  <div className="mb-4 flex items-center justify-between">
+                    <Badge variant="secondary" className="gap-1.5 border border-primary/20 bg-primary/10 text-primary">
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      Live workspace
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">freela.ge</span>
                   </div>
-                </Card>
-              ))}
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <Briefcase className="h-4 w-4 text-primary" />
+                        Client
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">Need landing page redesign + copy refresh</p>
+                      <div className="mt-3 inline-flex rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+                        Budget: 1200 GEL
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <BadgeCheck className="h-4 w-4 text-success" />
+                        Freelancer
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">Proposal sent, estimated delivery in 5 days</p>
+                      <div className="mt-3 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                        Available now
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 rounded-2xl border border-border/70 bg-background/80 p-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">Project matching score</span>
+                      <span className="font-semibold text-primary">96%</span>
+                    </div>
+                    <div className="mt-2 h-2 rounded-full bg-muted">
+                      <div className="h-2 w-[96%] rounded-full bg-gradient-to-r from-primary to-success" />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="animate-hero-float absolute -left-4 top-8 hidden w-52 border-primary/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
+                <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  New project
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Brand identity + UI kit</p>
+              </Card>
+
+              <Card className="animate-hero-float-delayed absolute -right-2 top-1/2 hidden w-48 border-success/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
+                <div className="flex items-center gap-2 text-xs font-semibold text-success">
+                  <Wallet className="h-3.5 w-3.5" />
+                  Budget approved
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Deposit secured in escrow</p>
+              </Card>
+
+              <Card className="animate-hero-drift absolute bottom-4 right-10 hidden w-56 border-border/80 bg-background/90 p-3 shadow-lg backdrop-blur md:block">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <Search className="h-3.5 w-3.5 text-primary" />
+                  Match found
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Top 3 freelancers are ready to start</p>
+              </Card>
             </div>
           </div>
         </Container>
