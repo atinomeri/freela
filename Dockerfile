@@ -28,7 +28,7 @@ WORKDIR /app
 ENV NODE_ENV=production \
   PORT=3000
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates \
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates gosu \
   && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -u 1001 nodejs
@@ -43,7 +43,7 @@ COPY --from=builder /app/next.config.mjs ./next.config.mjs
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-USER nodejs
+RUN chmod +x /app/scripts/docker-entrypoint.sh
 
 EXPOSE 3000
-CMD ["npm", "start", "--", "-H", "0.0.0.0", "-p", "3000"]
+CMD ["/app/scripts/docker-entrypoint.sh"]
