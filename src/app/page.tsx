@@ -32,6 +32,79 @@ const titleHighlightTerms: Record<string, string[]> = {
   ru: ["фрилансера", "фрилансер", "заказ", "заказы", "заказа"]
 };
 
+type HeroSceneCopy = {
+  workspaceBadge: string;
+  clientTitle: string;
+  clientDescription: string;
+  clientBudget: string;
+  freelancerTitle: string;
+  freelancerDescription: string;
+  freelancerAvailability: string;
+  matchingScoreLabel: string;
+  floatingNewOrderLabel: string;
+  floatingNewOrderDescription: string;
+  floatingBudgetApprovedLabel: string;
+  floatingBudgetApprovedDescription: string;
+  floatingMatchFoundLabel: string;
+  floatingMatchFoundDescription: string;
+};
+
+const heroSceneCopyByLocale: Record<string, HeroSceneCopy> = {
+  ka: {
+    workspaceBadge: "ცოცხალი სამუშაო სივრცე",
+    clientTitle: "დამკვეთი",
+    clientDescription: "საჭიროა landing page-ის რედიზაინი და ტექსტის განახლება",
+    clientBudget: "ბიუჯეტი: 1200 GEL",
+    freelancerTitle: "ფრილანსერი",
+    freelancerDescription: "გაგზავნილია შეთავაზება, სავარაუდო ვადა 5 დღე",
+    freelancerAvailability: "ხელმისაწვდომია ახლა",
+    matchingScoreLabel: "შეკვეთის შესაბამისობის ქულა",
+    floatingNewOrderLabel: "ახალი შეკვეთა",
+    floatingNewOrderDescription: "ბრენდის იდენტობა + UI kit",
+    floatingBudgetApprovedLabel: "ბიუჯეტი დამტკიცებულია",
+    floatingBudgetApprovedDescription: "დეპოზიტი დაცულია ესქროუში",
+    floatingMatchFoundLabel: "დამთხვევა მოიძებნა",
+    floatingMatchFoundDescription: "ტოპ 3 ფრილანსერი მზადაა დასაწყებად"
+  },
+  en: {
+    workspaceBadge: "Live workspace",
+    clientTitle: "Client",
+    clientDescription: "Need landing page redesign + copy refresh",
+    clientBudget: "Budget: 1200 GEL",
+    freelancerTitle: "Freelancer",
+    freelancerDescription: "Proposal sent, estimated delivery in 5 days",
+    freelancerAvailability: "Available now",
+    matchingScoreLabel: "Order matching score",
+    floatingNewOrderLabel: "New order",
+    floatingNewOrderDescription: "Brand identity + UI kit",
+    floatingBudgetApprovedLabel: "Budget approved",
+    floatingBudgetApprovedDescription: "Deposit secured in escrow",
+    floatingMatchFoundLabel: "Match found",
+    floatingMatchFoundDescription: "Top 3 freelancers are ready to start"
+  },
+  ru: {
+    workspaceBadge: "Рабочее пространство",
+    clientTitle: "Заказчик",
+    clientDescription: "Нужен редизайн лендинга и обновление текста",
+    clientBudget: "Бюджет: 1200 GEL",
+    freelancerTitle: "Фрилансер",
+    freelancerDescription: "Предложение отправлено, срок — 5 дней",
+    freelancerAvailability: "Доступен сейчас",
+    matchingScoreLabel: "Оценка соответствия заказа",
+    floatingNewOrderLabel: "Новый заказ",
+    floatingNewOrderDescription: "Фирменный стиль + UI kit",
+    floatingBudgetApprovedLabel: "Бюджет одобрен",
+    floatingBudgetApprovedDescription: "Депозит защищен в эскроу",
+    floatingMatchFoundLabel: "Совпадение найдено",
+    floatingMatchFoundDescription: "Топ 3 фрилансера готовы начать"
+  }
+};
+
+function getHeroSceneCopy(locale: string): HeroSceneCopy {
+  const normalized = locale.toLowerCase().split("-")[0];
+  return heroSceneCopyByLocale[normalized] ?? heroSceneCopyByLocale.en;
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -61,6 +134,7 @@ export default async function HomePage() {
   const baseT = await getTranslations("home");
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
+  const heroScene = getHeroSceneCopy(locale);
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
@@ -146,7 +220,7 @@ export default async function HomePage() {
                   <div className="mb-4 flex items-center justify-between">
                     <Badge variant="secondary" className="gap-1.5 border border-primary/20 bg-primary/10 text-primary">
                       <BadgeCheck className="h-3.5 w-3.5" />
-                      Live workspace
+                      {heroScene.workspaceBadge}
                     </Badge>
                     <span className="text-xs text-muted-foreground">freela.ge</span>
                   </div>
@@ -155,29 +229,29 @@ export default async function HomePage() {
                     <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <Briefcase className="h-4 w-4 text-primary" />
-                        Client
+                        {heroScene.clientTitle}
                       </div>
-                      <p className="mt-2 text-xs text-muted-foreground">Need landing page redesign + copy refresh</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{heroScene.clientDescription}</p>
                       <div className="mt-3 inline-flex rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-                        Budget: 1200 GEL
+                        {heroScene.clientBudget}
                       </div>
                     </div>
 
                     <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <BadgeCheck className="h-4 w-4 text-success" />
-                        Freelancer
+                        {heroScene.freelancerTitle}
                       </div>
-                      <p className="mt-2 text-xs text-muted-foreground">Proposal sent, estimated delivery in 5 days</p>
+                      <p className="mt-2 text-xs text-muted-foreground">{heroScene.freelancerDescription}</p>
                       <div className="mt-3 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                        Available now
+                        {heroScene.freelancerAvailability}
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-3 rounded-2xl border border-border/70 bg-background/80 p-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Order matching score</span>
+                      <span className="font-medium">{heroScene.matchingScoreLabel}</span>
                       <span className="font-semibold text-primary">96%</span>
                     </div>
                     <div className="mt-2 h-2 rounded-full bg-muted">
@@ -190,25 +264,25 @@ export default async function HomePage() {
               <Card className="animate-hero-float absolute -left-4 top-8 hidden w-52 border-primary/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary">
                   <Sparkles className="h-3.5 w-3.5" />
-                  New order
+                  {heroScene.floatingNewOrderLabel}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Brand identity + UI kit</p>
+                <p className="mt-1 text-xs text-muted-foreground">{heroScene.floatingNewOrderDescription}</p>
               </Card>
 
               <Card className="animate-hero-float-delayed absolute -right-2 top-1/2 hidden w-48 border-success/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
                 <div className="flex items-center gap-2 text-xs font-semibold text-success">
                   <Wallet className="h-3.5 w-3.5" />
-                  Budget approved
+                  {heroScene.floatingBudgetApprovedLabel}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Deposit secured in escrow</p>
+                <p className="mt-1 text-xs text-muted-foreground">{heroScene.floatingBudgetApprovedDescription}</p>
               </Card>
 
               <Card className="animate-hero-drift absolute bottom-4 right-10 hidden w-56 border-border/80 bg-background/90 p-3 shadow-lg backdrop-blur md:block">
                 <div className="flex items-center gap-2 text-xs font-semibold">
                   <Search className="h-3.5 w-3.5 text-primary" />
-                  Match found
+                  {heroScene.floatingMatchFoundLabel}
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Top 3 freelancers are ready to start</p>
+                <p className="mt-1 text-xs text-muted-foreground">{heroScene.floatingMatchFoundDescription}</p>
               </Card>
             </div>
           </div>
