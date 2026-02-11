@@ -102,9 +102,9 @@ export function NoProjects({ className, onCreateClick }: { className?: string; o
   return (
     <EmptyState
       icon={<Briefcase className="h-12 w-12" />}
-      title="პროექტები არ არის"
-      description="დაიწყეთ ახალი პროექტის შექმნა და იპოვეთ საუკეთესო ფრილანსერები"
-      action={onCreateClick ? { label: "ახალი პროექტი", onClick: onCreateClick } : undefined}
+      title="შეკვეთები არ არის"
+      description="დაიწყეთ ახალი შეკვეთის შექმნა და იპოვეთ საუკეთესო ფრილანსერები"
+      action={onCreateClick ? { label: "ახალი შეკვეთა", onClick: onCreateClick } : undefined}
       className={className}
     />
   );

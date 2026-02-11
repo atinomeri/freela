@@ -42,17 +42,17 @@ const copyByLocale: Record<string, GuideCopy> = {
     badge: "ვიზუალური გზამკვლევი",
     title: "როგორ გამოიყენო Freela მაქსიმალური სარგებლით",
     subtitle:
-      "ეს გვერდი გაჩვენებს დამკვეთისა და ფრილანსერის სრულ გზას: პროექტის დაწყებიდან შეთანხმებამდე, შესრულებამდე და შეფასებამდე.",
+      "ეს გვერდი გაჩვენებს დამკვეთისა და ფრილანსერის სრულ გზას: შეკვეთის დაწყებიდან შეთანხმებამდე, შესრულებამდე და შეფასებამდე.",
     employerTitle: "დამკვეთის გზა",
     employerSubtitle: "როგორ იპოვო სწორი სპეციალისტი სწრაფად და კონტროლირებადად.",
     freelancerTitle: "ფრილანსერის გზა",
-    freelancerSubtitle: "როგორ მიიღო მეტი პროექტი და ააშენო ძლიერი რეპუტაცია პლატფორმაზე.",
+    freelancerSubtitle: "როგორ მიიღო მეტი შეკვეთა და ააშენო ძლიერი რეპუტაცია პლატფორმაზე.",
     matrixTitle: "შესაძლებლობების მატრიცა",
     matrixSubtitle: "რა ინსტრუმენტს როდის იყენებ და ვის ეხმარება ყველაზე მეტად.",
     ctaTitle: "მზად ხარ დასაწყებად?",
     ctaSubtitle: "აირჩიე შენი როლი და იმოქმედე დღესვე.",
-    ctaEmployer: "დავდებ პროექტს",
-    ctaFreelancer: "ვიპოვი პროექტს"
+    ctaEmployer: "დავდებ შეკვეთას",
+    ctaFreelancer: "ვიპოვი შეკვეთას"
   },
   en: {
     badge: "Visual Guide",
@@ -113,7 +113,7 @@ const employerStepsByLocale: Record<string, Step[]> = {
     },
     {
       title: "4) ჩაიბარე და შეაფასე",
-      description: "დასრულების შემდეგ დატოვე შეფასება და შექმენი სანდო ისტორია მომავალი პროექტებისთვის.",
+      description: "დასრულების შემდეგ დატოვე შეფასება და შექმენი სანდო ისტორია მომავალი შეკვეთებისთვის.",
       icon: BadgeCheck
     }
   ],
@@ -171,7 +171,7 @@ const freelancerStepsByLocale: Record<string, Step[]> = {
       icon: Sparkles
     },
     {
-      title: "2) მოძებნე შესაბამისი პროექტები",
+      title: "2) მოძებნე შესაბამისი შეკვეთები",
       description: "ფილტრებით იპოვე რელევანტური დავალებები და იმუშავე შენს ნიშაზე.",
       icon: BriefcaseBusiness
     },
@@ -182,7 +182,7 @@ const freelancerStepsByLocale: Record<string, Step[]> = {
     },
     {
       title: "4) შეასრულე და გაზარდე რეიტინგი",
-      description: "დროული მიწოდება და ხარისხი გაძლევს უკეთეს შეფასებებს და მეტ მომავალ პროექტს.",
+      description: "დროული მიწოდება და ხარისხი გაძლევს უკეთეს შეფასებებს და მეტ მომავალ შეკვეთას.",
       icon: Rocket
     }
   ],
@@ -242,7 +242,7 @@ type Capability = {
 const capabilitiesByLocale: Record<string, Capability[]> = {
   ka: [
     {
-      title: "პროექტების კატალოგი",
+      title: "შეკვეთების კატალოგი",
       description: "სწრაფი ფილტრაცია კატეგორიით, ბიუჯეტით და მოთხოვნებით.",
       audience: "ორივესთვის",
       icon: Search
@@ -255,7 +255,7 @@ const capabilitiesByLocale: Record<string, Capability[]> = {
     },
     {
       title: "შეთავაზებები და სტატუსები",
-      description: "ვინ, როდის და რა პირობებით ჩაერთო პროექტში.",
+      description: "ვინ, როდის და რა პირობებით ჩაერთო შეკვეთაში.",
       audience: "დამკვეთისთვის",
       icon: ClipboardList
     },
