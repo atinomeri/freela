@@ -1,18 +1,21 @@
 import { Container } from "@/components/ui/container";
 import { site } from "@/lib/site";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Github, Linkedin, Twitter, Mail } from "lucide-react";
 import { getUnlistedPaths } from "@/lib/site-pages";
 
 export async function SiteFooter() {
+  const locale = await getLocale();
   const tNav = await getTranslations("nav");
   const tFooter = await getTranslations("footer");
   const tSite = await getTranslations("site");
+  const guideLabelByLocale: Record<string, string> = { ka: "გზამკვლევი", en: "Guide", ru: "Гайд" };
 
   const platformLinks = [
     { href: "/projects", label: tNav("projects") },
     { href: "/freelancers", label: tNav("freelancers") },
+    { href: "/guide", label: guideLabelByLocale[locale] ?? "Guide" },
     { href: "/pricing", label: tNav("pricing") }
   ] as const;
   

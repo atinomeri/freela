@@ -7,21 +7,24 @@ import { cn } from "@/lib/utils";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { MobileNav } from "@/components/mobile-nav";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Link } from "@/i18n/navigation";
 import { getUnlistedPaths } from "@/lib/site-pages";
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");
+  const locale = await getLocale();
   const session = await getServerSession(authOptions);
   const unreadCount = session?.user
     ? await prisma.notification.count({ where: { userId: session.user.id, readAt: null } })
     : 0;
+  const guideLabelByLocale: Record<string, string> = { ka: "გზამკვლევი", en: "Guide", ru: "Гайд" };
 
   const navAll = [
     { href: "/projects", label: t("projects") },
     { href: "/freelancers", label: t("freelancers") },
+    { href: "/guide", label: guideLabelByLocale[locale] ?? "Guide" },
     { href: "/about", label: t("about") },
     { href: "/contact", label: t("contact") }
   ] as const;

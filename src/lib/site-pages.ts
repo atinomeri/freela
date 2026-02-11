@@ -6,6 +6,7 @@ export const BUILTIN_PAGE_PATHS = [
   "/",
   "/projects",
   "/freelancers",
+  "/guide",
   "/pricing",
   "/about",
   "/contact",
