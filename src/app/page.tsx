@@ -26,6 +26,35 @@ import { getLocale } from "next-intl/server";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
 
+const titleHighlightTerms: Record<string, string[]> = {
+  ka: ["ფრილანსერი", "შეკვეთა"],
+  en: ["freelancer", "order"],
+  ru: ["фрилансера", "фрилансер", "заказ", "заказы", "заказа"]
+};
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function renderHighlightedHomeTitle(title: string, locale: string) {
+  const terms = (titleHighlightTerms[locale] ?? titleHighlightTerms.en).slice().sort((a, b) => b.length - a.length);
+  const matcher = new RegExp(`(${terms.map(escapeRegExp).join("|")})`, "giu");
+  const normalizedTerms = new Set(terms.map((term) => term.toLocaleLowerCase(locale)));
+
+  return title.split(matcher).map((part, index) => {
+    if (!part) return null;
+    const normalized = part.toLocaleLowerCase(locale);
+    if (normalizedTerms.has(normalized)) {
+      return (
+        <span key={`h-${index}`} className="text-success drop-shadow-[0_0_10px_hsl(var(--success)/0.35)]">
+          {part}
+        </span>
+      );
+    }
+    return <span key={`n-${index}`}>{part}</span>;
+  });
+}
+
 export default async function HomePage() {
   if (!(await isPageEnabled("/"))) notFound();
   const locale = await getLocale();
@@ -80,9 +109,7 @@ export default async function HomePage() {
                 className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3.2rem] md:text-[3.75rem] lg:mx-0 lg:text-[4.1rem]"
                 style={{ animationDelay: "100ms" }}
               >
-                <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">
-                  {t("title")}
-                </span>
+                {renderHighlightedHomeTitle(t("title"), locale)}
               </h1>
               <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-xl" style={{ animationDelay: "200ms" }}>
                 {t("subtitle", { siteName: site.name })}
@@ -150,7 +177,7 @@ export default async function HomePage() {
 
                   <div className="mt-3 rounded-2xl border border-border/70 bg-background/80 p-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Project matching score</span>
+                      <span className="font-medium">Order matching score</span>
                       <span className="font-semibold text-primary">96%</span>
                     </div>
                     <div className="mt-2 h-2 rounded-full bg-muted">
@@ -163,7 +190,7 @@ export default async function HomePage() {
               <Card className="animate-hero-float absolute -left-4 top-8 hidden w-52 border-primary/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary">
                   <Sparkles className="h-3.5 w-3.5" />
-                  New project
+                  New order
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">Brand identity + UI kit</p>
               </Card>

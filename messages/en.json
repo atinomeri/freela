@@ -1,6 +1,6 @@
 {
   "nav": {
-    "projects": "Projects",
+    "projects": "Orders",
     "freelancers": "Freelancers",
     "pricing": "Pricing",
     "about": "About",
@@ -57,11 +57,11 @@
     "clear": "Clear"
   },
   "projects": {
-    "title": "Projects",
-    "description": "Active projects available for freelancers.",
+    "title": "Orders",
+    "description": "Active orders available for freelancers.",
     "myProposals": "My proposals",
     "found": "Found: {count}",
-    "emptyTitle": "No projects yet",
+    "emptyTitle": "No orders yet",
     "emptyDescription": "Check back later.",
     "added": "Added",
     "budgetMissing": "Budget not specified",
@@ -106,15 +106,15 @@
   },
   "home": {
     "badge": "Freelance platform for Georgia",
-    "title": "Find a freelancer — or find a project — fast and safely",
-    "subtitle": "{siteName} connects clients and professionals in Georgia: profiles with portfolios, project listings, and budgets in GEL.",
+    "title": "Find a freelancer — or find an order — fast and safely",
+    "subtitle": "{siteName} connects clients and professionals in Georgia: profiles with portfolios, order listings, and budgets in GEL.",
     "cta": {
-      "findProject": "Find a project",
+      "findProject": "Find an order",
       "findFreelancer": "Find a freelancer"
     },
     "stats": {
       "postProjectValue": "1–3 min",
-      "postProjectLabel": "Post a project",
+      "postProjectLabel": "Post an order",
       "gelValue": "GEL",
       "gelLabel": "Budgets in GEL",
       "availabilityValue": "24/7",
@@ -139,12 +139,30 @@
       "subtitle": "Explore popular directions.",
       "viewAll": "View all",
       "items": {
-        "webApps": { "title": "Web / Apps", "description": "Frontend, backend, mobile, QA, DevOps." },
-        "design": { "title": "Design", "description": "UI/UX, branding, graphic design." },
-        "content": { "title": "Content", "description": "Copywriting, editing, translation." },
-        "marketing": { "title": "Marketing", "description": "SMM, PPC, SEO, email campaigns." },
-        "video": { "title": "Video / Multimedia", "description": "Editing, motion design, covers." },
-        "ecommerce": { "title": "E-commerce", "description": "Online stores, product content, integrations." }
+        "webApps": {
+          "title": "Web / Apps",
+          "description": "Frontend, backend, mobile, QA, DevOps."
+        },
+        "design": {
+          "title": "Design",
+          "description": "UI/UX, branding, graphic design."
+        },
+        "content": {
+          "title": "Content",
+          "description": "Copywriting, editing, translation."
+        },
+        "marketing": {
+          "title": "Marketing",
+          "description": "SMM, PPC, SEO, email campaigns."
+        },
+        "video": {
+          "title": "Video / Multimedia",
+          "description": "Editing, motion design, covers."
+        },
+        "ecommerce": {
+          "title": "E-commerce",
+          "description": "Online stores, product content, integrations."
+        }
       }
     },
     "steps": {
@@ -152,7 +170,7 @@
       "subtitle": "For clients and freelancers — everything in one place.",
       "items": [
         {
-          "title": "Post a project or pick a freelancer",
+          "title": "Post an order or pick a freelancer",
           "description": "Describe requirements, budget, and timeline. Get proposals or message top specialists directly."
         },
         {
@@ -169,7 +187,7 @@
       "title": "Get started today",
       "description": "Create a profile, add a portfolio, and get your first jobs in Georgia.",
       "signUp": "Sign up",
-      "postProject": "Post a project",
+      "postProject": "Post an order",
       "termsPrefix": "By signing up you agree to the",
       "and": "and",
       "terms": "Terms",
@@ -186,7 +204,7 @@
         {
           "name": "Giorgi, Freelance Developer",
           "role": "Kutaisi",
-          "quote": "With portfolios and reviews, clients trust me faster. Great projects show up often."
+          "quote": "With portfolios and reviews, clients trust me faster. Great orders show up often."
         },
         {
           "name": "Mariam, Small Business Owner",
@@ -200,10 +218,22 @@
       "subtitle": "Popular questions and answers.",
       "contact": "Contact us",
       "items": [
-        { "q": "How do I post a project?", "a": "Go to the “Post a project” page, describe the task, budget, and timeline." },
-        { "q": "How do I choose a freelancer?", "a": "Compare profiles, portfolios, and reviews, then reach out." },
-        { "q": "Is there a fee?", "a": "At launch we keep pricing simple. See details in Terms." },
-        { "q": "Is support available in Georgian?", "a": "Yes — support is available via email and (soon) chat." }
+        {
+          "q": "How do I post an order?",
+          "a": "Go to the “Post an order” page, describe the task, budget, and timeline."
+        },
+        {
+          "q": "How do I choose a freelancer?",
+          "a": "Compare profiles, portfolios, and reviews, then reach out."
+        },
+        {
+          "q": "Is there a fee?",
+          "a": "At launch we keep pricing simple. See details in Terms."
+        },
+        {
+          "q": "Is support available in Georgian?",
+          "a": "Yes — support is available via email and (soon) chat."
+        }
       ]
     }
   },
@@ -211,36 +241,66 @@
     "title": "Page not found",
     "subtitle": "Check the link or go back to the home page.",
     "home": "Home",
-    "projects": "Projects"
+    "projects": "Orders"
   },
   "aboutPage": {
     "title": "About",
     "subtitle": "Freela is a freelance marketplace built for Georgia — find specialists by category, budget, and experience, then talk in chat.",
     "stats": [
-      { "value": "9", "label": "Static categories" },
-      { "value": "Filters", "label": "Category • budget • sorting" },
-      { "value": "Chat", "label": "Messages + file sharing" },
-      { "value": "Security", "label": "Accounts, password reset" }
+      {
+        "value": "9",
+        "label": "Static categories"
+      },
+      {
+        "value": "Filters",
+        "label": "Category • budget • sorting"
+      },
+      {
+        "value": "Chat",
+        "label": "Messages + file sharing"
+      },
+      {
+        "value": "Security",
+        "label": "Accounts, password reset"
+      }
     ],
     "missionTitle": "Our mission",
     "missionBody": "Make cooperation between clients and freelancers in Georgia simple and clear — with stable categories, quick search, and communication in one place.",
     "missionPoints": [
-      "For clients — post a project and review proposals.",
+      "For clients — post an order and review proposals.",
       "For freelancers — create a profile and pick exactly one category.",
       "For everyone — chat and share files with full history."
     ],
     "howTitle": "How it works",
     "howSteps": [
-      { "title": "Create an account", "description": "Sign up as a client or freelancer. Freelancers choose one required category." },
-      { "title": "Browse and match", "description": "Search projects or freelancers using category, budget, and sorting." },
-      { "title": "Chat and deliver", "description": "Discuss details in chat, send files, and keep everything organized." }
+      {
+        "title": "Create an account",
+        "description": "Sign up as a client or freelancer. Freelancers choose one required category."
+      },
+      {
+        "title": "Browse and match",
+        "description": "Search orders or freelancers using category, budget, and sorting."
+      },
+      {
+        "title": "Chat and deliver",
+        "description": "Discuss details in chat, send files, and keep everything organized."
+      }
     ],
     "valuesTitle": "What we value",
     "valuesSubtitle": "Principles we build Freela with.",
     "cards": [
-      { "title": "Clear categories", "description": "Static categories prevent duplicates and make search predictable." },
-      { "title": "Simple filtering", "description": "Category, budget, and sorting help you find the right match faster." },
-      { "title": "Built-in chat", "description": "Messages and file sharing keep collaboration organized." }
+      {
+        "title": "Clear categories",
+        "description": "Static categories prevent duplicates and make search predictable."
+      },
+      {
+        "title": "Simple filtering",
+        "description": "Category, budget, and sorting help you find the right match faster."
+      },
+      {
+        "title": "Built-in chat",
+        "description": "Messages and file sharing keep collaboration organized."
+      }
     ],
     "ctaTitle": "Ready to get started?",
     "ctaSubtitle": "Create your account or browse freelancers in the directory.",
@@ -262,19 +322,31 @@
         "name": "Start",
         "price": "0 ₾",
         "subtitle": "Starter profile",
-        "features": ["Appear in directory", "Add a portfolio", "Receive messages"]
+        "features": [
+          "Appear in directory",
+          "Add a portfolio",
+          "Receive messages"
+        ]
       },
       "pro": {
         "name": "Pro",
         "price": "29 ₾/month",
         "subtitle": "More visibility",
-        "features": ["Priority listing", "Additional filters", "Stats & insights"]
+        "features": [
+          "Priority listing",
+          "Additional filters",
+          "Stats & insights"
+        ]
       },
       "business": {
         "name": "Business",
         "price": "Custom",
         "subtitle": "For companies",
-        "features": ["Company dashboard", "Tenders & team roles", "Reporting"]
+        "features": [
+          "Company dashboard",
+          "Tenders & team roles",
+          "Reporting"
+        ]
       }
     },
     "ctaStartFree": "Start free",
@@ -294,7 +366,7 @@
         "body": "You are responsible for keeping your login credentials safe and for the actions performed under your account."
       },
       "2": {
-        "title": "3. Projects & communication",
+        "title": "3. Orders & communication",
         "body": "Users must provide accurate information and communicate respectfully. We may suspend accounts for abuse or fraud."
       },
       "3": {
@@ -318,7 +390,7 @@
       },
       "2": {
         "title": "3. Sharing and disclosures",
-        "body": "We do not sell personal data. We may share limited information with service providers that help us operate Freela (for example, hosting, analytics, email delivery, and customer support tools), and with other users as part of normal platform functionality (for example, information shown on your profile and in project communications). We may disclose information if required by law, to protect our rights, users, or the public, or in connection with a corporate transaction (such as a merger or asset sale)."
+        "body": "We do not sell personal data. We may share limited information with service providers that help us operate Freela (for example, hosting, analytics, email delivery, and customer support tools), and with other users as part of normal platform functionality (for example, information shown on your profile and in order communications). We may disclose information if required by law, to protect our rights, users, or the public, or in connection with a corporate transaction (such as a merger or asset sale)."
       },
       "3": {
         "title": "4. Your rights and choices",
@@ -333,7 +405,9 @@
   },
   "authForgotPasswordForm": {
     "devLink": "Dev link:",
-    "errors": { "generic": "Something went wrong. Please try again." },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    },
     "successGeneric": "If this email exists, you’ll receive a link shortly.",
     "email": "Email",
     "loading": "Loading...",
@@ -364,8 +438,8 @@
     "REJECTED": "Rejected"
   },
   "projectsNewPage": {
-    "title": "Post a project",
-    "subtitle": "Fill in details and publish your project."
+    "title": "Post an order",
+    "subtitle": "Fill in details and publish your order."
   },
   "newProjectForm": {
     "errors": {
@@ -373,7 +447,7 @@
       "titleMin": "Title must be at least 5 characters.",
       "descriptionMin": "Description must be at least 20 characters.",
       "budgetNumeric": "Budget must be a number.",
-      "createFailed": "Could not create the project."
+      "createFailed": "Could not create the order."
     },
     "category": "Category",
     "categoryPlaceholder": "Select a category…",
@@ -388,22 +462,22 @@
     "budgetPlaceholder": "e.g. 1200",
     "optionalHint": "Optional",
     "sending": "Sending...",
-    "submit": "Create project"
+    "submit": "Create order"
   },
   "projectDetailPage": {
-    "breadcrumbProjects": "Projects",
+    "breadcrumbProjects": "Orders",
     "added": "Added",
     "budget": "Budget:",
     "notSpecified": "Not specified",
     "employerTitle": "Employer",
-    "employerProjectsLabel": "Published projects",
+    "employerProjectsLabel": "Published orders",
     "employerAcceptedLabel": "Accepted proposals",
-    "closedTitle": "Project is closed",
-    "closedBody": "The employer canceled this project. You can't send a proposal.",
+    "closedTitle": "Order is closed",
+    "closedBody": "The employer canceled this order. You can't send a proposal.",
     "applyLoginTitle": "Want to apply?",
     "applyLoginBody": "Log in or create a freelancer account to send a proposal.",
     "applyOnlyFreelancersTitle": "Only freelancers can apply",
-    "applyOnlyFreelancersBody": "Switch to a freelancer account to send a proposal for this project.",
+    "applyOnlyFreelancersBody": "Switch to a freelancer account to send a proposal for this order.",
     "yourProposal": "Your proposal",
     "sent": "Sent",
     "alreadySent": "Your proposal has already been sent. You can wait for a response."
@@ -423,7 +497,9 @@
     "submit": "Apply"
   },
   "projectStartChat": {
-    "errors": { "createFailed": "Could not start the chat." },
+    "errors": {
+      "createFailed": "Could not start the chat."
+    },
     "opening": "Opening...",
     "button": "Message the client"
   },
@@ -433,12 +509,12 @@
     "hello": "Hello,",
     "home": "Home",
     "stats": {
-      "projectsPublished": "Published projects",
+      "projectsPublished": "Published orders",
       "acceptedProposals": "Accepted proposals"
     },
     "actions": {
-      "postProject": "Post a project",
-      "myProjects": "My projects",
+      "postProject": "Post an order",
+      "myProjects": "My orders",
       "profile": "Profile",
       "myProposals": "My proposals",
       "chat": "Chat",
@@ -447,11 +523,11 @@
     }
   },
   "dashboardProjects": {
-    "title": "My projects",
-    "subtitle": "Here are the projects you posted.",
-    "postProject": "Post a project",
-    "emptyTitle": "You haven't posted any projects yet",
-    "emptySubtitle": "Start by posting your first project.",
+    "title": "My orders",
+    "subtitle": "Here are the orders you posted.",
+    "postProject": "Post an order",
+    "emptyTitle": "You haven't posted any orders yet",
+    "emptySubtitle": "Start by posting your first order.",
     "added": "Added",
     "budgetMissing": "Budget not specified",
     "proposalsCount": "{count, plural, one {# proposal} other {# proposals}}",
@@ -462,10 +538,12 @@
     "backToDashboard": "Back to dashboard"
   },
   "dashboardProjectStatus": {
-    "cancel": "Cancel project",
-    "restore": "Restore project",
+    "cancel": "Cancel order",
+    "restore": "Restore order",
     "updating": "Updating...",
-    "errors": { "updateFailed": "Couldn't update project status." }
+    "errors": {
+      "updateFailed": "Couldn't update order status."
+    }
   },
   "reviewForm": {
     "title": "Leave a review",
@@ -476,7 +554,9 @@
     "submit": "Submit review",
     "submitting": "Submitting...",
     "success": "Review submitted for {name}.",
-    "errors": { "submitFailed": "Couldn't submit the review." }
+    "errors": {
+      "submitFailed": "Couldn't submit the review."
+    }
   },
   "mobileNav": {
     "menu": "Menu",
@@ -494,22 +574,27 @@
     "sending": "Sending..."
   },
   "site": {
-    "description": "Professional freelance marketplace for Georgia: projects, freelancers, reviews, and payments in GEL."
+    "description": "A professional freelance marketplace for the Georgian market.",
+    "metaDescription": "A professional freelance marketplace for Georgia: orders, freelancers, ratings, and payments in GEL."
   },
   "dashboardProposalActions": {
-    "errors": { "updateFailed": "Could not update status." },
+    "errors": {
+      "updateFailed": "Could not update status."
+    },
     "accept": "Accept",
     "reject": "Reject"
   },
   "dashboardStartChat": {
-    "errors": { "createFailed": "Could not start the chat." },
+    "errors": {
+      "createFailed": "Could not start the chat."
+    },
     "opening": "Opening...",
     "button": "Message freelancer"
   },
   "dashboardProjectDetail": {
-    "title": "Project details",
-    "subtitle": "View project information and proposals.",
-    "breadcrumbMyProjects": "My projects",
+    "title": "Order details",
+    "subtitle": "View order information and proposals.",
+    "breadcrumbMyProjects": "My orders",
     "added": "Added",
     "budget": "Budget:",
     "notSpecified": "Not specified",
@@ -519,7 +604,9 @@
     "complete": "Mark as completed",
     "completing": "Completing...",
     "reviewedAlready": "Review submitted.",
-    "errors": { "completeFailed": "Couldn't complete the project." },
+    "errors": {
+      "completeFailed": "Couldn't complete the order."
+    },
     "proposalsTitle": "Proposals",
     "proposalsEmpty": "No proposals yet.",
     "price": "Price:"
@@ -527,13 +614,13 @@
   "dashboardProposals": {
     "title": "My proposals",
     "subtitle": "All proposals you've sent and their status.",
-    "viewProjects": "Browse projects",
+    "viewProjects": "Browse orders",
     "emptyTitle": "You haven't sent any proposals yet",
-    "emptySubtitle": "Go to projects and submit your first proposal.",
+    "emptySubtitle": "Go to orders and submit your first proposal.",
     "sent": "Sent",
     "budget": "Budget:",
     "notSpecified": "Not specified",
-    "viewProject": "View project"
+    "viewProject": "View order"
   },
   "dashboardNotifications": {
     "title": "Notifications",
@@ -544,13 +631,15 @@
     "unread": "Unread: {count}"
   },
   "dashboardNotificationsList": {
-    "errors": { "markAllFailed": "Could not mark all as read." },
+    "errors": {
+      "markAllFailed": "Could not mark all as read."
+    },
     "sending": "Sending...",
     "markAllRead": "Mark all as read"
   },
   "dashboardMessages": {
     "title": "Messages",
-    "subtitle": "Conversations grouped by project.",
+    "subtitle": "Conversations grouped by order.",
     "dashboard": "Dashboard",
     "emptyTitle": "No messages yet",
     "emptySubtitle": "A conversation will appear once chat starts.",
@@ -559,7 +648,7 @@
   },
   "dashboardThread": {
     "title": "Chat",
-    "subtitle": "Project conversation.",
+    "subtitle": "Order conversation.",
     "conversation": "Conversation",
     "allConversations": "All conversations"
   },
@@ -623,8 +712,8 @@
     "subtitle": "Admin panel.",
     "cards": {
       "users": "Users",
-      "projects": "Projects",
-      "openProjects": "Open projects",
+      "projects": "Orders",
+      "openProjects": "Open orders",
       "disabledUsers": "Disabled users"
     },
     "forbiddenTitle": "Access restricted",
@@ -633,7 +722,7 @@
   "adminNav": {
     "dashboard": "Dashboard",
     "users": "Users",
-    "projects": "Projects",
+    "projects": "Orders",
     "pages": "Pages",
     "content": "Content",
     "backToDashboard": "Back to dashboard"
@@ -647,7 +736,14 @@
   "adminUsersTable": {
     "filterPlaceholder": "Filter by name or email...",
     "refresh": "Refresh",
-    "cols": { "user": "User", "role": "Role", "verified": "Verified", "disabled": "Disabled", "created": "Created", "actions": "Actions" },
+    "cols": {
+      "user": "User",
+      "role": "Role",
+      "verified": "Verified",
+      "disabled": "Disabled",
+      "created": "Created",
+      "actions": "Actions"
+    },
     "yes": "Yes",
     "no": "No",
     "verifyEmail": "Verify email",
@@ -665,7 +761,15 @@
     "forbiddenSubtitle": "Admins only.",
     "refresh": "Refresh",
     "newPage": "New page",
-    "cols": { "path": "Path", "type": "Type", "visible": "Visible", "enabled": "Enabled", "updated": "Updated", "title": "Title", "actions": "Actions" },
+    "cols": {
+      "path": "Path",
+      "type": "Type",
+      "visible": "Visible",
+      "enabled": "Enabled",
+      "updated": "Updated",
+      "title": "Title",
+      "actions": "Actions"
+    },
     "builtin": "Built-in",
     "custom": "Custom",
     "show": "Show",
@@ -714,22 +818,28 @@
     "emptyHint": "Empty value removes the override."
   },
   "adminProjects": {
-    "title": "Projects",
-    "subtitle": "Manage projects status.",
+    "title": "Orders",
+    "subtitle": "Manage order statuses.",
     "forbiddenTitle": "Access restricted",
     "forbiddenSubtitle": "Admins only."
   },
   "adminProjectsTable": {
     "filterPlaceholder": "Filter by title or city...",
     "refresh": "Refresh",
-    "cols": { "project": "Project", "employer": "Employer", "status": "Status", "created": "Created", "actions": "Actions" },
+    "cols": {
+      "project": "Order",
+      "employer": "Employer",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions"
+    },
     "open": "Open",
     "closed": "Closed",
     "completedAt": "Completed",
     "close": "Close",
     "reopen": "Reopen",
     "markCompleted": "Mark completed",
-    "empty": "No projects found."
+    "empty": "No orders found."
   },
   "adminContentPricing": {
     "title": "Pricing content",
@@ -802,10 +912,6 @@
     "retry": "Try again",
     "home": "Go to home"
   },
-  "site": {
-    "description": "A professional freelance marketplace for the Georgian market.",
-    "metaDescription": "A professional freelance marketplace for Georgia: projects, freelancers, ratings, and payments in GEL."
-  },
   "notifications": {
     "title": {
       "NEW_PROPOSAL": "New proposal",
@@ -864,22 +970,22 @@
     "TITLE_MIN": "Title must be at least 5 characters.",
     "DESCRIPTION_MIN": "Description must be at least 20 characters.",
     "BUDGET_INVALID": "Invalid budget.",
-    "PROJECT_CREATE_FAILED": "Could not create the project.",
+    "PROJECT_CREATE_FAILED": "Could not create the order.",
     "MESSAGE_MIN": "Message must be at least 20 characters.",
     "PRICE_INVALID": "Invalid price.",
     "SESSION_STALE": "Session expired. Please sign in again.",
-    "PROJECT_NOT_FOUND": "Project not found.",
-    "PROJECT_CLOSED": "This project is closed.",
-    "PROJECT_COMPLETED": "This project is already completed.",
-    "PROJECT_ALREADY_COMPLETED": "This project is already completed.",
-    "PROJECT_NOT_COMPLETED": "Complete the project before leaving a review.",
+    "PROJECT_NOT_FOUND": "Order not found.",
+    "PROJECT_CLOSED": "This order is closed.",
+    "PROJECT_COMPLETED": "This order is already completed.",
+    "PROJECT_ALREADY_COMPLETED": "This order is already completed.",
+    "PROJECT_NOT_COMPLETED": "Complete the order before leaving a review.",
     "BAD_REQUEST": "Invalid request.",
     "RATING_INVALID": "Rating must be between 1 and 5.",
     "COMMENT_TOO_LONG": "Comment is too long.",
-    "REVIEW_NOT_ALLOWED": "You can only review freelancers you hired for this project.",
-    "DUPLICATE_REVIEW": "You already left a review for this project.",
+    "REVIEW_NOT_ALLOWED": "You can only review freelancers you hired for this order.",
+    "DUPLICATE_REVIEW": "You already left a review for this order.",
     "REVIEW_CREATE_FAILED": "Could not submit the review.",
-    "DUPLICATE_PROPOSAL": "You already applied to this project.",
+    "DUPLICATE_PROPOSAL": "You already applied to this order.",
     "FK_VIOLATION": "Session expired or data is invalid. Please sign in again.",
     "APPLY_FAILED": "Could not send the proposal.",
     "STATUS_INVALID": "Invalid status.",
@@ -912,20 +1018,50 @@
       "individualInfo": "Personal info"
     },
     "roles": {
-      "employer": { "label": "Employer", "hint": "Post projects and hire freelancers." },
-      "freelancer": { "label": "Freelancer", "hint": "Find projects and get hired." }
+      "employer": {
+        "label": "Employer",
+        "hint": "Post orders and hire freelancers."
+      },
+      "freelancer": {
+        "label": "Freelancer",
+        "hint": "Find orders and get hired."
+      }
     },
     "employerTypes": {
       "individual": "Individual",
       "company": "Company"
     },
     "fields": {
-      "companyName": { "label": "Company name", "hint": "Your legal company name.", "placeholder": "e.g. Acme LLC" },
-      "companyId": { "label": "Company ID", "hint": "9-digit identification code.", "placeholder": "e.g. 123456789" },
-      "category": { "label": "Category", "placeholder": "Choose a category…" },
-      "name": { "label": "Full name", "placeholder": "e.g. Nika Beridze" },
-      "personalId": { "label": "Personal ID", "hint": "11 digits.", "placeholder": "e.g. 01010101010" },
-      "birthDate": { "label": "Birth date", "hint": "Select your date of birth.", "year": "Year", "month": "Month", "day": "Day" },
+      "companyName": {
+        "label": "Company name",
+        "hint": "Your legal company name.",
+        "placeholder": "e.g. Acme LLC"
+      },
+      "companyId": {
+        "label": "Company ID",
+        "hint": "9-digit identification code.",
+        "placeholder": "e.g. 123456789"
+      },
+      "category": {
+        "label": "Category",
+        "placeholder": "Choose a category…"
+      },
+      "name": {
+        "label": "Full name",
+        "placeholder": "e.g. Nika Beridze"
+      },
+      "personalId": {
+        "label": "Personal ID",
+        "hint": "11 digits.",
+        "placeholder": "e.g. 01010101010"
+      },
+      "birthDate": {
+        "label": "Birth date",
+        "hint": "Select your date of birth.",
+        "year": "Year",
+        "month": "Month",
+        "day": "Day"
+      },
       "phone": {
         "label": "Phone",
         "countryLabel": "Country",
@@ -934,11 +1070,21 @@
         "placeholder": "+995...",
         "numberPlaceholder": "555 123 456"
       },
-      "email": { "label": "Email" },
-      "password": { "label": "Password", "hint": "Minimum 8 characters." },
-      "confirmPassword": { "label": "Confirm password" }
+      "email": {
+        "label": "Email"
+      },
+      "password": {
+        "label": "Password",
+        "hint": "Minimum 8 characters."
+      },
+      "confirmPassword": {
+        "label": "Confirm password"
+      }
     },
     "months": {
+      "10": "October",
+      "11": "November",
+      "12": "December",
       "01": "January",
       "02": "February",
       "03": "March",
@@ -947,10 +1093,7 @@
       "06": "June",
       "07": "July",
       "08": "August",
-      "09": "September",
-      "10": "October",
-      "11": "November",
-      "12": "December"
+      "09": "September"
     },
     "buttons": {
       "submitting": "Creating...",
@@ -983,3 +1126,4 @@
     "backToLogin": "Back to log in"
   }
 }
+
