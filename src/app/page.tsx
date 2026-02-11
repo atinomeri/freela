@@ -70,13 +70,16 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
 
         <Container className="py-16 sm:py-24 lg:py-28">
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:text-left">
+          <div className="grid gap-12 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
+            <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:pr-6 lg:text-left">
               <Badge className="inline-flex animate-fade-in items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 {t("badge")}
               </Badge>
-              <h1 className="mt-6 animate-fade-in text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl" style={{ animationDelay: "100ms" }}>
+              <h1
+                className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3.2rem] md:text-[3.75rem] lg:mx-0 lg:text-[4.1rem]"
+                style={{ animationDelay: "100ms" }}
+              >
                 <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text">
                   {t("title")}
                 </span>
@@ -86,10 +89,10 @@ export default async function HomePage() {
               </p>
 
               <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start" style={{ animationDelay: "300ms" }}>
-                <ButtonLink href="/projects" size="lg" className="group gap-2 px-8 shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30">
+                <ButtonLink href="/projects" size="lg" className="group gap-2 rounded-xl bg-primary px-8 shadow-xl shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-2xl hover:shadow-primary/35">
                   {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </ButtonLink>
-                <ButtonLink href="/freelancers" size="lg" variant="secondary" className="px-8">
+                <ButtonLink href="/freelancers" size="lg" variant="ghost" className="rounded-xl border border-border/70 bg-background/45 px-8 text-foreground/85 hover:border-primary/30 hover:bg-background/80">
                   {t("cta.findFreelancer")}
                 </ButtonLink>
               </div>
@@ -107,7 +110,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[560px] animate-fade-in" style={{ animationDelay: "220ms" }}>
+            <div className="relative mx-auto w-full max-w-[540px] animate-fade-in lg:origin-center lg:scale-[0.94]" style={{ animationDelay: "220ms" }}>
               <Card className="relative overflow-hidden border-border/70 bg-card/75 p-5 shadow-2xl backdrop-blur-md sm:p-6">
                 <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-primary/20 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 -left-14 h-52 w-52 rounded-full bg-success/20 blur-3xl" />
