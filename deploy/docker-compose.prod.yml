@@ -10,6 +10,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: "3000"
+      UPLOADS_DIR: /data/uploads
     depends_on:
       - db
       - redis
@@ -65,4 +66,3 @@ volumes:
 networks:
   freela_net:
     driver: bridge
-

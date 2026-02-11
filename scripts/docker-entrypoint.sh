@@ -3,6 +3,7 @@ set -eu
 
 UPLOADS_DIR="${UPLOADS_DIR:-/data/uploads}"
 PORT_VALUE="${PORT:-3000}"
+export UPLOADS_DIR
 
 mkdir -p "$UPLOADS_DIR"
 chown -R nodejs:nodejs "$UPLOADS_DIR"
