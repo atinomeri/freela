@@ -181,6 +181,29 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         // ignore
       }
     }
+    const message = e instanceof Error ? e.message : "";
+    const fsCode =
+      typeof e === "object" && e !== null && "code" in e && typeof (e as { code?: unknown }).code === "string"
+        ? (e as { code: string }).code
+        : "";
+    reportError("[messages] file upload failed", e, { threadId: thread.id, files: files.length });
+    if (message === "File too large") {
+      return jsonError("FILE_TOO_LARGE", 400, { maxFileBytes: ATTACHMENT_LIMITS.maxFileBytes });
+    }
+    if (message === "Empty file") {
+      return jsonError("EMPTY_FILE", 400);
+    }
+    if (
+      message === "No writable uploads directory found" ||
+      fsCode === "EACCES" ||
+      fsCode === "EPERM" ||
+      fsCode === "EROFS" ||
+      fsCode === "ENOSPC" ||
+      fsCode === "EMFILE" ||
+      fsCode === "ENOENT"
+    ) {
+      return jsonError("UPLOADS_UNAVAILABLE", 503);
+    }
     return jsonError("FILE_UPLOAD_FAILED", 400);
   }
 
