@@ -29,13 +29,14 @@ jobs:
       VPS_PORT: ${{ secrets.VPS_SSH_PORT }}
       VPS_APP_DIR: ${{ secrets.VPS_APP_DIR }}
       SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+      VPS_HOST_KEY: ${{ secrets.VPS_HOST_KEY }}
       DEPLOY_BRANCH: main
       HEALTHCHECK_URL: ${{ secrets.DEPLOY_HEALTHCHECK_URL }}
     steps:
       - name: Validate required secrets
         run: |
           set -euo pipefail
-          for v in VPS_HOST VPS_USER VPS_PORT VPS_APP_DIR SSH_PRIVATE_KEY; do
+          for v in VPS_HOST VPS_USER VPS_PORT VPS_APP_DIR SSH_PRIVATE_KEY VPS_HOST_KEY; do
             if [ -z "${!v}" ]; then
               echo "::error::Missing required secret: $v"
               exit 1
@@ -49,7 +50,7 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy on server
@@ -72,4 +73,3 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --show-error --silent "$HEALTHCHECK_URL" > /dev/null
-

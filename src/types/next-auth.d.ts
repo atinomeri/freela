@@ -2,12 +2,13 @@ import type { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
-    user: DefaultSession["user"] & { id: string; role: "EMPLOYER" | "FREELANCER" | "ADMIN" };
+    user?: DefaultSession["user"] & { id: string; role: "EMPLOYER" | "FREELANCER" | "ADMIN" };
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     role?: "EMPLOYER" | "FREELANCER" | "ADMIN";
+    isActive?: boolean;
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { Prisma } from "@prisma/client";
 
 function jsonError(errorCode: string, status: number) {
@@ -11,6 +12,8 @@ function jsonError(errorCode: string, status: number) {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
+  const userLimit = await checkRateLimit({ scope: "threads:create:user", key: session.user.id, limit: 60, windowSeconds: 15 * 60 });
+  if (!userLimit.allowed) return jsonError("RATE_LIMITED", 429);
 
   const body = (await req.json().catch(() => null)) as { projectId?: unknown; freelancerId?: unknown } | null;
   const projectId = String(body?.projectId ?? "").trim();

@@ -8,6 +8,8 @@ const webServerEnv: Record<string, string> = {
   ...Object.fromEntries(Object.entries(process.env).filter(([, v]) => typeof v === "string")) as Record<string, string>,
   NEXTAUTH_URL: baseURL,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "e2e_dummy_secret",
+  DATABASE_URL: process.env.DATABASE_URL || "postgresql://freela:freela_password@localhost:5432/freela?schema=public",
+  REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
   E2E: "true"
 };
 
@@ -25,7 +27,7 @@ export default defineConfig({
     video: "retain-on-failure"
   },
   webServer: {
-    command: "npm run dev -- --webpack -p 3000",
+    command: "npm run ci:db:reset && npm run prisma:migrate:deploy && npm run dev -- --webpack -p 3000",
     url: webServerUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
@@ -32,6 +33,14 @@ type AuthUser = {
   email: string;
   role: Role;
 };
+
+function markTokenInactive(token: JWT) {
+  const next = token;
+  delete next.role;
+  delete next.sub;
+  next.isActive = false;
+  return next;
+}
 
 export const authOptions: NextAuthOptions = {
   secret: nextAuthSecret,
@@ -107,14 +116,41 @@ export const authOptions: NextAuthOptions = {
         const authUser = user as unknown as AuthUser;
         token.role = authUser.role;
         token.sub = authUser.id;
+        token.isActive = true;
+        return token;
       }
+
+      const userId = typeof token.sub === "string" ? token.sub : "";
+      if (!userId) return markTokenInactive(token);
+
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { id: true, role: true, emailVerifiedAt: true, isDisabled: true }
+        });
+        if (!dbUser || dbUser.isDisabled || !dbUser.emailVerifiedAt) {
+          return markTokenInactive(token);
+        }
+
+        token.sub = dbUser.id;
+        token.role = dbUser.role;
+        token.isActive = true;
+      } catch {
+        return markTokenInactive(token);
+      }
+
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        if (token.role) session.user.role = token.role;
-        if (token.sub) session.user.id = token.sub;
+      if (!token.sub || !token.role || token.isActive === false) {
+        return { ...session, user: undefined };
       }
+
+      session.user = {
+        ...(session.user ?? {}),
+        id: token.sub,
+        role: token.role
+      };
       return session;
     }
   }

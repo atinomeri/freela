@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { publish } from "@/lib/realtime-bus";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const allowed = new Set(["ACCEPTED", "REJECTED"]);
 
@@ -14,6 +15,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
   if (session.user.role !== "EMPLOYER") return jsonError("FORBIDDEN", 403);
+  const userLimit = await checkRateLimit({ scope: "proposals:status:user", key: session.user.id, limit: 120, windowSeconds: 15 * 60 });
+  if (!userLimit.allowed) return jsonError("RATE_LIMITED", 429);
 
   const { id } = await params;
   const body = (await req.json().catch(() => null)) as { status?: unknown } | null;
@@ -49,16 +52,20 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     select: { id: true, type: true, title: true, body: true, href: true, createdAt: true }
   });
 
-  await publish("events", {
-    type: "proposal_status",
-    toUserIds: [proposal.freelancerId],
-    data: { proposalId: proposal.id, status: updated.status, projectId: proposal.projectId }
-  });
-  await publish("events", {
-    type: "notification",
-    toUserIds: [proposal.freelancerId],
-    data: { notification }
-  });
+  try {
+    await publish("events", {
+      type: "proposal_status",
+      toUserIds: [proposal.freelancerId],
+      data: { proposalId: proposal.id, status: updated.status, projectId: proposal.projectId }
+    });
+    await publish("events", {
+      type: "notification",
+      toUserIds: [proposal.freelancerId],
+      data: { notification }
+    });
+  } catch (e) {
+    if (process.env.NODE_ENV !== "production") console.error("[proposal] publish failed", e);
+  }
 
   return NextResponse.json({ ok: true, proposal: updated }, { status: 200 });
 }

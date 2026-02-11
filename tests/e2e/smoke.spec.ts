@@ -64,7 +64,13 @@ async function registerFreelancer(baseURL: string, params: { email: string; pass
     })
   });
 
-  const json = await res.json().catch(() => null);
+  const json = (await res.json().catch(() => null)) as { debugVerifyUrl?: string } | null;
+  if (res.ok && json?.debugVerifyUrl) {
+    const verifyRes = await fetch(json.debugVerifyUrl);
+    if (!verifyRes.ok) {
+      throw new Error(`Failed to auto-verify email via debug URL (status=${verifyRes.status})`);
+    }
+  }
   return { status: res.status, json };
 }
 
@@ -87,7 +93,13 @@ async function registerEmployer(baseURL: string, params: { email: string; passwo
     })
   });
 
-  const json = await res.json().catch(() => null);
+  const json = (await res.json().catch(() => null)) as { debugVerifyUrl?: string } | null;
+  if (res.ok && json?.debugVerifyUrl) {
+    const verifyRes = await fetch(json.debugVerifyUrl);
+    if (!verifyRes.ok) {
+      throw new Error(`Failed to auto-verify email via debug URL (status=${verifyRes.status})`);
+    }
+  }
   return { status: res.status, json };
 }
 

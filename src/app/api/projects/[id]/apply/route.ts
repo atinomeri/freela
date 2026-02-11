@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { publish } from "@/lib/realtime-bus";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
@@ -13,6 +14,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
   if (session.user.role !== "FREELANCER") return jsonError("FORBIDDEN", 403);
+  const userLimit = await checkRateLimit({ scope: "apply:user", key: session.user.id, limit: 20, windowSeconds: 15 * 60 });
+  if (!userLimit.allowed) return jsonError("RATE_LIMITED", 429);
 
   const { id } = await params;
   const body = (await req.json().catch(() => null)) as { message?: unknown; priceGEL?: unknown } | null;

@@ -18,12 +18,13 @@ export default async function MessagesPage() {
   const t = await getTranslations("dashboardMessages");
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/auth/login");
-  if (session.user.role !== "EMPLOYER" && session.user.role !== "FREELANCER") redirect("/dashboard");
+  const sessionUser = session.user;
+  if (sessionUser.role !== "EMPLOYER" && sessionUser.role !== "FREELANCER") redirect("/dashboard");
 
   const where =
-    session.user.role === "EMPLOYER"
-      ? { employerId: session.user.id }
-      : { freelancerId: session.user.id };
+    sessionUser.role === "EMPLOYER"
+      ? { employerId: sessionUser.id }
+      : { freelancerId: sessionUser.id };
 
   const threads = await prisma.thread.findMany({
     where,
@@ -60,7 +61,7 @@ export default async function MessagesPage() {
       ) : (
         <div className="mt-6 grid gap-4">
           {threads.map((thread) => {
-            const counterparty = session.user.role === "EMPLOYER" ? thread.freelancer.name : thread.employer.name;
+            const counterparty = sessionUser.role === "EMPLOYER" ? thread.freelancer.name : thread.employer.name;
             const last = thread.messages[0];
             return (
               <Link key={thread.id} href={`/dashboard/messages/${thread.id}`} className="group">

@@ -120,7 +120,7 @@ export async function checkRateLimit(params: {
       retryAfterSeconds: Math.max(0, ttl)
     };
   } catch {
-    // If Redis is down, prefer allowing rather than breaking auth flows.
-    return { allowed: true, limit: params.limit, remaining: params.limit, retryAfterSeconds: 0 };
+    // If Redis is down, fall back to in-memory buckets instead of fail-open.
+    return checkMemory(redisKey, params.limit, params.windowSeconds);
   }
 }

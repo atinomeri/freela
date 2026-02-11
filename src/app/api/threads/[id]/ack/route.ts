@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { publish } from "@/lib/realtime-bus";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,8 @@ type Body = {
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
+  const userLimit = await checkRateLimit({ scope: "threads:ack:user", key: session.user.id, limit: 240, windowSeconds: 5 * 60 });
+  if (!userLimit.allowed) return jsonError("RATE_LIMITED", 429);
 
   const { id } = await params;
   const thread = await prisma.thread.findUnique({
@@ -89,11 +92,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     select: { id: true, deliveredAt: true, readAt: true }
   });
 
-  await publish("events", {
-    type: "message_status",
-    toUserIds: [thread.employerId, thread.freelancerId],
-    data: { threadId: id, updates }
-  });
+  try {
+    await publish("events", {
+      type: "message_status",
+      toUserIds: [thread.employerId, thread.freelancerId],
+      data: { threadId: id, updates }
+    });
+  } catch (e) {
+    if (process.env.NODE_ENV !== "production") console.error("[ack] publish failed", e);
+  }
 
   return NextResponse.json({ ok: true, updates }, { status: 200 });
 }

@@ -34,6 +34,7 @@ export async function GET() {
   if (!session?.user) {
     return new Response("Unauthorized", { status: 401 });
   }
+  const userId = session.user.id;
 
   await ensureSubscribed();
 
@@ -48,7 +49,7 @@ export async function GET() {
       };
 
       send("connected", { ok: true });
-      const unsubscribe = addConnection(session.user.id, send);
+      const unsubscribe = addConnection(userId, send);
 
       const heartbeat = setInterval(() => {
         try {

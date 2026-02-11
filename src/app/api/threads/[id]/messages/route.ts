@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { publish } from "@/lib/realtime-bus";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { Prisma } from "@prisma/client";
 import { ATTACHMENT_LIMITS, getAttachmentAbsolutePath, saveAttachmentFile } from "@/lib/uploads";
 import fs from "node:fs";
@@ -52,6 +53,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
+  const userLimit = await checkRateLimit({ scope: "threads:messages:user", key: session.user.id, limit: 120, windowSeconds: 5 * 60 });
+  if (!userLimit.allowed) return jsonError("RATE_LIMITED", 429);
 
   const { id } = await params;
   let content = "";
@@ -250,27 +253,31 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     select: { id: true, type: true, title: true, body: true, href: true, createdAt: true }
   });
 
-  await publish("events", {
-    type: "message",
-    toUserIds: [thread.employerId, thread.freelancerId],
-    data: {
-      threadId: thread.id,
-      message: {
-        id: message.id,
-        body: message.body,
-        createdAt: message.createdAt,
-        deliveredAt: message.deliveredAt,
-        readAt: message.readAt,
-        sender: message.sender,
-        attachments: message.attachments
+  try {
+    await publish("events", {
+      type: "message",
+      toUserIds: [thread.employerId, thread.freelancerId],
+      data: {
+        threadId: thread.id,
+        message: {
+          id: message.id,
+          body: message.body,
+          createdAt: message.createdAt,
+          deliveredAt: message.deliveredAt,
+          readAt: message.readAt,
+          sender: message.sender,
+          attachments: message.attachments
+        }
       }
-    }
-  });
-  await publish("events", {
-    type: "notification",
-    toUserIds: [recipientId],
-    data: { notification }
-  });
+    });
+    await publish("events", {
+      type: "notification",
+      toUserIds: [recipientId],
+      data: { notification }
+    });
+  } catch (e) {
+    if (process.env.NODE_ENV !== "production") console.error("[messages] publish failed", e);
+  }
 
   return NextResponse.json({ ok: true, message, threadId: thread.id }, { status: 200 });
 }

@@ -18,8 +18,10 @@ export default async function proxy(req: NextRequest) {
   if (needsAuth) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     const tokenRole = (token as any)?.role as string | undefined;
+    const tokenUserId = typeof (token as any)?.sub === "string" ? ((token as any).sub as string) : "";
+    const tokenIsActive = (token as any)?.isActive !== false;
 
-    if (!token) {
+    if (!token || !tokenUserId || !tokenIsActive) {
       const url = req.nextUrl.clone();
       url.pathname = "/auth/login";
       url.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
