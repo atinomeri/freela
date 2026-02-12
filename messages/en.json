@@ -723,6 +723,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "projects": "Orders",
+    "support": "Support inbox",
     "pages": "Pages",
     "content": "Content",
     "backToDashboard": "Back to dashboard"
@@ -841,6 +842,29 @@
     "markCompleted": "Mark completed",
     "empty": "No orders found."
   },
+  "adminSupport": {
+    "title": "Support inbox",
+    "subtitle": "Messages from the website chatbox.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only.",
+    "threadsTitle": "Conversations",
+    "selectThread": "Select a conversation from the left.",
+    "threadInfo": "Conversation details",
+    "status": "Status",
+    "requester": "Requester",
+    "createdAt": "Created",
+    "empty": "No support conversations yet.",
+    "noMessages": "No messages yet.",
+    "visitorLabel": "Visitor",
+    "adminLabel": "Admin",
+    "replyPlaceholder": "Type a reply...",
+    "send": "Send reply",
+    "sending": "Sending...",
+    "closeThread": "Close conversation",
+    "reopenThread": "Reopen conversation",
+    "updating": "Updating...",
+    "refresh": "Refresh"
+  },
   "adminContentPricing": {
     "title": "Pricing content",
     "subtitle": "Override pricing page text per locale. Leave empty to use the default translation.",
@@ -901,6 +925,7 @@
     "intro": "Hi! Leave a message here, or email us at {email}.",
     "disclaimer": "This chat is for quick questions and doesn’t replace official support.",
     "placeholder": "Type your message...",
+    "loading": "Loading conversation...",
     "autoReply": "Thanks! If you need urgent help, email {email}.",
     "open": "Open chat",
     "close": "Close chat",
@@ -1129,4 +1154,3 @@
     "backToLogin": "Back to log in"
   }
 }
-

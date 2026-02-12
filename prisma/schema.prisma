@@ -29,6 +29,17 @@ enum NotificationType {
   NEW_PROPOSAL
 }
 
+enum SupportThreadStatus {
+  OPEN
+  CLOSED
+}
+
+enum SupportMessageSenderRole {
+  VISITOR
+  USER
+  ADMIN
+}
+
 enum FreelancerCategory {
   IT_DEVELOPMENT
   DESIGN_CREATIVE
@@ -65,6 +76,8 @@ model User {
   employerThreads Thread[] @relation("EmployerThreads")
   freelancerThreads Thread[] @relation("FreelancerThreads")
   sentMessages Message[] @relation("MessageSender")
+  supportRequestedThreads SupportThread[] @relation("SupportRequester")
+  supportSentMessages SupportMessage[] @relation("SupportSender")
   notifications Notification[]
   passwordResetTokens PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
@@ -162,6 +175,42 @@ model Thread {
   @@unique([projectId, freelancerId])
   @@index([employerId])
   @@index([freelancerId])
+}
+
+model SupportThread {
+  id        String   @id @default(cuid())
+  status    SupportThreadStatus @default(OPEN)
+
+  requesterUserId String?
+  requesterUser   User?   @relation("SupportRequester", fields: [requesterUserId], references: [id], onDelete: SetNull)
+  requesterName   String?
+  requesterEmail  String?
+
+  visitorTokenHash String? @unique
+
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  messages SupportMessage[]
+
+  @@index([status, lastMessageAt])
+  @@index([requesterUserId])
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  senderRole SupportMessageSenderRole
+  senderUserId String?
+  senderUser User? @relation("SupportSender", fields: [senderUserId], references: [id], onDelete: SetNull)
+  body      String
+  createdAt DateTime @default(now())
+
+  thread SupportThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+  @@index([senderUserId])
 }
 
 model Message {

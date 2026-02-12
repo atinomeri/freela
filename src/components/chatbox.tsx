@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MessageCircle, Send, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { site } from "@/lib/site";
@@ -8,60 +8,76 @@ import { cn } from "@/lib/utils";
 
 type ChatMessage = {
   id: string;
-  role: "user" | "system";
-  text: string;
-  createdAt: number;
+  body: string;
+  createdAt: string;
+  senderRole: "VISITOR" | "USER" | "ADMIN";
+  mine: boolean;
 };
 
-const STORAGE_KEY = "freela-chatbox-messages";
+const STORAGE_THREAD_KEY = "freela-chatbox-thread-id";
+const STORAGE_TOKEN_KEY = "freela-chatbox-visitor-token";
+const LEGACY_STORAGE_MESSAGES_KEY = "freela-chatbox-messages";
 
-function nowId() {
-  return `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-}
-
-function safeParseMessages(raw: string | null): ChatMessage[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed
-      .filter((m): m is ChatMessage => {
-        if (!m || typeof m !== "object") return false;
-        const anyM = m as any;
-        return (
-          (anyM.role === "user" || anyM.role === "system") &&
-          typeof anyM.text === "string" &&
-          typeof anyM.createdAt === "number"
-        );
-      })
-      .slice(-50);
-  } catch {
-    return [];
+function generateVisitorToken() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `${crypto.randomUUID()}_${Date.now().toString(36)}`;
   }
+  return `v_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
 }
 
 export function Chatbox() {
   const t = useTranslations("chatbox");
+  const tErrors = useTranslations("apiErrors");
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    safeParseMessages(typeof window === "undefined" ? null : window.localStorage.getItem(STORAGE_KEY))
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [threadId, setThreadId] = useState(() =>
+    typeof window === "undefined" ? "" : window.localStorage.getItem(STORAGE_THREAD_KEY) ?? ""
   );
+  const [visitorToken, setVisitorToken] = useState(() => {
+    if (typeof window === "undefined") return "";
+    const stored = window.localStorage.getItem(STORAGE_TOKEN_KEY);
+    return stored || generateVisitorToken();
+  });
+  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const intro = useMemo<ChatMessage>(
-    () => ({ id: "intro", role: "system", text: t("intro", { email: site.supportEmail }), createdAt: 0 }),
+  const intro = useMemo(
+    () => ({ id: "intro", role: "system" as const, text: t("intro", { email: site.supportEmail }) }),
     [t]
   );
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-50)));
+      if (!visitorToken) return;
+      window.localStorage.setItem(STORAGE_TOKEN_KEY, visitorToken);
     } catch {
       // ignore
     }
-  }, [messages]);
+  }, [visitorToken]);
+
+  useEffect(() => {
+    try {
+      if (threadId) {
+        window.localStorage.setItem(STORAGE_THREAD_KEY, threadId);
+      } else {
+        window.localStorage.removeItem(STORAGE_THREAD_KEY);
+      }
+    } catch {
+      // ignore
+    }
+  }, [threadId]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.removeItem(LEGACY_STORAGE_MESSAGES_KEY);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -82,7 +98,54 @@ export function Chatbox() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const allMessages = messages.length > 0 ? [intro, ...messages] : [intro];
+  const loadMessages = useCallback(async () => {
+    if (!visitorToken && !threadId) return;
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (threadId) params.set("threadId", threadId);
+      if (visitorToken) params.set("token", visitorToken);
+      const res = await fetch(`/api/support/chat?${params.toString()}`, { cache: "no-store" });
+      const json = (await res.json().catch(() => null)) as
+        | { ok?: boolean; errorCode?: string; threadId?: string | null; messages?: ChatMessage[] }
+        | null;
+      if (!res.ok || !json?.ok) throw new Error(json?.errorCode || "REQUEST_FAILED");
+      const nextThreadId = String(json?.threadId ?? "");
+      setThreadId(nextThreadId);
+      setMessages(Array.isArray(json?.messages) ? json.messages : []);
+      setError("");
+    } catch (e: any) {
+      setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+    } finally {
+      setLoading(false);
+    }
+  }, [threadId, tErrors, visitorToken]);
+
+  useEffect(() => {
+    if (!open) return;
+    void loadMessages();
+  }, [loadMessages, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setInterval(() => {
+      void loadMessages();
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [loadMessages, open]);
+
+  const renderMessages = useMemo(
+    () => [
+      intro,
+      ...messages.map((m) => ({
+        id: m.id,
+        role: "chat" as const,
+        text: m.body,
+        mine: m.mine
+      }))
+    ],
+    [intro, messages]
+  );
 
   return (
     <div className="fixed bottom-4 right-4 z-[60]">
@@ -111,13 +174,19 @@ export function Chatbox() {
           </div>
 
           <div ref={listRef} className="max-h-[360px] overflow-auto px-4 py-3">
+            {error ? (
+              <div className="mb-2 rounded-lg border border-border bg-background/60 px-2 py-1 text-xs text-foreground">{error}</div>
+            ) : null}
+            {loading ? <div className="mb-2 text-xs text-muted-foreground">{t("loading")}</div> : null}
             <div className="grid gap-2">
-              {allMessages.map((m) => (
+              {renderMessages.map((m) => (
                 <div
                   key={m.id}
                   className={cn(
                     "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
-                    m.role === "user"
+                    m.role === "system"
+                      ? "mr-auto bg-muted text-foreground"
+                      : m.mine
                       ? "ml-auto bg-primary text-primary-foreground"
                       : "mr-auto bg-muted text-foreground"
                   )}
@@ -135,12 +204,32 @@ export function Chatbox() {
               e.preventDefault();
               const text = input.trim();
               if (!text) return;
-              setInput("");
-              setMessages((prev) => [
-                ...prev,
-                { id: nowId(), role: "user", text, createdAt: Date.now() },
-                { id: nowId(), role: "system", text: t("autoReply", { email: site.supportEmail }), createdAt: Date.now() }
-              ]);
+              setPending(true);
+              setError("");
+              void (async () => {
+                try {
+                  const res = await fetch("/api/support/chat", {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({
+                      threadId: threadId || undefined,
+                      token: visitorToken || undefined,
+                      body: text
+                    })
+                  });
+                  const json = (await res.json().catch(() => null)) as
+                    | { ok?: boolean; errorCode?: string; threadId?: string; messages?: ChatMessage[] }
+                    | null;
+                  if (!res.ok || !json?.ok) throw new Error(json?.errorCode || "REQUEST_FAILED");
+                  setThreadId(String(json?.threadId ?? ""));
+                  setMessages(Array.isArray(json?.messages) ? json.messages : []);
+                  setInput("");
+                } catch (e: any) {
+                  setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                } finally {
+                  setPending(false);
+                }
+              })();
             }}
           >
             <input
@@ -155,7 +244,7 @@ export function Chatbox() {
             <button
               type="submit"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-              disabled={!input.trim()}
+              disabled={!input.trim() || pending}
               aria-label={t("send")}
               title={t("send")}
             >
