@@ -27,9 +27,9 @@ import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
 
 const titleHighlightTerms: Record<string, string[]> = {
-  ka: ["ფრილანსერი", "შეკვეთა"],
+  ka: ["бѓ¤бѓ бѓбѓљбѓђбѓњбѓЎбѓ”бѓ бѓ", "бѓЁбѓ”бѓ™бѓ•бѓ”бѓ—бѓђ"],
   en: ["freelancer", "order"],
-  ru: ["фрилансера", "фрилансер", "заказ", "заказы", "заказа"]
+  ru: ["С„СЂРёР»Р°РЅСЃРµСЂР°", "С„СЂРёР»Р°РЅСЃРµСЂ", "Р·Р°РєР°Р·", "Р·Р°РєР°Р·С‹", "Р·Р°РєР°Р·Р°"]
 };
 
 type HeroSceneCopy = {
@@ -51,20 +51,20 @@ type HeroSceneCopy = {
 
 const heroSceneCopyByLocale: Record<string, HeroSceneCopy> = {
   ka: {
-    workspaceBadge: "უნარებზე დაფუძნებული პლატფორმა",
-    clientTitle: "დიპლომი არაა სავალდებულო",
-    clientDescription: "რეალური ნამუშევარი და პასუხისმგებლობა მნიშვნელოვანია, არა სერთიფიკატი.",
-    clientBudget: "მაგალითი: პროფესიონალური საიტი დიპლომის გარეშე",
-    freelancerTitle: "შედეგი > დიპლომი",
-    freelancerDescription: "პორტფოლიომ დაამტკიცა კომპეტენცია და შეკვეთა დადასტურდა.",
-    freelancerAvailability: "შეფასება ხდება ნამუშევრით",
-    matchingScoreLabel: "შესაბამისობა უნარებითა და პორტფოლიოთი",
-    floatingNewOrderLabel: "ახალი შესაძლებლობა",
-    floatingNewOrderDescription: "დაიწყე პორტფოლიოთი და არა დიპლომით",
-    floatingBudgetApprovedLabel: "კლიენტი ენდო შედეგს",
-    floatingBudgetApprovedDescription: "გადამწყვეტი იყო შესრულებული ნამუშევრები",
-    floatingMatchFoundLabel: "დამთხვევა მოიძებნა",
-    floatingMatchFoundDescription: "მთავარია უნარი, პასუხისმგებლობა და ხარისხი"
+    workspaceBadge: "бѓЈбѓњбѓђбѓ бѓ”бѓ‘бѓ–бѓ” бѓ“бѓђбѓ¤бѓЈбѓ«бѓњбѓ”бѓ‘бѓЈбѓљбѓ бѓћбѓљбѓђбѓўбѓ¤бѓќбѓ бѓ›бѓђ",
+    clientTitle: "бѓ“бѓбѓћбѓљбѓќбѓ›бѓ бѓђбѓ бѓђбѓђ бѓЎбѓђбѓ•бѓђбѓљбѓ“бѓ”бѓ‘бѓЈбѓљбѓќ",
+    clientDescription: "бѓ бѓ”бѓђбѓљбѓЈбѓ бѓ бѓњбѓђбѓ›бѓЈбѓЁбѓ”бѓ•бѓђбѓ бѓ бѓ“бѓђ бѓћбѓђбѓЎбѓЈбѓ®бѓбѓЎбѓ›бѓ’бѓ”бѓ‘бѓљбѓќбѓ‘бѓђ бѓ›бѓњбѓбѓЁбѓ•бѓњбѓ”бѓљбѓќбѓ•бѓђбѓњбѓбѓђ, бѓђбѓ бѓђ бѓЎбѓ”бѓ бѓ—бѓбѓ¤бѓбѓ™бѓђбѓўбѓ.",
+    clientBudget: "бѓ›бѓђбѓ’бѓђбѓљбѓбѓ—бѓ: бѓћбѓ бѓќбѓ¤бѓ”бѓЎбѓбѓќбѓњбѓђбѓљбѓЈбѓ бѓ бѓЎбѓђбѓбѓўбѓ бѓ“бѓбѓћбѓљбѓќбѓ›бѓбѓЎ бѓ’бѓђбѓ бѓ”бѓЁбѓ”",
+    freelancerTitle: "бѓЁбѓ”бѓ“бѓ”бѓ’бѓ > бѓ“бѓбѓћбѓљбѓќбѓ›бѓ",
+    freelancerDescription: "бѓћбѓќбѓ бѓўбѓ¤бѓќбѓљбѓбѓќбѓ› бѓ“бѓђбѓђбѓ›бѓўбѓ™бѓбѓЄбѓђ бѓ™бѓќбѓ›бѓћбѓ”бѓўбѓ”бѓњбѓЄбѓбѓђ бѓ“бѓђ бѓЁбѓ”бѓ™бѓ•бѓ”бѓ—бѓђ бѓ“бѓђбѓ“бѓђбѓЎбѓўбѓЈбѓ бѓ“бѓђ.",
+    freelancerAvailability: "бѓЁбѓ”бѓ¤бѓђбѓЎбѓ”бѓ‘бѓђ бѓ®бѓ“бѓ”бѓ‘бѓђ бѓњбѓђбѓ›бѓЈбѓЁбѓ”бѓ•бѓ бѓбѓ—",
+    matchingScoreLabel: "бѓЁбѓ”бѓЎбѓђбѓ‘бѓђбѓ›бѓбѓЎбѓќбѓ‘бѓђ бѓЈбѓњбѓђбѓ бѓ”бѓ‘бѓбѓ—бѓђ бѓ“бѓђ бѓћбѓќбѓ бѓўбѓ¤бѓќбѓљбѓбѓќбѓ—бѓ",
+    floatingNewOrderLabel: "бѓђбѓ®бѓђбѓљбѓ бѓЁбѓ”бѓЎбѓђбѓ«бѓљбѓ”бѓ‘бѓљбѓќбѓ‘бѓђ",
+    floatingNewOrderDescription: "бѓ“бѓђбѓбѓ¬бѓ§бѓ” бѓћбѓќбѓ бѓўбѓ¤бѓќбѓљбѓбѓќбѓ—бѓ бѓ“бѓђ бѓђбѓ бѓђ бѓ“бѓбѓћбѓљбѓќбѓ›бѓбѓ—",
+    floatingBudgetApprovedLabel: "бѓ™бѓљбѓбѓ”бѓњбѓўбѓ бѓ”бѓњбѓ“бѓќ бѓЁбѓ”бѓ“бѓ”бѓ’бѓЎ",
+    floatingBudgetApprovedDescription: "бѓ’бѓђбѓ“бѓђбѓ›бѓ¬бѓ§бѓ•бѓ”бѓўбѓ бѓбѓ§бѓќ бѓЁбѓ”бѓЎбѓ бѓЈбѓљбѓ”бѓ‘бѓЈбѓљбѓ бѓњбѓђбѓ›бѓЈбѓЁбѓ”бѓ•бѓ бѓ”бѓ‘бѓ",
+    floatingMatchFoundLabel: "бѓ“бѓђбѓ›бѓ—бѓ®бѓ•бѓ”бѓ•бѓђ бѓ›бѓќбѓбѓ«бѓ”бѓ‘бѓњбѓђ",
+    floatingMatchFoundDescription: "бѓ›бѓ—бѓђбѓ•бѓђбѓ бѓбѓђ бѓЈбѓњбѓђбѓ бѓ, бѓћбѓђбѓЎбѓЈбѓ®бѓбѓЎбѓ›бѓ’бѓ”бѓ‘бѓљбѓќбѓ‘бѓђ бѓ“бѓђ бѓ®бѓђбѓ бѓбѓЎбѓ®бѓ"
   },
   en: {
     workspaceBadge: "Skills-first workspace",
@@ -83,20 +83,20 @@ const heroSceneCopyByLocale: Record<string, HeroSceneCopy> = {
     floatingMatchFoundDescription: "Skill, ownership, and quality win orders"
   },
   ru: {
-    workspaceBadge: "Платформа, где важны навыки",
-    clientTitle: "Диплом не обязателен",
-    clientDescription: "Реальные работы и ответственность важнее сертификатов.",
-    clientBudget: "Пример: проф. сайт без диплома",
-    freelancerTitle: "Результат > диплом",
-    freelancerDescription: "Портфолио подтвердило уровень и заказ был одобрен.",
-    freelancerAvailability: "Оценка по выполненным работам",
-    matchingScoreLabel: "Совпадение по навыкам и портфолио",
-    floatingNewOrderLabel: "Новая возможность",
-    floatingNewOrderDescription: "Стартуйте с портфолио, а не с корочек",
-    floatingBudgetApprovedLabel: "Клиент выбрал результат",
-    floatingBudgetApprovedDescription: "Решающим стало качество прошлых работ",
-    floatingMatchFoundLabel: "Совпадение найдено",
-    floatingMatchFoundDescription: "Заказы выигрывают навыки и качество"
+    workspaceBadge: "РџР»Р°С‚С„РѕСЂРјР°, РіРґРµ РІР°Р¶РЅС‹ РЅР°РІС‹РєРё",
+    clientTitle: "Р”РёРїР»РѕРј РЅРµ РѕР±СЏР·Р°С‚РµР»РµРЅ",
+    clientDescription: "Р РµР°Р»СЊРЅС‹Рµ СЂР°Р±РѕС‚С‹ Рё РѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕСЃС‚СЊ РІР°Р¶РЅРµРµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ.",
+    clientBudget: "РџСЂРёРјРµСЂ: РїСЂРѕС„. СЃР°Р№С‚ Р±РµР· РґРёРїР»РѕРјР°",
+    freelancerTitle: "Р РµР·СѓР»СЊС‚Р°С‚ > РґРёРїР»РѕРј",
+    freelancerDescription: "РџРѕСЂС‚С„РѕР»РёРѕ РїРѕРґС‚РІРµСЂРґРёР»Рѕ СѓСЂРѕРІРµРЅСЊ Рё Р·Р°РєР°Р· Р±С‹Р» РѕРґРѕР±СЂРµРЅ.",
+    freelancerAvailability: "РћС†РµРЅРєР° РїРѕ РІС‹РїРѕР»РЅРµРЅРЅС‹Рј СЂР°Р±РѕС‚Р°Рј",
+    matchingScoreLabel: "РЎРѕРІРїР°РґРµРЅРёРµ РїРѕ РЅР°РІС‹РєР°Рј Рё РїРѕСЂС‚С„РѕР»РёРѕ",
+    floatingNewOrderLabel: "РќРѕРІР°СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ",
+    floatingNewOrderDescription: "РЎС‚Р°СЂС‚СѓР№С‚Рµ СЃ РїРѕСЂС‚С„РѕР»РёРѕ, Р° РЅРµ СЃ РєРѕСЂРѕС‡РµРє",
+    floatingBudgetApprovedLabel: "РљР»РёРµРЅС‚ РІС‹Р±СЂР°Р» СЂРµР·СѓР»СЊС‚Р°С‚",
+    floatingBudgetApprovedDescription: "Р РµС€Р°СЋС‰РёРј СЃС‚Р°Р»Рѕ РєР°С‡РµСЃС‚РІРѕ РїСЂРѕС€Р»С‹С… СЂР°Р±РѕС‚",
+    floatingMatchFoundLabel: "РЎРѕРІРїР°РґРµРЅРёРµ РЅР°Р№РґРµРЅРѕ",
+    floatingMatchFoundDescription: "Р—Р°РєР°Р·С‹ РІС‹РёРіСЂС‹РІР°СЋС‚ РЅР°РІС‹РєРё Рё РєР°С‡РµСЃС‚РІРѕ"
   }
 };
 
@@ -106,70 +106,84 @@ function getHeroSceneCopy(locale: string): HeroSceneCopy {
 }
 
 type HeroGuideCopy = {
+  badge: string;
   title: string;
   subtitle: string;
   employerLabel: string;
   freelancerLabel: string;
-  employerSteps: [string, string, string];
-  freelancerSteps: [string, string, string];
-  openGuideLabel: string;
+  employerSteps: string[];
+  freelancerSteps: string[];
+  fullGuideTitle: string;
+  fullGuidePoints: string[];
 };
 
 const heroGuideCopyByLocale: Record<string, HeroGuideCopy> = {
   ka: {
+    badge: "სრული გზამკვლევი",
     title: "როგორ მუშაობს Freela",
-    subtitle: "აირჩიე როლი და მიჰყევი მარტივ ნაბიჯებს.",
-    employerLabel: "დამკვეთის გზა",
-    freelancerLabel: "ფრილანსერის გზა",
+    subtitle: "დამკვეთისთვის და ფრილანსერისთვის სრული პრაქტიკული გზა.",
+    employerLabel: "დამკვეთის სრული გზა",
+    freelancerLabel: "ფრილანსერის სრული გზა",
     employerSteps: [
-      "დაამატე შეკვეთა და ბიუჯეტი",
-      "შეადარე კანდიდატები პროფილით და შეფასებით",
-      "ჩატში შეთანხმდი და დაადასტურე შედეგი"
+      "1) გამოაქვეყნე შეკვეთა მკაფიო ამოცანით და ბიუჯეტით",
+      "2) შეადარე კანდიდატები პროფილით, პორტფოლიოთი და შეფასებით",
+      "3) ჩატში შეათანხმე დეტალები, ვადები და პასუხისმგებლობა",
+      "4) მიიღე შედეგი და დატოვე შეფასება"
     ],
     freelancerSteps: [
-      "განაახლე პროფილი და პორტფოლიო",
-      "გააგზავნე ზუსტი შეთავაზება",
-      "შეასრულე დროულად და მიიღე შეფასება"
+      "1) გააძლიერე პროფილი უნარებით და რეალური ნამუშევრებით",
+      "2) მოძებნე შესაბამისი შეკვეთები კატეგორიით და ბიუჯეტით",
+      "3) გააგზავნე ზუსტი შეთავაზება და იმუშავე გამჭვირვალედ",
+      "4) შეასრულე დროულად და გაზარდე რეიტინგი"
     ],
-    openGuideLabel: "სრული გზამკვლევი"
+    fullGuideTitle: "რა შედის სრულ გზამკვლევში",
+    fullGuidePoints: ["შეკვეთის დადება", "კანდიდატების შერჩევა", "ჩატი და შეთანხმება", "შეფასებები და რეპუტაცია"]
   },
   en: {
+    badge: "Full guide",
     title: "How Freela works",
-    subtitle: "Pick your role and follow simple steps.",
-    employerLabel: "Client track",
-    freelancerLabel: "Freelancer track",
+    subtitle: "A complete practical flow for clients and freelancers.",
+    employerLabel: "Client full flow",
+    freelancerLabel: "Freelancer full flow",
     employerSteps: [
-      "Post an order with budget",
-      "Compare candidates by profile and rating",
-      "Align in chat and approve delivery"
+      "1) Post an order with clear scope and budget",
+      "2) Compare candidates by profile, portfolio, and ratings",
+      "3) Align details, timeline, and responsibilities in chat",
+      "4) Approve delivery and leave a review"
     ],
     freelancerSteps: [
-      "Strengthen profile and portfolio",
-      "Send a clear proposal",
-      "Deliver on time and earn reviews"
+      "1) Strengthen your profile with real work samples",
+      "2) Find relevant orders by category and budget",
+      "3) Send precise proposals and communicate clearly",
+      "4) Deliver on time and grow your rating"
     ],
-    openGuideLabel: "Open full guide"
+    fullGuideTitle: "Included in this full guide",
+    fullGuidePoints: ["Order posting", "Candidate selection", "Chat & agreements", "Reviews & reputation"]
   },
   ru: {
+    badge: "Полный гайд",
     title: "Как работает Freela",
-    subtitle: "Выберите роль и следуйте простым шагам.",
-    employerLabel: "Путь заказчика",
-    freelancerLabel: "Путь фрилансера",
+    subtitle: "Полный практический путь для заказчика и фрилансера.",
+    employerLabel: "Полный путь заказчика",
+    freelancerLabel: "Полный путь фрилансера",
     employerSteps: [
-      "Опубликуйте заказ с бюджетом",
-      "Сравните кандидатов по профилю и рейтингу",
-      "Согласуйте детали в чате и примите результат"
+      "1) Опубликуйте заказ с понятной задачей и бюджетом",
+      "2) Сравните кандидатов по профилю, портфолио и рейтингу",
+      "3) Согласуйте детали, сроки и ответственность в чате",
+      "4) Примите результат и оставьте отзыв"
     ],
     freelancerSteps: [
-      "Усилите профиль и портфолио",
-      "Отправьте точное предложение",
-      "Сдайте в срок и получите отзыв"
+      "1) Усильте профиль реальными кейсами",
+      "2) Найдите релевантные заказы по категории и бюджету",
+      "3) Отправьте точное предложение и работайте прозрачно",
+      "4) Сдайте в срок и повышайте рейтинг"
     ],
-    openGuideLabel: "Открыть полный гайд"
+    fullGuideTitle: "Что входит в полный гайд",
+    fullGuidePoints: ["Публикация заказа", "Отбор кандидатов", "Чат и договорённости", "Отзывы и репутация"]
   }
 };
 
-function getHeroGuideCopy(locale: string): HeroGuideCopy {
+function getHeroGuideCopy(locale: string) {
   const normalized = locale.toLowerCase().split("-")[0];
   return heroGuideCopyByLocale[normalized] ?? heroGuideCopyByLocale.en;
 }
@@ -206,7 +220,7 @@ export default async function HomePage() {
   const heroScene = getHeroSceneCopy(locale);
   const heroGuide = getHeroGuideCopy(locale);
   const homeTitle =
-    locale === "ka" ? "იპოვე ფრილანსერი — ან იპოვე შეკვეთა — სწრაფად და მარტივად" : t("title");
+    locale === "ka" ? "бѓбѓћбѓќбѓ•бѓ” бѓ¤бѓ бѓбѓљбѓђбѓњбѓЎбѓ”бѓ бѓ вЂ” бѓђбѓњ бѓбѓћбѓќбѓ•бѓ” бѓЁбѓ”бѓ™бѓ•бѓ”бѓ—бѓђ вЂ” бѓЎбѓ¬бѓ бѓђбѓ¤бѓђбѓ“ бѓ“бѓђ бѓ›бѓђбѓ бѓўбѓбѓ•бѓђбѓ“" : t("title");
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
@@ -283,8 +297,8 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[540px] animate-fade-in lg:origin-center lg:scale-[0.94]" style={{ animationDelay: "220ms" }}>
-              <Card className="relative overflow-hidden border-border/70 bg-card/75 p-5 shadow-2xl backdrop-blur-md sm:p-6">
+            <div className="relative mx-auto w-full max-w-[700px] animate-fade-in lg:origin-top" style={{ animationDelay: "220ms" }}>
+              <Card className="relative overflow-hidden border-border/70 bg-card/75 p-6 shadow-2xl backdrop-blur-md sm:p-7">
                 <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-primary/20 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 -left-14 h-52 w-52 rounded-full bg-success/20 blur-3xl" />
 
@@ -292,43 +306,40 @@ export default async function HomePage() {
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <Badge variant="secondary" className="gap-1.5 border border-primary/20 bg-primary/10 text-primary">
                       <Sparkles className="h-3.5 w-3.5" />
-                      {heroScene.workspaceBadge}
+                      {heroGuide.badge}
                     </Badge>
                     <span className="text-xs text-muted-foreground">freela.ge</span>
                   </div>
 
-                  <h3 className="text-lg font-semibold tracking-tight">{heroGuide.title}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{heroGuide.subtitle}</p>
+                  <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">{heroGuide.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{heroGuide.subtitle}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/90">{heroScene.workspaceBadge}</p>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
+                    <div className="rounded-2xl border border-border/70 bg-background/80 p-5">
+                      <div className="mb-3 flex items-center gap-2 text-base font-semibold text-primary">
                         <Briefcase className="h-4 w-4" />
                         {heroGuide.employerLabel}
                       </div>
                       <ol className="space-y-2">
                         {heroGuide.employerSteps.map((step, index) => (
-                          <li key={step} className="flex items-start gap-2.5 text-xs text-muted-foreground">
-                            <span className="mt-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
-                              {index + 1}
-                            </span>
+                          <li key={step} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                            <span className="mt-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">•</span>
                             <span>{step}</span>
                           </li>
                         ))}
                       </ol>
                     </div>
 
-                    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-success">
+                    <div className="rounded-2xl border border-border/70 bg-background/80 p-5">
+                      <div className="mb-3 flex items-center gap-2 text-base font-semibold text-success">
                         <Rocket className="h-4 w-4" />
                         {heroGuide.freelancerLabel}
                       </div>
                       <ol className="space-y-2">
                         {heroGuide.freelancerSteps.map((step, index) => (
-                          <li key={step} className="flex items-start gap-2.5 text-xs text-muted-foreground">
-                            <span className="mt-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-success/15 text-[10px] font-semibold text-success">
-                              {index + 1}
-                            </span>
+                          <li key={step} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                            <span className="mt-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-success/15 text-[11px] font-semibold text-success">•</span>
                             <span>{step}</span>
                           </li>
                         ))}
@@ -336,12 +347,15 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
-                    <span className="text-xs text-muted-foreground">{heroGuide.subtitle}</span>
-                    <Link href="/guide" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80">
-                      {heroGuide.openGuideLabel}
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
+                  <div className="mt-4 rounded-xl border border-border/70 bg-background/70 p-4">
+                    <div className="text-sm font-semibold">{heroGuide.fullGuideTitle}</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {heroGuide.fullGuidePoints.map((point) => (
+                        <span key={point} className="rounded-full border border-border/80 bg-background/90 px-2.5 py-1 text-xs text-muted-foreground">
+                          {point}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -486,7 +500,7 @@ export default async function HomePage() {
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             {testimonials.map((it) => (
               <Card key={it.name} className="p-6">
-                <p className="text-sm text-muted-foreground">“{it.quote}”</p>
+                <p className="text-sm text-muted-foreground">вЂњ{it.quote}вЂќ</p>
                 <div className="mt-4 font-medium">{it.name}</div>
                 <div className="text-xs text-muted-foreground">{it.role}</div>
               </Card>
