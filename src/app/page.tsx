@@ -1,11 +1,11 @@
 import {
   ArrowRight,
-  BadgeCheck,
   Briefcase,
   Brush,
   Code2,
   Megaphone,
   PenTool,
+  Rocket,
   Search,
   Shield,
   ShoppingBag,
@@ -105,6 +105,75 @@ function getHeroSceneCopy(locale: string): HeroSceneCopy {
   return heroSceneCopyByLocale[normalized] ?? heroSceneCopyByLocale.en;
 }
 
+type HeroGuideCopy = {
+  title: string;
+  subtitle: string;
+  employerLabel: string;
+  freelancerLabel: string;
+  employerSteps: [string, string, string];
+  freelancerSteps: [string, string, string];
+  openGuideLabel: string;
+};
+
+const heroGuideCopyByLocale: Record<string, HeroGuideCopy> = {
+  ka: {
+    title: "როგორ მუშაობს Freela",
+    subtitle: "აირჩიე როლი და მიჰყევი მარტივ ნაბიჯებს.",
+    employerLabel: "დამკვეთის გზა",
+    freelancerLabel: "ფრილანსერის გზა",
+    employerSteps: [
+      "დაამატე შეკვეთა და ბიუჯეტი",
+      "შეადარე კანდიდატები პროფილით და შეფასებით",
+      "ჩატში შეთანხმდი და დაადასტურე შედეგი"
+    ],
+    freelancerSteps: [
+      "განაახლე პროფილი და პორტფოლიო",
+      "გააგზავნე ზუსტი შეთავაზება",
+      "შეასრულე დროულად და მიიღე შეფასება"
+    ],
+    openGuideLabel: "სრული გზამკვლევი"
+  },
+  en: {
+    title: "How Freela works",
+    subtitle: "Pick your role and follow simple steps.",
+    employerLabel: "Client track",
+    freelancerLabel: "Freelancer track",
+    employerSteps: [
+      "Post an order with budget",
+      "Compare candidates by profile and rating",
+      "Align in chat and approve delivery"
+    ],
+    freelancerSteps: [
+      "Strengthen profile and portfolio",
+      "Send a clear proposal",
+      "Deliver on time and earn reviews"
+    ],
+    openGuideLabel: "Open full guide"
+  },
+  ru: {
+    title: "Как работает Freela",
+    subtitle: "Выберите роль и следуйте простым шагам.",
+    employerLabel: "Путь заказчика",
+    freelancerLabel: "Путь фрилансера",
+    employerSteps: [
+      "Опубликуйте заказ с бюджетом",
+      "Сравните кандидатов по профилю и рейтингу",
+      "Согласуйте детали в чате и примите результат"
+    ],
+    freelancerSteps: [
+      "Усилите профиль и портфолио",
+      "Отправьте точное предложение",
+      "Сдайте в срок и получите отзыв"
+    ],
+    openGuideLabel: "Открыть полный гайд"
+  }
+};
+
+function getHeroGuideCopy(locale: string): HeroGuideCopy {
+  const normalized = locale.toLowerCase().split("-")[0];
+  return heroGuideCopyByLocale[normalized] ?? heroGuideCopyByLocale.en;
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -135,6 +204,7 @@ export default async function HomePage() {
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
   const heroScene = getHeroSceneCopy(locale);
+  const heroGuide = getHeroGuideCopy(locale);
   const homeTitle =
     locale === "ka" ? "იპოვე ფრილანსერი — ან იპოვე შეკვეთა — სწრაფად და მარტივად" : t("title");
 
@@ -219,72 +289,61 @@ export default async function HomePage() {
                 <div className="pointer-events-none absolute -bottom-24 -left-14 h-52 w-52 rounded-full bg-success/20 blur-3xl" />
 
                 <div className="relative">
-                  <div className="mb-4 flex items-center justify-between">
+                  <div className="mb-4 flex items-center justify-between gap-3">
                     <Badge variant="secondary" className="gap-1.5 border border-primary/20 bg-primary/10 text-primary">
-                      <BadgeCheck className="h-3.5 w-3.5" />
+                      <Sparkles className="h-3.5 w-3.5" />
                       {heroScene.workspaceBadge}
                     </Badge>
                     <span className="text-xs text-muted-foreground">freela.ge</span>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <h3 className="text-lg font-semibold tracking-tight">{heroGuide.title}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{heroGuide.subtitle}</p>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        <Briefcase className="h-4 w-4 text-primary" />
-                        {heroScene.clientTitle}
+                      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
+                        <Briefcase className="h-4 w-4" />
+                        {heroGuide.employerLabel}
                       </div>
-                      <p className="mt-2 text-xs text-muted-foreground">{heroScene.clientDescription}</p>
-                      <div className="mt-3 inline-flex rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-                        {heroScene.clientBudget}
-                      </div>
+                      <ol className="space-y-2">
+                        {heroGuide.employerSteps.map((step, index) => (
+                          <li key={step} className="flex items-start gap-2.5 text-xs text-muted-foreground">
+                            <span className="mt-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary/15 text-[10px] font-semibold text-primary">
+                              {index + 1}
+                            </span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
                     </div>
 
                     <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-                      <div className="flex items-center gap-2 text-sm font-medium">
-                        <BadgeCheck className="h-4 w-4 text-success" />
-                        {heroScene.freelancerTitle}
+                      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-success">
+                        <Rocket className="h-4 w-4" />
+                        {heroGuide.freelancerLabel}
                       </div>
-                      <p className="mt-2 text-xs text-muted-foreground">{heroScene.freelancerDescription}</p>
-                      <div className="mt-3 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                        {heroScene.freelancerAvailability}
-                      </div>
+                      <ol className="space-y-2">
+                        {heroGuide.freelancerSteps.map((step, index) => (
+                          <li key={step} className="flex items-start gap-2.5 text-xs text-muted-foreground">
+                            <span className="mt-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-success/15 text-[10px] font-semibold text-success">
+                              {index + 1}
+                            </span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
                     </div>
                   </div>
 
-                  <div className="mt-3 rounded-2xl border border-border/70 bg-background/80 p-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{heroScene.matchingScoreLabel}</span>
-                      <span className="font-semibold text-primary">96%</span>
-                    </div>
-                    <div className="mt-2 h-2 rounded-full bg-muted">
-                      <div className="h-2 w-[96%] rounded-full bg-gradient-to-r from-primary to-success" />
-                    </div>
+                  <div className="mt-3 flex items-center justify-between rounded-xl border border-border/70 bg-background/70 px-3 py-2">
+                    <span className="text-xs text-muted-foreground">{heroGuide.subtitle}</span>
+                    <Link href="/guide" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80">
+                      {heroGuide.openGuideLabel}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
                 </div>
-              </Card>
-
-              <Card className="animate-hero-float absolute -left-4 top-8 hidden w-52 border-primary/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
-                <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  {heroScene.floatingNewOrderLabel}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{heroScene.floatingNewOrderDescription}</p>
-              </Card>
-
-              <Card className="animate-hero-float-delayed absolute -right-2 top-1/2 hidden w-48 border-success/30 bg-background/90 p-3 shadow-xl backdrop-blur md:block">
-                <div className="flex items-center gap-2 text-xs font-semibold text-success">
-                  <Wallet className="h-3.5 w-3.5" />
-                  {heroScene.floatingBudgetApprovedLabel}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{heroScene.floatingBudgetApprovedDescription}</p>
-              </Card>
-
-              <Card className="animate-hero-drift absolute bottom-4 right-10 hidden w-56 border-border/80 bg-background/90 p-3 shadow-lg backdrop-blur md:block">
-                <div className="flex items-center gap-2 text-xs font-semibold">
-                  <Search className="h-3.5 w-3.5 text-primary" />
-                  {heroScene.floatingMatchFoundLabel}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{heroScene.floatingMatchFoundDescription}</p>
               </Card>
             </div>
           </div>
