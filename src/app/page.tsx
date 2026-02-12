@@ -25,6 +25,7 @@ import { isPageEnabled } from "@/lib/site-pages";
 import { getLocale } from "next-intl/server";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
+import { prisma } from "@/lib/prisma";
 
 const titleHighlightTerms: Record<string, string[]> = {
   ka: ["ფრილანსერი", "შეკვეთა"],
@@ -40,6 +41,17 @@ const titleHighlightTerms: Record<string, string[]> = {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toStars(rating: number) {
+  const safe = Math.max(1, Math.min(5, Math.round(rating)));
+  return `${"★".repeat(safe)}${"☆".repeat(5 - safe)}`;
+}
+
+function toShortText(value: string, max = 220) {
+  const text = value.trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max - 1).trim()}…`;
 }
 
 function renderHighlightedHomeTitle(title: string, locale: string) {
@@ -90,11 +102,36 @@ export default async function HomePage() {
     { title: t("categories.items.ecommerce.title"), description: t("categories.items.ecommerce.description"), icon: ShoppingBag }
   ] as const;
 
-  const testimonials = [
+  const fallbackTestimonials = [
     { quote: t("testimonials.items.0.quote"), name: t("testimonials.items.0.name"), role: t("testimonials.items.0.role") },
     { quote: t("testimonials.items.1.quote"), name: t("testimonials.items.1.name"), role: t("testimonials.items.1.role") },
     { quote: t("testimonials.items.2.quote"), name: t("testimonials.items.2.name"), role: t("testimonials.items.2.role") }
   ] as const;
+
+  const recentReviews = await prisma.review.findMany({
+    where: {
+      comment: { not: null },
+      NOT: { comment: "" }
+    },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: {
+      rating: true,
+      comment: true,
+      reviewer: { select: { name: true } },
+      project: { select: { title: true } }
+    }
+  });
+
+  const liveTestimonials = recentReviews
+    .map((r) => ({
+      quote: toShortText(r.comment ?? ""),
+      name: r.reviewer.name,
+      role: `${toStars(r.rating)} · ${r.project.title}`
+    }))
+    .filter((it) => it.quote.length > 0);
+
+  const testimonials = [...liveTestimonials, ...fallbackTestimonials].slice(0, 3);
 
   const faqs = [
     { q: t("faq.items.0.q"), a: t("faq.items.0.a") },
