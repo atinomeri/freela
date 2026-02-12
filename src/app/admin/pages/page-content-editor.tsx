@@ -7,6 +7,8 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+const LOCALES = ["ka", "en", "ru"] as const;
+
 async function postJson(url: string, body: unknown) {
   const res = await fetch(url, {
     method: "POST",
@@ -18,19 +20,21 @@ async function postJson(url: string, body: unknown) {
 }
 
 export function PageContentEditor({
-  locale,
   keys,
-  initialValues
+  initialValuesByLocale,
+  defaultValuesByLocale
 }: {
-  locale: "ka" | "en" | "ru";
   keys: string[];
-  initialValues: Record<string, string>;
+  initialValuesByLocale: Record<"ka" | "en" | "ru", Record<string, string>>;
+  defaultValuesByLocale: Record<"ka" | "en" | "ru", Record<string, string>>;
 }) {
   const t = useTranslations("adminPageContent");
   const tErrors = useTranslations("apiErrors");
   const router = useRouter();
 
-  const [values, setValues] = useState<Record<string, string>>(initialValues);
+  const [valuesByLocale, setValuesByLocale] = useState<Record<"ka" | "en" | "ru", Record<string, string>>>(
+    initialValuesByLocale
+  );
   const [filter, setFilter] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -42,26 +46,26 @@ export function PageContentEditor({
     return keys.filter((k) => k.toLowerCase().includes(q));
   }, [filter, keys]);
 
-  const items = useMemo(
-    () => visibleKeys.map((k) => ({ key: k, value: values[k] ?? "" })),
-    [visibleKeys, values]
+  const updates = useMemo(
+    () =>
+      visibleKeys.flatMap((key) =>
+        LOCALES.map((locale) => ({
+          key,
+          locale,
+          value: valuesByLocale[locale]?.[key] ?? ""
+        }))
+      ),
+    [valuesByLocale, visibleKeys]
   );
 
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2 text-sm">
-          {(["ka", "en", "ru"] as const).map((l) => (
-            <a
-              key={l}
-              className={[
-                "rounded-md border px-3 py-1.5",
-                l === locale ? "border-primary/40 bg-primary/5" : "border-border bg-background/60 hover:bg-muted/40"
-              ].join(" ")}
-              href={`?locale=${l}`}
-            >
-              {l.toUpperCase()}
-            </a>
+        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+          {LOCALES.map((locale) => (
+            <span key={locale} className="rounded-md border border-primary/25 bg-primary/5 px-2.5 py-1">
+              {locale.toUpperCase()}
+            </span>
           ))}
         </div>
 
@@ -77,8 +81,7 @@ export function PageContentEditor({
               setOk(false);
               try {
                 await postJson("/api/admin/content", {
-                  locale,
-                  items: items.map((it) => ({ key: it.key, value: it.value }))
+                  updates
                 });
                 setOk(true);
               } catch (e: any) {
@@ -102,19 +105,35 @@ export function PageContentEditor({
 
       <div className="grid gap-4">
         {visibleKeys.map((k) => (
-          <label key={k} className="grid gap-1">
+          <div key={k} className="grid gap-3 rounded-lg border border-border bg-background/50 p-3">
             <div className="text-xs text-muted-foreground">{k}</div>
-            <Textarea
-              value={values[k] ?? ""}
-              onChange={(e) => setValues((prev) => ({ ...prev, [k]: e.target.value }))}
-              placeholder={t("emptyPlaceholder")}
-              rows={2}
-            />
+            <div className="grid gap-3 md:grid-cols-3">
+              {LOCALES.map((locale) => (
+                <label key={`${k}:${locale}`} className="grid gap-1">
+                  <div className="text-[11px] font-semibold text-muted-foreground">{locale.toUpperCase()}</div>
+                  {defaultValuesByLocale[locale]?.[k] ? (
+                    <div className="rounded border border-border/70 bg-muted/30 px-2 py-1 text-[11px] text-muted-foreground">
+                      {defaultValuesByLocale[locale][k]}
+                    </div>
+                  ) : null}
+                  <Textarea
+                    value={valuesByLocale[locale]?.[k] ?? ""}
+                    onChange={(e) =>
+                      setValuesByLocale((prev) => ({
+                        ...prev,
+                        [locale]: { ...(prev[locale] ?? {}), [k]: e.target.value }
+                      }))
+                    }
+                    placeholder={defaultValuesByLocale[locale]?.[k] || t("emptyPlaceholder")}
+                    rows={3}
+                  />
+                </label>
+              ))}
+            </div>
             <div className="text-[11px] text-muted-foreground">{t("emptyHint")}</div>
-          </label>
+          </div>
         ))}
       </div>
     </div>
   );
 }
-

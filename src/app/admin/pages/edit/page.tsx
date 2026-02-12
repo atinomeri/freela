@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { getTranslations } from "next-intl/server";
-import { getNamespaceKeysFromMessages } from "@/lib/message-keys";
+import { getMessageValuesByKeys, getNamespaceKeysFromMessages } from "@/lib/message-keys";
 import { getSiteContentValues } from "@/lib/site-content";
 import { PageContentEditor } from "@/app/admin/pages/page-content-editor";
 import { BUILTIN_PAGE_PATHS } from "@/lib/site-pages";
@@ -57,16 +57,29 @@ export default async function AdminEditBuiltInPage({
     );
   }
 
-  const localeRaw = String(sp.locale ?? "ka").trim().toLowerCase();
-  const locale = (localeRaw === "en" || localeRaw === "ru" ? localeRaw : "ka") as "ka" | "en" | "ru";
-
-  const messages = (await import(`../../../../../messages/en.json`)).default as any;
+  const [messagesKa, messagesEn, messagesRu] = await Promise.all([
+    import("../../../../../messages/ka.json").then((m) => m.default as any),
+    import("../../../../../messages/en.json").then((m) => m.default as any),
+    import("../../../../../messages/ru.json").then((m) => m.default as any)
+  ]);
 
   const keys = namespaces
-    .flatMap((ns) => getNamespaceKeysFromMessages(messages, ns).map((k) => `${ns}.${k}`))
+    .flatMap((ns) => getNamespaceKeysFromMessages(messagesEn, ns).map((k) => `${ns}.${k}`))
     .sort();
 
-  const initialValues = await getSiteContentValues({ keys, locale });
+  const locales = ["ka", "en", "ru"] as const;
+  const initialValuesByLocaleEntries = await Promise.all(
+    locales.map(async (locale) => [locale, await getSiteContentValues({ keys, locale })] as const)
+  );
+  const initialValuesByLocale = Object.fromEntries(initialValuesByLocaleEntries) as Record<
+    "ka" | "en" | "ru",
+    Record<string, string>
+  >;
+  const defaultValuesByLocale: Record<"ka" | "en" | "ru", Record<string, string>> = {
+    ka: getMessageValuesByKeys(messagesKa, keys),
+    en: getMessageValuesByKeys(messagesEn, keys),
+    ru: getMessageValuesByKeys(messagesRu, keys)
+  };
 
   return (
     <div className="grid gap-4">
@@ -74,7 +87,11 @@ export default async function AdminEditBuiltInPage({
         <div className="text-xl font-semibold">{t("title")}</div>
         <div className="mt-1 text-sm text-muted-foreground">{t("subtitle", { path })}</div>
       </div>
-      <PageContentEditor locale={locale} keys={keys} initialValues={initialValues} />
+      <PageContentEditor
+        keys={keys}
+        initialValuesByLocale={initialValuesByLocale}
+        defaultValuesByLocale={defaultValuesByLocale}
+      />
     </div>
   );
 }
