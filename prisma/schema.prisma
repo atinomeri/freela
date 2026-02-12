@@ -83,6 +83,7 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   reviewsGiven    Review[] @relation("ReviewsGiven")
   reviewsReceived Review[] @relation("ReviewsReceived")
+  approvedReviews Review[] @relation("ReviewsApproved")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -337,13 +338,18 @@ model Review {
   reviewerId  String
   rating      Int
   comment     String?
+  isApproved  Boolean  @default(false)
+  approvedAt  DateTime?
+  approvedByUserId String?
   createdAt   DateTime @default(now())
 
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   freelancer User    @relation("ReviewsReceived", fields: [freelancerId], references: [id], onDelete: Cascade)
   reviewer   User    @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  approvedBy User?   @relation("ReviewsApproved", fields: [approvedByUserId], references: [id], onDelete: SetNull)
 
   @@unique([projectId, freelancerId])
+  @@index([isApproved, createdAt])
   @@index([freelancerId, createdAt])
   @@index([reviewerId, createdAt])
 }

@@ -726,7 +726,8 @@
     "support": "Support inbox",
     "pages": "Pages",
     "content": "Content",
-    "backToDashboard": "Back to dashboard"
+    "backToDashboard": "Back to dashboard",
+    "reviews": "Reviews"
   },
   "adminUsers": {
     "title": "Users",
@@ -1152,5 +1153,30 @@
     "invalidToken": "The link is invalid or has expired.",
     "serverRestartRequired": "Server restart required. Please try again in a moment.",
     "backToLogin": "Back to log in"
+  },
+  "adminReviews": {
+    "title": "Reviews moderation",
+    "subtitle": "Approve reviews before they are visible publicly.",
+    "forbiddenTitle": "Access restricted",
+    "forbiddenSubtitle": "Admins only."
+  },
+  "adminReviewsTable": {
+    "filterPlaceholder": "Filter reviews...",
+    "refresh": "Refresh",
+    "approved": "Approved",
+    "pending": "Pending",
+    "approve": "Approve",
+    "hide": "Hide",
+    "noComment": "(no comment)",
+    "empty": "No reviews found.",
+    "cols": {
+      "review": "Review",
+      "reviewer": "Reviewer",
+      "freelancer": "Freelancer",
+      "project": "Order",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions"
+    }
   }
 }

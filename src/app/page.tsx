@@ -110,6 +110,7 @@ export default async function HomePage() {
 
   const recentReviews = await prisma.review.findMany({
     where: {
+      isApproved: true,
       comment: { not: null },
       NOT: { comment: "" }
     },

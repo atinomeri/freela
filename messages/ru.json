@@ -726,7 +726,8 @@
     "pages": "Pages",
     "content": "Контент",
     "backToDashboard": "Назад в кабинет",
-    "support": "Support inbox"
+    "support": "Support inbox",
+    "reviews": "Отзывы"
   },
   "adminUsers": {
     "title": "Пользователи",
@@ -1152,5 +1153,30 @@
     "reopenThread": "Reopen conversation",
     "updating": "Updating...",
     "refresh": "Refresh"
+  },
+  "adminReviews": {
+    "title": "Модерация отзывов",
+    "subtitle": "Отзывы публикуются только после подтверждения админом.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов."
+  },
+  "adminReviewsTable": {
+    "filterPlaceholder": "Фильтр отзывов...",
+    "refresh": "Обновить",
+    "approved": "Подтверждён",
+    "pending": "На модерации",
+    "approve": "Подтвердить",
+    "hide": "Скрыть",
+    "noComment": "(без текста)",
+    "empty": "Отзывы не найдены.",
+    "cols": {
+      "review": "Отзыв",
+      "reviewer": "Автор",
+      "freelancer": "Фрилансер",
+      "project": "Заказ",
+      "status": "Статус",
+      "created": "Создан",
+      "actions": "Действия"
+    }
   }
 }

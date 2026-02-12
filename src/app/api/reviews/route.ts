@@ -48,7 +48,10 @@ export async function POST(req: Request) {
         freelancerId,
         reviewerId: session.user.id,
         rating,
-        comment: comment ? comment : null
+        comment: comment ? comment : null,
+        isApproved: false,
+        approvedAt: null,
+        approvedByUserId: null
       },
       select: { id: true, rating: true, comment: true, createdAt: true }
     });
@@ -71,12 +74,12 @@ export async function GET(req: Request) {
 
   const [stats, reviews] = await Promise.all([
     prisma.review.aggregate({
-      where: { freelancerId },
+      where: { freelancerId, isApproved: true },
       _avg: { rating: true },
       _count: { _all: true }
     }),
     prisma.review.findMany({
-      where: { freelancerId },
+      where: { freelancerId, isApproved: true },
       orderBy: { createdAt: "desc" },
       take,
       select: {

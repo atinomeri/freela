@@ -45,7 +45,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
       include: { user: { select: { id: true, name: true } } }
     }),
     prisma.review.aggregate({
-      where: { freelancerId: id },
+      where: { freelancerId: id, isApproved: true },
       _avg: { rating: true },
       _count: { _all: true }
     }),

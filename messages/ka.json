@@ -726,7 +726,8 @@
     "pages": "Pages",
     "content": "კონტენტი",
     "backToDashboard": "კაბინეტზე დაბრუნება",
-    "support": "Support inbox"
+    "support": "Support inbox",
+    "reviews": "შეფასებები"
   },
   "adminUsers": {
     "title": "მომხმარებლები",
@@ -1152,5 +1153,30 @@
     "reopenThread": "Reopen conversation",
     "updating": "Updating...",
     "refresh": "Refresh"
+  },
+  "adminReviews": {
+    "title": "შეფასებების მოდერაცია",
+    "subtitle": "შეფასება საჯაროდ გამოჩნდება მხოლოდ ადმინის დასტურის შემდეგ.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის."
+  },
+  "adminReviewsTable": {
+    "filterPlaceholder": "შეფასებების ფილტრი...",
+    "refresh": "განახლება",
+    "approved": "დასტურებული",
+    "pending": "მოლოდინში",
+    "approve": "დასტურება",
+    "hide": "დამალვა",
+    "noComment": "(კომენტარი არ არის)",
+    "empty": "შეფასებები ვერ მოიძებნა.",
+    "cols": {
+      "review": "შეფასება",
+      "reviewer": "ავტორი",
+      "freelancer": "ფრილანსერი",
+      "project": "შეკვეთა",
+      "status": "სტატუსი",
+      "created": "შექმნილია",
+      "actions": "ქმედებები"
+    }
   }
 }
