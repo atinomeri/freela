@@ -921,9 +921,9 @@
   },
   "chatbox": {
     "title": "Chat",
-    "subtitle": "Support (beta)",
+    "subtitle": "Support",
     "intro": "Hi! Leave a message here, or email us at {email}.",
-    "disclaimer": "This chat is for quick questions and doesn’t replace official support.",
+    "disclaimer": "",
     "placeholder": "Type your message...",
     "loading": "Loading conversation...",
     "autoReply": "Thanks! If you need urgent help, email {email}.",

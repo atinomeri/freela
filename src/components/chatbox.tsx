@@ -195,7 +195,9 @@ export function Chatbox() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 text-xs text-muted-foreground">{t("disclaimer")}</div>
+            {t("disclaimer").trim() ? (
+              <div className="mt-3 text-xs text-muted-foreground">{t("disclaimer")}</div>
+            ) : null}
           </div>
 
           <form
