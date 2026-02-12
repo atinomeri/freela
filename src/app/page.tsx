@@ -112,8 +112,8 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
 
         <Container className="py-14 sm:py-20 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:pr-6 lg:text-left">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:pr-8 lg:text-left">
               <Badge className="inline-flex animate-fade-in items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 {t("badge")}
