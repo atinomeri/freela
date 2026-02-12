@@ -284,7 +284,6 @@ export default async function HomePage() {
           <div className="grid gap-8 lg:grid-cols-3">
             <div>
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("steps.title")}</h2>
-              <p className="mt-2 text-muted-foreground">{t("steps.subtitle")}</p>
             </div>
             <div className="lg:col-span-2">
               <div className="grid gap-4 md:grid-cols-3">
