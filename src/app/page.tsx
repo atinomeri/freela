@@ -111,20 +111,20 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -left-20 top-8 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
         <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
 
-        <Container className="py-16 sm:py-24 lg:py-28">
-          <div className="grid gap-12 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
+        <Container className="py-14 sm:py-20 lg:py-24">
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:pr-6 lg:text-left">
               <Badge className="inline-flex animate-fade-in items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 {t("badge")}
               </Badge>
               <h1
-                className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3rem] md:text-[3.35rem] lg:mx-0 lg:text-[3.4rem]"
+                className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3rem] md:text-[3.2rem] lg:mx-0 lg:text-[3.15rem]"
                 style={{ animationDelay: "100ms" }}
               >
                 {renderHighlightedHomeTitle(homeTitle, locale)}
               </h1>
-              <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-xl" style={{ animationDelay: "200ms" }}>
+              <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-[1.1rem]" style={{ animationDelay: "200ms" }}>
                 {t("subtitle", { siteName: site.name })}
               </p>
 
@@ -137,9 +137,9 @@ export default async function HomePage() {
                 </ButtonLink>
               </div>
 
-              <div className="mt-10 grid animate-fade-in grid-cols-1 gap-4 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
+              <div className="mt-8 grid animate-fade-in grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
                 {stats.map((s) => (
-                  <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-5 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
+                  <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative">
                       <div className="text-3xl font-bold text-primary">{s.value}</div>
@@ -150,8 +150,8 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[700px] animate-fade-in" style={{ animationDelay: "220ms" }}>
-              <Card className="relative overflow-hidden border-border/70 bg-card/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+            <div className="relative mx-auto w-full max-w-[620px] animate-fade-in lg:mx-0" style={{ animationDelay: "220ms" }}>
+              <Card className="relative overflow-hidden border-border/70 bg-card/80 p-5 shadow-2xl backdrop-blur-md sm:p-6">
                 <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-20 -left-14 h-56 w-56 rounded-full bg-success/20 blur-3xl" />
 
@@ -166,15 +166,15 @@ export default async function HomePage() {
 
                   <p className="mt-3 text-sm text-muted-foreground">{t("steps.subtitle")}</p>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-border/70 bg-background/75 p-3.5">
+                  <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                    <div className="rounded-xl border border-border/70 bg-background/75 p-3">
                       <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                         <Briefcase className="h-4 w-4" />
                         {navT("projects")}
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">{t("ctaCard.postProject")}</p>
                     </div>
-                    <div className="rounded-xl border border-border/70 bg-background/75 p-3.5">
+                    <div className="rounded-xl border border-border/70 bg-background/75 p-3">
                       <div className="flex items-center gap-2 text-sm font-semibold text-success">
                         <Rocket className="h-4 w-4" />
                         {navT("freelancers")}
@@ -183,15 +183,15 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  <div className="mt-5 space-y-3">
+                  <div className="mt-4 space-y-2.5">
                     {guideSteps.map((step, index) => (
-                      <div key={step.title} className="rounded-xl border border-border/70 bg-background/80 p-3.5">
+                      <div key={step.title} className="rounded-xl border border-border/70 bg-background/80 p-3">
                         <div className="flex items-start gap-3">
-                          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
+                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">
                             {index + 1}
                           </span>
                           <div>
-                            <p className="text-sm font-semibold leading-tight">{step.title}</p>
+                            <p className="text-[13px] font-semibold leading-tight">{step.title}</p>
                             <p className="mt-1 text-xs text-muted-foreground">{step.description}</p>
                           </div>
                         </div>
@@ -199,7 +199,7 @@ export default async function HomePage() {
                     ))}
                   </div>
 
-                  <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                     <ButtonLink href="/projects/new" size="sm" className="flex-1 rounded-lg">
                       {t("ctaCard.postProject")}
                     </ButtonLink>
