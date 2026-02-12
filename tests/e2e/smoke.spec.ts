@@ -290,3 +290,95 @@ test("completion enables employer review", async ({ page, baseURL, browser }) =>
   await expect(page.getByText("Completed").first()).toBeVisible();
   await expect(page.getByText("Review submitted").first()).toBeVisible();
 });
+
+test("message thread supports file attachments", async ({ page, baseURL, browser }) => {
+  if (!baseURL) throw new Error("Missing baseURL");
+  test.setTimeout(120_000);
+
+  const suffix = randSuffix();
+  const employerEmail = `e2e_employer_upload_${suffix}@example.com`;
+  const employerPassword = "password123";
+  const freelancerEmail = `e2e_freelancer_upload_${suffix}@example.com`;
+  const freelancerPassword = "password123";
+
+  expect((await registerEmployer(baseURL, { email: employerEmail, password: employerPassword, name: `E2E Employer Upload ${suffix}` })).status).toBe(200);
+  expect(
+    (await registerFreelancer(baseURL, {
+      email: freelancerEmail,
+      password: freelancerPassword,
+      category: "IT_DEVELOPMENT",
+      name: `E2E Freelancer Upload ${suffix}`
+    })).status
+  ).toBe(200);
+
+  await loginViaUi(page, baseURL, employerEmail, employerPassword);
+
+  const projectTitle = `E2E Upload Project ${suffix}`;
+  const employerCookieHeader = (await page.context().cookies(baseURL)).map((c: any) => `${c.name}=${c.value}`).join("; ");
+  const createRes = await fetch(`${baseURL}/api/projects`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: employerCookieHeader },
+    body: JSON.stringify({
+      category: "IT_DEVELOPMENT",
+      title: projectTitle,
+      description: "Attachment e2e project description with enough length for validation.",
+      budgetGEL: ""
+    })
+  });
+  const createText = await createRes.text();
+  expect(createRes.status, createText).toBe(200);
+  const createJson = JSON.parse(createText) as { project?: { id?: string } };
+  const projectId = createJson?.project?.id;
+  expect(projectId).toBeTruthy();
+
+  const freelancerPage = await browser.newPage();
+  await loginViaUi(freelancerPage, baseURL, freelancerEmail, freelancerPassword);
+  const freelancerCookieHeader = (await freelancerPage.context().cookies(baseURL))
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+  const applyRes = await fetch(`${baseURL}/api/projects/${projectId}/apply`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: freelancerCookieHeader },
+    body: JSON.stringify({ message: "I can handle this attachment test and deliver quickly with clear communication.", priceGEL: "" })
+  });
+  const applyText = await applyRes.text();
+  expect(applyRes.status, applyText).toBe(200);
+  const applyJson = JSON.parse(applyText) as { proposal?: { freelancerId?: string } };
+  const freelancerId = applyJson?.proposal?.freelancerId;
+  expect(freelancerId).toBeTruthy();
+  await freelancerPage.close();
+
+  const bootstrapRes = await fetch(`${baseURL}/api/threads/bootstrap/messages`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: employerCookieHeader },
+    body: JSON.stringify({
+      body: "Bootstrapping thread before attachment upload test.",
+      projectId,
+      freelancerId
+    })
+  });
+  const bootstrapText = await bootstrapRes.text();
+  expect(bootstrapRes.status, bootstrapText).toBe(200);
+  const bootstrapJson = JSON.parse(bootstrapText) as { threadId?: string };
+  const threadId = bootstrapJson?.threadId;
+  expect(threadId).toBeTruthy();
+
+  await page.goto(`/dashboard/messages/${threadId}`);
+  await expect(page.getByRole("heading", { name: projectTitle })).toBeVisible();
+
+  const fileName = `e2e-upload-${suffix}.txt`;
+  await page.locator('input[type="file"]').setInputFiles({
+    name: fileName,
+    mimeType: "text/plain",
+    buffer: Buffer.from(`Attachment upload check ${suffix}`, "utf8")
+  });
+  await expect(page.getByText(fileName)).toBeVisible();
+
+  const [sendRes] = await Promise.all([
+    page.waitForResponse((r) => r.request().method() === "POST" && r.url().includes(`/api/threads/${threadId}/messages`)),
+    page.getByRole("button", { name: "Send" }).click()
+  ]);
+  expect(sendRes.status(), await sendRes.text()).toBe(200);
+
+  await expect(page.getByRole("link", { name: new RegExp(fileName) }).first()).toBeVisible({ timeout: 30_000 });
+});
