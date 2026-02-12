@@ -112,14 +112,14 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
 
         <Container className="py-14 sm:py-20 lg:py-24">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:pr-8 lg:text-left">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-stretch">
+            <div className="mx-auto max-w-[580px] text-center lg:mx-0 lg:flex lg:min-h-[560px] lg:flex-col lg:justify-center lg:pr-6 lg:text-left">
               <Badge className="inline-flex animate-fade-in items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
                 {t("badge")}
               </Badge>
               <h1
-                className="mx-auto mt-6 max-w-[13ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[3rem] md:text-[3.2rem] lg:mx-0 lg:text-[3.15rem]"
+                className="mx-auto mt-6 max-w-[12.5ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[2.9rem] md:text-[3.1rem] lg:mx-0 lg:text-[3.05rem]"
                 style={{ animationDelay: "100ms" }}
               >
                 {renderHighlightedHomeTitle(homeTitle, locale)}
@@ -150,8 +150,8 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[620px] animate-fade-in lg:mx-0" style={{ animationDelay: "220ms" }}>
-              <Card className="relative overflow-hidden border-border/70 bg-card/80 p-5 shadow-2xl backdrop-blur-md sm:p-6">
+            <div className="relative mx-auto w-full max-w-[580px] animate-fade-in lg:mx-0 lg:min-h-[560px]" style={{ animationDelay: "220ms" }}>
+              <Card className="relative h-full overflow-hidden border-border/70 bg-card/80 p-5 shadow-2xl backdrop-blur-md sm:p-6">
                 <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-20 -left-14 h-56 w-56 rounded-full bg-success/20 blur-3xl" />
 
