@@ -883,7 +883,7 @@
   },
   "chatbox": {
     "title": "ჩატი",
-    "subtitle": "??????????",
+    "subtitle": "მხარდაჭერა",
     "intro": "გამარჯობა! დატოვე შეტყობინება აქ, ან მოგვწერე {email}-ზე.",
     "disclaimer": "",
     "placeholder": "დაწერე შეტყობინება...",
@@ -891,7 +891,7 @@
     "open": "ჩატის გახსნა",
     "close": "ჩატის დახურვა",
     "send": "გაგზავნა",
-    "loading": "Loading conversation..."
+    "loading": "ჩატის ჩატვირთვა..."
   },
   "globalError": {
     "title": "შეცდომა დაფიქსირდა",

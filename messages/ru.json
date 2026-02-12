@@ -883,7 +883,7 @@
   },
   "chatbox": {
     "title": "Чат",
-    "subtitle": "?????????",
+    "subtitle": "Поддержка",
     "intro": "Здравствуйте! Оставьте сообщение здесь или напишите нам на {email}.",
     "disclaimer": "",
     "placeholder": "Введите сообщение...",
@@ -891,7 +891,7 @@
     "open": "Открыть чат",
     "close": "Закрыть чат",
     "send": "Отправить",
-    "loading": "Loading conversation..."
+    "loading": "Загрузка диалога..."
   },
   "globalError": {
     "title": "Произошла ошибка",
