@@ -283,8 +283,9 @@ test("completion enables employer review", async ({ page, baseURL, browser }) =>
   const reviewsJson = (await reviewsRes.json().catch(() => null)) as any;
   expect(reviewsRes.status).toBe(200);
   expect(reviewsJson?.ok).toBe(true);
-  expect(reviewsJson?.stats?.count).toBe(1);
-  expect(reviewsJson?.stats?.avgRating).toBe(5);
+  // Reviews are publicly visible only after admin approval.
+  expect(reviewsJson?.stats?.count).toBe(0);
+  expect(reviewsJson?.stats?.avgRating).toBeNull();
 
   await page.goto(`/dashboard/projects/${projectId}`);
   await expect(page.getByText("Completed").first()).toBeVisible();
