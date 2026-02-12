@@ -164,8 +164,6 @@ export default async function HomePage() {
                     <span className="text-xs text-muted-foreground">freela.ge</span>
                   </div>
 
-                  <p className="mt-3 text-sm text-muted-foreground">{t("steps.subtitle")}</p>
-
                   <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
                     <div className="rounded-xl border border-border/70 bg-background/75 p-3">
                       <div className="flex items-center gap-2 text-sm font-semibold text-primary">
