@@ -21,6 +21,10 @@ function asLocale(value: unknown): Locale | null {
   return ALLOWED_LOCALES.includes(locale as Locale) ? (locale as Locale) : null;
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role;
@@ -35,9 +39,10 @@ export async function POST(req: Request) {
 
     const updates = updatesRaw
       .map((it) => {
-        const key = String(it?.key ?? "").trim();
-        const locale = asLocale(it?.locale);
-        const value = String(it?.value ?? "");
+        const entry = asRecord(it);
+        const key = String(entry.key ?? "").trim();
+        const locale = asLocale(entry.locale);
+        const value = String(entry.value ?? "");
         return { key, locale, value };
       })
       .filter((it) => it.locale && it.key.length > 0 && it.key.length <= 200) as Array<{
@@ -75,8 +80,9 @@ export async function POST(req: Request) {
 
   const items = itemsRaw
     .map((it) => {
-      const key = String(it?.key ?? "").trim();
-      const value = String(it?.value ?? "");
+      const entry = asRecord(it);
+      const key = String(entry.key ?? "").trim();
+      const value = String(entry.value ?? "");
       return { key, value };
     })
     .filter((it) => it.key.length > 0 && it.key.length <= 200);
