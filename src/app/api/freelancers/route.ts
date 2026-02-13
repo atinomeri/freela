@@ -40,7 +40,7 @@ export async function GET(req: Request) {
         { bio: { contains: q, mode: "insensitive" } }
       ];
       if (includeSkills) {
-        where.OR.push({ skills: { contains: q, mode: "insensitive" } });
+        where.OR.push({ skills: { string_contains: q, mode: "insensitive" } });
       }
     }
     if (minRate !== null || maxRate !== null) {

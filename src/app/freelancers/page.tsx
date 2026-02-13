@@ -66,7 +66,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
         { bio: { contains: q, mode: "insensitive" } }
       ];
       if (includeSkills) {
-        where.OR.push({ skills: { contains: q, mode: "insensitive" } });
+        where.OR.push({ skills: { string_contains: q, mode: "insensitive" } });
       }
     }
     if (minRate || maxRate) {
