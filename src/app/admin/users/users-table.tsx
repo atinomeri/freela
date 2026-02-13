@@ -38,7 +38,13 @@ async function postJson(url: string, body: unknown) {
   }
 }
 
-export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
+export function UsersTable({
+  initialUsers,
+  currentAdminUserId
+}: {
+  initialUsers: UserRow[];
+  currentAdminUserId: string;
+}) {
   const t = useTranslations("adminUsersTable");
   const tErrors = useTranslations("apiErrors");
   const router = useRouter();
@@ -92,6 +98,7 @@ export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
           <tbody>
             {filtered.map((u) => {
               const pending = pendingId === u.id;
+              const isSelf = u.id === currentAdminUserId;
               return (
                 <tr key={u.id} className="border-t border-border">
                   <td className="px-3 py-2">
@@ -103,7 +110,7 @@ export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
                     <select
                       className="h-9 rounded-md border border-border bg-background/70 px-2"
                       value={u.role}
-                      disabled={pending}
+                      disabled={pending || isSelf}
                       onChange={async (e) => {
                         const nextRole = e.target.value as UserRow["role"];
                         setPendingId(u.id);
@@ -163,7 +170,7 @@ export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
                       <Button
                         size="sm"
                         variant={u.isDisabled ? "secondary" : "destructive"}
-                        disabled={pending}
+                        disabled={pending || isSelf}
                         onClick={async () => {
                           const reason = u.isDisabled ? "" : window.prompt(t("disablePrompt")) ?? "";
                           if (!u.isDisabled && reason.trim().length === 0) return;
@@ -200,7 +207,7 @@ export function UsersTable({ initialUsers }: { initialUsers: UserRow[] }) {
                       <Button
                         size="sm"
                         variant="destructive"
-                        disabled={pending}
+                        disabled={pending || isSelf}
                         onClick={async () => {
                           const confirm = window.prompt(t("deletePrompt", { email: u.email })) ?? "";
                           if (confirm.trim() !== u.email) return;

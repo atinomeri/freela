@@ -986,6 +986,8 @@
     "SERVER_RESTART_REQUIRED": "Server restart required. Please try again shortly.",
     "EMAIL_SERVICE_UNAVAILABLE": "Email service is not configured.",
     "CANNOT_DELETE_SELF": "You cannot delete your own account.",
+    "CANNOT_DISABLE_SELF": "You cannot disable your own account.",
+    "CANNOT_CHANGE_SELF_ROLE": "You cannot change your own role.",
     "LAST_ADMIN": "You cannot delete the last admin user.",
     "PAGE_PATH_INVALID": "Invalid page path.",
     "PAGE_PATH_RESERVED": "This page path is reserved.",

@@ -77,7 +77,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
       </div>
 
       <div className="mt-5">
-        <UsersTable initialUsers={users} />
+        <UsersTable initialUsers={users} currentAdminUserId={session?.user?.id ?? ""} />
       </div>
     </Card>
   );
