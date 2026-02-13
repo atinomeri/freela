@@ -1,4 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+
+const databaseUrl = process.env.DATABASE_URL || "postgresql://freela:freela_password@localhost:5432/freela?schema=public";
+const prisma = new PrismaClient({ adapter: new PrismaPg(new Pool({ connectionString: databaseUrl })) });
 
 function randSuffix() {
   return `${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
@@ -98,6 +104,21 @@ async function registerEmployer(baseURL: string, params: { email: string; passwo
   }
   return { status: res.status, json };
 }
+
+async function promoteUserToAdmin(email: string) {
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  if (!user?.id) throw new Error(`User not found for admin promotion: ${email}`);
+  await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN", isDisabled: false } });
+  return user.id;
+}
+
+async function getCookieHeader(page: { context: () => { cookies: (url: string) => Promise<Array<{ name: string; value: string }>> } }, baseURL: string) {
+  return (await page.context().cookies(baseURL)).map((c) => `${c.name}=${c.value}`).join("; ");
+}
+
+test.afterAll(async () => {
+  await prisma.$disconnect();
+});
 
 test("register freelancer → browse by category and orders list", async ({ page, baseURL }) => {
   if (!baseURL) throw new Error("Missing baseURL");
@@ -290,6 +311,77 @@ test("completion enables employer review", async ({ page, baseURL, browser }) =>
   await page.goto(`/dashboard/projects/${projectId}`);
   await expect(page.getByText("Completed").first()).toBeVisible();
   await expect(page.getByText("Review submitted").first()).toBeVisible();
+});
+
+test("admin can save content via admin API", async ({ page, baseURL }) => {
+  if (!baseURL) throw new Error("Missing baseURL");
+  test.setTimeout(120_000);
+
+  const suffix = randSuffix();
+  const adminEmail = `e2e_admin_content_${suffix}@example.com`;
+  const adminPassword = "password123";
+
+  expect((await registerEmployer(baseURL, { email: adminEmail, password: adminPassword, name: `E2E Admin ${suffix}` })).status).toBe(200);
+  await promoteUserToAdmin(adminEmail);
+  await loginViaUi(page, baseURL, adminEmail, adminPassword);
+
+  const key = `e2e.smoke.content.${suffix}`;
+  const value = `E2E content value ${suffix}`;
+  const cookie = await getCookieHeader(page, baseURL);
+
+  const res = await fetch(`${baseURL}/api/admin/content`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie },
+    body: JSON.stringify({ updates: [{ key, locale: "en", value }] })
+  });
+  const text = await res.text();
+  expect(res.status, text).toBe(200);
+
+  const saved = await prisma.siteContent.findUnique({ where: { key_locale: { key, locale: "en" } } });
+  expect(saved?.value).toBe(value);
+});
+
+test("admin can reply to support thread", async ({ page, baseURL }) => {
+  if (!baseURL) throw new Error("Missing baseURL");
+  test.setTimeout(120_000);
+
+  const suffix = randSuffix();
+  const adminEmail = `e2e_admin_support_${suffix}@example.com`;
+  const adminPassword = "password123";
+
+  expect((await registerEmployer(baseURL, { email: adminEmail, password: adminPassword, name: `E2E Support Admin ${suffix}` })).status).toBe(200);
+  const adminUserId = await promoteUserToAdmin(adminEmail);
+
+  const visitorToken = `e2e_support_token_${suffix}`;
+  const visitorBody = `Visitor message ${suffix}`;
+  const openThreadRes = await fetch(`${baseURL}/api/support/chat`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ token: visitorToken, body: visitorBody })
+  });
+  const openThreadText = await openThreadRes.text();
+  expect(openThreadRes.status, openThreadText).toBe(200);
+  const openThreadJson = JSON.parse(openThreadText) as { threadId?: string };
+  const threadId = openThreadJson.threadId;
+  expect(threadId).toBeTruthy();
+
+  await loginViaUi(page, baseURL, adminEmail, adminPassword);
+  const cookie = await getCookieHeader(page, baseURL);
+  const adminReplyBody = `Admin reply ${suffix}`;
+
+  const replyRes = await fetch(`${baseURL}/api/admin/support/threads/${encodeURIComponent(String(threadId))}/messages`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie },
+    body: JSON.stringify({ body: adminReplyBody })
+  });
+  const replyText = await replyRes.text();
+  expect(replyRes.status, replyText).toBe(200);
+
+  const savedReply = await prisma.supportMessage.findFirst({
+    where: { threadId: String(threadId), senderUserId: adminUserId, senderRole: "ADMIN", body: adminReplyBody },
+    select: { id: true }
+  });
+  expect(savedReply?.id).toBeTruthy();
 });
 
 test("message thread supports file attachments", async ({ page, baseURL, browser }) => {
