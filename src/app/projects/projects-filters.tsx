@@ -64,14 +64,14 @@ export function ProjectsFilters({ initial }: Props) {
   };
 
   return (
-    <div className="relative isolate rounded-xl border border-border bg-background/60 p-4">
+    <div className="relative isolate rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm backdrop-blur-sm">
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <label className="grid gap-1 text-sm">
           <span className="font-medium">{t("search")}</span>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-10 w-full rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             placeholder={t("searchProjectsPlaceholder")}
           />
         </label>
@@ -81,7 +81,7 @@ export function ProjectsFilters({ initial }: Props) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="relative z-10 h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="relative z-10 h-10 w-full rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
           >
             <option value="">{t("allCategories")}</option>
             {FREELANCER_CATEGORIES.map((c) => (
@@ -97,7 +97,7 @@ export function ProjectsFilters({ initial }: Props) {
           <input
             value={minBudget}
             onChange={(e) => setMinBudget(e.target.value)}
-            className="h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-10 w-full rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             inputMode="numeric"
             placeholder="500"
           />
@@ -108,7 +108,7 @@ export function ProjectsFilters({ initial }: Props) {
           <input
             value={maxBudget}
             onChange={(e) => setMaxBudget(e.target.value)}
-            className="h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-10 w-full rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             inputMode="numeric"
             placeholder="3000"
           />
@@ -119,7 +119,7 @@ export function ProjectsFilters({ initial }: Props) {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as "new" | "budget_asc" | "budget_desc")}
-            className="relative z-10 h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="relative z-10 h-10 w-full rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
           >
             <option value="new">{t("sortNewest")}</option>
             <option value="budget_asc">{t("sortLowPrice")}</option>
@@ -129,10 +129,10 @@ export function ProjectsFilters({ initial }: Props) {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <Button type="button" onClick={apply}>
+        <Button type="button" size="sm" className="rounded-xl" onClick={apply}>
           {t("apply")}
         </Button>
-        <Button type="button" variant="secondary" onClick={clear}>
+        <Button type="button" size="sm" className="rounded-xl" variant="secondary" onClick={clear}>
           {t("clear")}
         </Button>
       </div>

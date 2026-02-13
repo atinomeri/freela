@@ -35,7 +35,7 @@ export function ProfileForm({ initial }: Props) {
 
   return (
     <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
-      {error ? <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm">{error}</div> : null}
+      {error ? <div className="mb-4 rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm">{error}</div> : null}
       {success ? (
         <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">{success}</div>
       ) : null}

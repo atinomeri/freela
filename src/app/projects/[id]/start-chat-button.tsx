@@ -35,7 +35,7 @@ export function StartChatButton({ projectId }: { projectId: string }) {
   return (
     <div className="mt-4">
       {error ? <div className="mb-2 text-xs text-destructive">{error}</div> : null}
-      <Button type="button" onClick={start} disabled={pending}>
+      <Button type="button" size="sm" className="rounded-xl" onClick={start} disabled={pending}>
         {pending ? t("opening") : t("button")}
       </Button>
     </div>

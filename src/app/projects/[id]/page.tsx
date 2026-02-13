@@ -75,13 +75,13 @@ export default async function ProjectDetailPage({ params }: Props) {
   return (
     <Container className="py-12 sm:py-16">
       <div className="text-sm text-muted-foreground">
-        <Link className="underline hover:text-foreground" href="/projects">
+        <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/projects">
           {t("breadcrumbProjects")}
         </Link>{" "}
         / <span className="text-foreground">{project.title}</span>
       </div>
       <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
-        <Card className="p-6">
+        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
           <h1 className="text-3xl font-semibold tracking-tight">{project.title}</h1>
           {project.category ? (
             <div className="mt-3">
@@ -101,15 +101,15 @@ export default async function ProjectDetailPage({ params }: Props) {
         </Card>
 
         <div className="grid gap-6">
-          <Card className="p-6">
+          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="text-sm font-medium text-muted-foreground">{t("employerTitle")}</div>
             <div className="mt-3 font-medium">{project.employer.name}</div>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+              <div className="rounded-xl border border-border/70 bg-background/70 p-3">
                 <div className="text-xs text-muted-foreground">{t("employerProjectsLabel")}</div>
                 <div className="mt-1 font-medium">{employerProjectsCount}</div>
               </div>
-              <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+              <div className="rounded-xl border border-border/70 bg-background/70 p-3">
                 <div className="text-xs text-muted-foreground">{t("employerAcceptedLabel")}</div>
                 <div className="mt-1 font-medium">{employerAcceptedProposalsCount}</div>
               </div>
@@ -117,12 +117,12 @@ export default async function ProjectDetailPage({ params }: Props) {
           </Card>
 
           {!project.isOpen && !proposal?.id ? (
-            <Card className="p-6">
+            <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
               <div className="text-sm font-medium text-muted-foreground">{t("closedTitle")}</div>
               <div className="mt-3 text-sm text-muted-foreground">{t("closedBody")}</div>
             </Card>
           ) : proposal?.id ? (
-            <Card className="p-6">
+            <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
               <div className="text-sm font-medium text-muted-foreground">{t("yourProposal")}</div>
               <div className="mt-3 flex items-center justify-between">
                 <Badge>{proposalStatusLabel(proposal.status, tStatuses)}</Badge>
@@ -139,7 +139,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           ) : canApply ? (
             <ApplyForm projectId={project.id} />
           ) : user ? (
-            <Card className="p-6">
+            <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
               <div className="text-sm font-medium text-muted-foreground">{t("applyOnlyFreelancersTitle")}</div>
               <div className="mt-3 text-sm text-muted-foreground">{t("applyOnlyFreelancersBody")}</div>
             </Card>
@@ -148,10 +148,10 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="text-sm font-medium text-muted-foreground">{t("applyLoginTitle")}</div>
               <div className="mt-3 text-sm text-muted-foreground">{t("applyLoginBody")}</div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <ButtonLink href={`/auth/login?callbackUrl=${encodeURIComponent(`/projects/${project.id}`)}`} variant="secondary">
+                <ButtonLink href={`/auth/login?callbackUrl=${encodeURIComponent(`/projects/${project.id}`)}`} size="sm" className="rounded-xl" variant="secondary">
                   {tAuth("title")}
                 </ButtonLink>
-                <ButtonLink href={`/auth/register?callbackUrl=${encodeURIComponent(`/projects/${project.id}`)}`}>
+                <ButtonLink href={`/auth/register?callbackUrl=${encodeURIComponent(`/projects/${project.id}`)}`} size="sm" className="rounded-xl">
                   {tAuth("signUp")}
                 </ButtonLink>
               </div>

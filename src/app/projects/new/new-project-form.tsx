@@ -37,9 +37,9 @@ export function NewProjectForm() {
   const canSubmit = validateError === "";
 
   return (
-    <Card className="mt-6 p-6">
+    <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
       {error ? (
-        <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm">{error}</div>
+        <div className="mb-4 rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm">{error}</div>
       ) : null}
 
       <form
@@ -79,7 +79,7 @@ export function NewProjectForm() {
           <select
             value={form.category}
             onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-            className="h-10 rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-10 rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             required
           >
             <option value="">{t("categoryPlaceholder")}</option>
@@ -108,7 +108,7 @@ export function NewProjectForm() {
           <textarea
             value={form.description}
             onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-            className="min-h-36 rounded-lg border border-border bg-background/70 px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring/30"
+            className="min-h-36 rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring/30"
             placeholder={t("descriptionPlaceholder")}
             required
           />
@@ -126,7 +126,7 @@ export function NewProjectForm() {
           <span className="text-xs text-muted-foreground">{t("optionalHint")}</span>
         </label>
 
-        <Button type="submit" className="mt-2 h-11" disabled={pending || !canSubmit}>
+        <Button type="submit" size="sm" className="mt-2 rounded-xl" disabled={pending || !canSubmit}>
           {pending ? t("sending") : t("submit")}
         </Button>
       </form>

@@ -63,7 +63,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
     <Container className="py-12 sm:py-16">
       <div className="flex flex-col gap-3">
         <div className="text-sm text-muted-foreground">
-          <Link className="hover:text-foreground underline" href="/freelancers">
+          <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/freelancers">
             {t("breadcrumbFreelancers")}
           </Link>{" "}
           / <span className="text-foreground">{profile.user.name}</span>
@@ -87,7 +87,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
         <div className="grid gap-6">
-          <Card className="p-6">
+          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="text-sm font-medium text-muted-foreground">{t("bioTitle")}</div>
             <p className="mt-2 text-sm text-muted-foreground">
               {profile.bio ?? t("bioMissing")}
@@ -95,20 +95,20 @@ export default async function FreelancerDetailPage({ params }: Props) {
           </Card>
         </div>
 
-        <Card className="p-6">
+        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
           <div className="text-sm font-medium text-muted-foreground">{t("detailsTitle")}</div>
           <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+            <div className="rounded-xl border border-border/70 bg-background/70 p-3">
               <dt className="text-xs text-muted-foreground">{t("ratingLabel")}</dt>
               <dd className="mt-1 font-medium">
                 {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
               </dd>
             </div>
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+            <div className="rounded-xl border border-border/70 bg-background/70 p-3">
               <dt className="text-xs text-muted-foreground">{t("reviewsLabel")}</dt>
               <dd className="mt-1 font-medium">{t("reviewsValue", { count: reviewsCount })}</dd>
             </div>
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-3 col-span-2">
+            <div className="col-span-2 rounded-xl border border-border/70 bg-background/70 p-3">
               <dt className="text-xs text-muted-foreground">{t("completedJobsLabel")}</dt>
               <dd className="mt-1 font-medium">{t("completedJobsValue", { count: completedJobs })}</dd>
             </div>

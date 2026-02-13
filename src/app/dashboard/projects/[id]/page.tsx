@@ -57,7 +57,7 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
   return (
     <Container className="py-12 sm:py-16">
       <div className="text-sm text-muted-foreground">
-        <Link className="underline hover:text-foreground" href="/dashboard/projects">
+        <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/dashboard/projects">
           {t("breadcrumbMyProjects")}
         </Link>{" "}
         / <span className="text-foreground">{project.title}</span>
@@ -104,7 +104,7 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
               {proposals.map((proposal) => (
                 <div key={proposal.id} className="rounded-2xl border border-border/70 bg-background/70 px-3 py-3 text-sm shadow-sm backdrop-blur-sm">
                   <div className="flex items-center justify-between gap-3">
-                    <Link className="font-medium underline hover:text-foreground" href={`/freelancers/${proposal.freelancer.id}`}>
+                    <Link className="font-medium transition-colors hover:text-foreground" href={`/freelancers/${proposal.freelancer.id}`}>
                       {proposal.freelancer.name}
                     </Link>
                     <div className="text-xs text-muted-foreground">

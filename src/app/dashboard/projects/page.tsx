@@ -85,7 +85,7 @@ export default async function MyProjectsPage() {
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                   <div className="text-xs">
                     <Link
-                      className="text-muted-foreground underline hover:text-foreground"
+                      className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground"
                       href={`/dashboard/projects/${p.id}`}
                     >
                       {t("viewProposals")}
@@ -102,7 +102,7 @@ export default async function MyProjectsPage() {
       )}
 
       <div className="mt-6 text-sm text-muted-foreground">
-        <Link className="underline hover:text-foreground" href="/dashboard">
+        <Link className="inline-flex h-10 items-center rounded-xl border border-border/70 bg-background/70 px-4 text-sm font-medium text-foreground/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground" href="/dashboard">
           {t("backToDashboard")}
         </Link>
       </div>

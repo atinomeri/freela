@@ -114,7 +114,7 @@ export default async function ProjectsPage({ searchParams }: Props) {
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("description")}</p>
         </div>
         {canViewMyProposals ? (
-          <ButtonLink href="/dashboard/proposals" variant="secondary">
+          <ButtonLink href="/dashboard/proposals" size="sm" className="rounded-xl" variant="secondary">
             {t("myProposals")}
           </ButtonLink>
         ) : null}
@@ -127,14 +127,14 @@ export default async function ProjectsPage({ searchParams }: Props) {
 
       <div className="mt-6 grid gap-4">
         {projects.length === 0 ? (
-          <Card className="p-6">
+          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="font-medium">{t("emptyTitle")}</div>
             <div className="mt-2 text-sm text-muted-foreground">{t("emptyDescription")}</div>
           </Card>
         ) : (
           projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.id}`} className="group">
-              <Card className="p-6">
+              <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="font-medium">{p.title}</div>
@@ -165,10 +165,10 @@ export default async function ProjectsPage({ searchParams }: Props) {
       <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
         <div>{t("pageInfo", { page, pages: totalPages, total })}</div>
         <div className="flex gap-2">
-          <ButtonLink href={canPrev ? withPage(page - 1) : "#"} variant="secondary" aria-disabled={!canPrev}>
+          <ButtonLink href={canPrev ? withPage(page - 1) : "#"} size="sm" className="rounded-xl" variant="secondary" aria-disabled={!canPrev}>
             {t("prev")}
           </ButtonLink>
-          <ButtonLink href={canNext ? withPage(page + 1) : "#"} variant="secondary" aria-disabled={!canNext}>
+          <ButtonLink href={canNext ? withPage(page + 1) : "#"} size="sm" className="rounded-xl" variant="secondary" aria-disabled={!canNext}>
             {t("next")}
           </ButtonLink>
         </div>

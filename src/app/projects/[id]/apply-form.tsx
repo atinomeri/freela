@@ -21,8 +21,8 @@ export function ApplyForm({ projectId }: { projectId: string }) {
   };
 
   return (
-    <Card className="p-6">
-      {error ? <div className="mb-4 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm">{error}</div> : null}
+    <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
+      {error ? <div className="mb-4 rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm">{error}</div> : null}
       {success ? (
         <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm">{success}</div>
       ) : null}
@@ -63,7 +63,7 @@ export function ApplyForm({ projectId }: { projectId: string }) {
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="min-h-28 rounded-lg border border-border bg-background/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="min-h-28 rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             placeholder={t("messagePlaceholder")}
             required
           />
@@ -73,12 +73,12 @@ export function ApplyForm({ projectId }: { projectId: string }) {
           <input
             value={priceGEL}
             onChange={(e) => setPriceGEL(e.target.value)}
-            className="h-10 rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-10 rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             placeholder={t("pricePlaceholder")}
             inputMode="numeric"
           />
         </label>
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" size="sm" className="rounded-xl" disabled={pending}>
           {pending ? t("sending") : t("submit")}
         </Button>
       </form>

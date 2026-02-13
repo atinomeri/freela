@@ -144,7 +144,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
           <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("description")}</p>
         </div>
-        <ButtonLink href="/auth/register" variant="secondary">
+        <ButtonLink href="/auth/register" size="sm" className="rounded-xl" variant="secondary">
           {t("createProfile")}
         </ButtonLink>
       </div>
@@ -155,7 +155,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
       </div>
 
       {freelancers.length === 0 ? (
-        <Card className="mt-6 p-6">
+        <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
           <div className="font-medium">{t("emptyTitle")}</div>
           <div className="mt-2 text-sm text-muted-foreground">{t("emptyDescription")}</div>
         </Card>
@@ -166,7 +166,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
             const categoryLabel = getFreelancerCategoryLabel(f.category, tCategories);
             return (
               <I18nLink key={f.user.id} href={`/freelancers/${f.user.id}`} className="group">
-                <Card className="p-6 h-full">
+                <Card className="h-full rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
                   <div className="font-medium">{f.user.name}</div>
                   <div className="text-sm text-muted-foreground">{f.title ?? t("defaultTitle")}</div>
                   {categoryLabel ? (
@@ -201,10 +201,10 @@ export default async function FreelancersPage({ searchParams }: Props) {
       <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
         <div>{t("pageInfo", { page, pages: totalPages, total })}</div>
         <div className="flex gap-2">
-          <ButtonLink href={page > 1 ? withPage(page - 1) : "#"} variant="secondary" aria-disabled={page <= 1}>
+          <ButtonLink href={page > 1 ? withPage(page - 1) : "#"} size="sm" className="rounded-xl" variant="secondary" aria-disabled={page <= 1}>
             {t("prev")}
           </ButtonLink>
-          <ButtonLink href={page < totalPages ? withPage(page + 1) : "#"} variant="secondary" aria-disabled={page >= totalPages}>
+          <ButtonLink href={page < totalPages ? withPage(page + 1) : "#"} size="sm" className="rounded-xl" variant="secondary" aria-disabled={page >= totalPages}>
             {t("next")}
           </ButtonLink>
         </div>
