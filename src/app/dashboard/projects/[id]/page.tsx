@@ -132,19 +132,7 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
                   </div>
                   {proposal.status === "PENDING" ? (
                     <ProposalActions proposalId={proposal.id} disabled={false} />
-                  ) : (
-                    <div
-                      className={`mt-3 text-xs font-medium ${
-                        proposal.status === "ACCEPTED"
-                          ? "text-emerald-700"
-                          : proposal.status === "REJECTED"
-                            ? "text-destructive"
-                            : "text-muted-foreground"
-                      }`}
-                    >
-                      {proposalStatusLabel(proposal.status, tStatuses)}
-                    </div>
-                  )}
+                  ) : null}
                   <StartChatButton projectId={project.id} freelancerId={proposal.freelancer.id} />
                   {status === "completed" && proposal.status === "ACCEPTED" ? (
                     reviewedSet.has(proposal.freelancer.id) ? (
