@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import { ProjectsTable } from "@/app/admin/projects/projects-table";
+import { Prisma } from "@prisma/client";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("adminProjects");
@@ -20,7 +21,7 @@ function toSingle(value: string | string[] | undefined) {
 export default async function AdminProjectsPage({ searchParams }: Props) {
   const t = await getTranslations("adminProjects");
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
 
   if (role !== "ADMIN") {
     return (
@@ -35,7 +36,7 @@ export default async function AdminProjectsPage({ searchParams }: Props) {
   const q = toSingle(sp.q).trim();
   const openFilter = toSingle(sp.open).trim().toLowerCase();
 
-  const where: any = {};
+  const where: Prisma.ProjectWhereInput = {};
   if (q) {
     where.OR = [
       { title: { contains: q, mode: "insensitive" } },

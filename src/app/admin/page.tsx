@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminDashboardPage() {
   const t = await getTranslations("adminPage");
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
 
   if (role !== "ADMIN") {
     return (

@@ -57,8 +57,8 @@ export function SupportInboxControls({
               await postJson(`/api/admin/support/threads/${encodeURIComponent(threadId)}/messages`, { body: text });
               setBody("");
               router.refresh();
-            } catch (e: any) {
-              setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+            } catch (e: unknown) {
+              setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
             } finally {
               setPending(false);
             }
@@ -77,8 +77,8 @@ export function SupportInboxControls({
             try {
               await postJson(`/api/admin/support/threads/${encodeURIComponent(threadId)}/status`, { status: next });
               router.refresh();
-            } catch (e: any) {
-              setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+            } catch (e: unknown) {
+              setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
             } finally {
               setStatusPending(false);
             }

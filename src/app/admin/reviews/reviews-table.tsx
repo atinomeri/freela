@@ -142,8 +142,8 @@ export function ReviewsTable({ initialReviews }: { initialReviews: ReviewRow[] }
                               x.id === r.id ? { ...x, isApproved: next, approvedAt: next ? new Date().toISOString() : null } : x
                             )
                           );
-                        } catch (e: any) {
-                          setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                        } catch (e: unknown) {
+                          setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                         } finally {
                           setPendingId(null);
                         }

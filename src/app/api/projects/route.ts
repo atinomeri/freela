@@ -38,18 +38,18 @@ export async function GET(req: Request) {
     return jsonError("FILTER_INVALID", 400);
   }
 
-  const where: Record<string, unknown> = { isOpen: true };
-  if (category) (where as any).category = category;
+  const where: Prisma.ProjectWhereInput = { isOpen: true };
+  if (category) where.category = category;
   if (q) {
-    (where as any).OR = [
+    where.OR = [
       { title: { contains: q, mode: "insensitive" } },
       { description: { contains: q, mode: "insensitive" } }
     ];
   }
   if (minBudget !== null || maxBudget !== null) {
-    (where as any).budgetGEL = {};
-    if (minBudget !== null && Number.isFinite(minBudget)) (where as any).budgetGEL.gte = minBudget;
-    if (maxBudget !== null && Number.isFinite(maxBudget)) (where as any).budgetGEL.lte = maxBudget;
+    where.budgetGEL = {};
+    if (minBudget !== null && Number.isFinite(minBudget)) where.budgetGEL.gte = minBudget;
+    if (maxBudget !== null && Number.isFinite(maxBudget)) where.budgetGEL.lte = maxBudget;
   }
 
   const orderBy: Prisma.ProjectOrderByWithRelationInput[] =

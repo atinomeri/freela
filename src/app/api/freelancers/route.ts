@@ -32,7 +32,7 @@ export async function GET(req: Request) {
   }
 
   const buildWhere = (includeSkills: boolean) => {
-    const where: any = { user: { role: "FREELANCER" } };
+    const where: Prisma.ProfileWhereInput = { user: { role: "FREELANCER" } };
     if (category) where.category = category;
     if (q) {
       where.OR = [

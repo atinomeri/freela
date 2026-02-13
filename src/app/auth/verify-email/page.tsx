@@ -27,7 +27,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   if (!token) {
     message = t("missingToken");
-  } else if (!(prisma as any).emailVerificationToken) {
+  } else if (!("emailVerificationToken" in prisma)) {
     message = t("serverRestartRequired");
   } else {
     const tokenHash = sha256(token);

@@ -191,7 +191,7 @@ export async function POST(req: Request) {
   const companyId = payload.role === "employer" && payload.employerType === "company" ? payload.companyId : null;
 
   try {
-    if (!(prisma as any).emailVerificationToken) {
+    if (!("emailVerificationToken" in prisma)) {
       return jsonError("SERVER_RESTART_REQUIRED", 500);
     }
 
@@ -281,8 +281,8 @@ export async function POST(req: Request) {
 
     if (isDev) console.info(`[register] 201 created id=${user.id} email=${user.email} role=${user.role}`);
     return okResponse();
-  } catch (err: any) {
-    const message = String(err?.message ?? "");
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "";
     if (message.includes("Unique constraint") || message.includes("unique")) {
       if (isDev) console.info("[register] 409 unique constraint", { message });
       return jsonError("DUPLICATE_ID", 409);

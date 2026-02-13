@@ -21,9 +21,9 @@ async function postJson(url: string, body: unknown) {
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body)
   });
-  const json = (await res.json().catch(() => null)) as { ok?: boolean; errorCode?: string } | null;
+  const json = (await res.json().catch(() => null)) as { ok?: boolean; errorCode?: string; id?: string } | null;
   if (!res.ok || !json?.ok) throw new Error(json?.errorCode || "REQUEST_FAILED");
-  return json as any;
+  return json;
 }
 
 function fmtDate(value: string | null) {
@@ -101,8 +101,8 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
                           const nextVisible = !p.isVisible;
                           await postJson("/api/admin/pages/toggle", { path: p.path, field: "isVisible", value: nextVisible });
                           setPages((prev) => prev.map((x) => (x.path === p.path ? { ...x, isVisible: nextVisible } : x)));
-                        } catch (e: any) {
-                          setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                        } catch (e: unknown) {
+                          setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                         } finally {
                           setPendingPath(null);
                         }
@@ -123,8 +123,8 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
                           const nextEnabled = !p.isEnabled;
                           await postJson("/api/admin/pages/toggle", { path: p.path, field: "isEnabled", value: nextEnabled });
                           setPages((prev) => prev.map((x) => (x.path === p.path ? { ...x, isEnabled: nextEnabled } : x)));
-                        } catch (e: any) {
-                          setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                        } catch (e: unknown) {
+                          setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                         } finally {
                           setPendingPath(null);
                         }
@@ -160,8 +160,8 @@ export function PagesTable({ initialPages }: { initialPages: PageRow[] }) {
                             try {
                               await postJson(`/api/admin/pages/${encodeURIComponent(id)}/delete`, {});
                               setPages((prev) => prev.filter((x) => x.path !== p.path));
-                            } catch (e: any) {
-                              setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                            } catch (e: unknown) {
+                              setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                             } finally {
                               setPendingPath(null);
                             }

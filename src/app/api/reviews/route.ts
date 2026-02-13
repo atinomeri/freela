@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       select: { id: true, rating: true, comment: true, createdAt: true }
     });
     return NextResponse.json({ ok: true, review }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return jsonError("DUPLICATE_REVIEW", 409);
     }

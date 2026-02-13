@@ -23,13 +23,13 @@ function asLocale(value: unknown): Locale | null {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
   if (!session) return jsonError("UNAUTHORIZED", 401);
   if (role !== "ADMIN") return jsonError("FORBIDDEN", 403);
 
   const body = (await req.json().catch(() => null)) as Body | null;
 
-  const updatesRaw = Array.isArray(body?.updates) ? (body?.updates as any[]) : null;
+  const updatesRaw = Array.isArray(body?.updates) ? (body?.updates as unknown[]) : null;
   if (updatesRaw) {
     if (updatesRaw.length === 0 || updatesRaw.length > 600) return jsonError("INVALID_REQUEST", 400);
 
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
   const locale = asLocale(body?.locale);
   if (!locale) return jsonError("INVALID_REQUEST", 400);
 
-  const itemsRaw = Array.isArray(body?.items) ? (body?.items as any[]) : null;
+  const itemsRaw = Array.isArray(body?.items) ? (body?.items as unknown[]) : null;
   if (!itemsRaw || itemsRaw.length === 0) return jsonError("INVALID_REQUEST", 400);
   if (itemsRaw.length > 200) return jsonError("INVALID_REQUEST", 400);
 

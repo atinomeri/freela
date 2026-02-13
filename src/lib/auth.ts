@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
         const password = String(credentials?.password ?? "");
         if (!email || !password) return null;
 
-        const ip = getClientIpFromHeaders((req as any)?.headers);
+        const ip = getClientIpFromHeaders(req?.headers);
         const ipLimit = await checkRateLimit({ scope: "login:ip", key: ip, limit: 30, windowSeconds: 15 * 60 });
         if (!ipLimit.allowed) return null;
         const emailLimit = await checkRateLimit({ scope: "login:email", key: email, limit: 10, windowSeconds: 15 * 60 });

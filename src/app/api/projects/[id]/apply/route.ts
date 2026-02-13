@@ -81,7 +81,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     return NextResponse.json({ ok: true, proposal }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return jsonError("DUPLICATE_PROPOSAL", 409);
     }

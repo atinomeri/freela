@@ -10,7 +10,7 @@ function jsonError(errorCode: string, status: number) {
 
 export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
   if (!session) return jsonError("UNAUTHORIZED", 401);
   if (role !== "ADMIN") return jsonError("FORBIDDEN", 403);
 

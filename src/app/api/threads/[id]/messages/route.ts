@@ -70,7 +70,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     freelancerId = String(form.get("freelancerId") ?? "").trim();
     files = form
       .getAll("files")
-      .filter((v): v is File => typeof v === "object" && v !== null && typeof (v as any).arrayBuffer === "function");
+      .filter((v): v is File => v instanceof File);
   } else {
     const body = (await req.json().catch(() => null)) as { body?: unknown; projectId?: unknown; freelancerId?: unknown } | null;
     content = String(body?.body ?? "").trim();

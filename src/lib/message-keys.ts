@@ -15,7 +15,7 @@ function collectKeys(obj: unknown, prefix: string, out: string[]) {
   out.push(prefix.slice(0, -1));
 }
 
-export function getNamespaceKeysFromMessages(messages: any, namespace: string) {
+export function getNamespaceKeysFromMessages(messages: Record<string, unknown>, namespace: string) {
   const root = messages?.[namespace];
   const out: string[] = [];
   collectKeys(root, "", out);
@@ -24,16 +24,16 @@ export function getNamespaceKeysFromMessages(messages: any, namespace: string) {
 
 function getByPath(obj: unknown, path: string) {
   const parts = path.split(".").filter((p) => p.length > 0);
-  let cur: any = obj;
+  let cur: unknown = obj;
   for (const part of parts) {
     if (cur === null || cur === undefined) return undefined;
     if (typeof cur !== "object") return undefined;
-    cur = cur[part as keyof typeof cur];
+    cur = (cur as Record<string, unknown>)[part];
   }
   return cur;
 }
 
-export function getMessageValuesByKeys(messages: any, keys: string[]) {
+export function getMessageValuesByKeys(messages: Record<string, unknown>, keys: string[]) {
   const out: Record<string, string> = {};
   for (const key of keys) {
     const value = getByPath(messages, key);

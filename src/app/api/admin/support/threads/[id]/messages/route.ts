@@ -13,7 +13,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
   const userId = session?.user?.id;
   if (!userId) return jsonError("UNAUTHORIZED", 401);
   if (role !== "ADMIN") return jsonError("FORBIDDEN", 403);

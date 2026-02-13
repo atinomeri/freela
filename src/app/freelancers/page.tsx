@@ -58,7 +58,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
   const pageSize = Math.min(50, Math.max(1, Number.parseInt(typeof sp.pageSize === "string" ? sp.pageSize : "12", 10) || 12));
 
   const buildWhere = (includeSkills: boolean) => {
-    const where: any = { user: { role: "FREELANCER" } };
+    const where: Prisma.ProfileWhereInput = { user: { role: "FREELANCER" } };
     if (category) where.category = category;
     if (q) {
       where.OR = [

@@ -10,7 +10,7 @@ function jsonError(errorCode: string, status: number) {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
   if (!session) return jsonError("UNAUTHORIZED", 401);
   if (role !== "ADMIN") return jsonError("FORBIDDEN", 403);
 
@@ -18,13 +18,14 @@ export async function POST(req: Request) {
     | { path?: unknown; field?: unknown; value?: unknown }
     | { path?: unknown; isEnabled?: unknown }
     | null;
+  const bodyObj = (body ?? {}) as Record<string, unknown>;
   const path = String(body?.path ?? "").trim();
   if (!isValidPagePath(path)) return jsonError("PAGE_PATH_INVALID", 400);
 
   // Backwards compatible: older UI posted {isEnabled}.
-  const fieldRaw = "field" in (body ?? {}) ? String((body as any)?.field ?? "").trim() : "";
+  const fieldRaw = "field" in bodyObj ? String(bodyObj.field ?? "").trim() : "";
   const value =
-    "value" in (body ?? {}) ? Boolean((body as any)?.value) : "isEnabled" in (body ?? {}) ? Boolean((body as any)?.isEnabled) : null;
+    "value" in bodyObj ? Boolean(bodyObj.value) : "isEnabled" in bodyObj ? Boolean(bodyObj.isEnabled) : null;
 
   const field = fieldRaw === "isVisible" ? "isVisible" : "isEnabled";
   if (value === null) return jsonError("BAD_REQUEST", 400);

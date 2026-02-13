@@ -84,8 +84,8 @@ export function PageContentEditor({
                   updates
                 });
                 setOk(true);
-              } catch (e: any) {
-                setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+              } catch (e: unknown) {
+                setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
               } finally {
                 setPending(false);
               }

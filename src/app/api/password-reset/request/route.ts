@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const email = String(body?.email ?? "").trim().toLowerCase();
   if (!email || !email.includes("@")) return jsonError("EMAIL_INVALID", 400);
 
-  if (!(prisma as any).passwordResetToken) {
+  if (!("passwordResetToken" in prisma)) {
     return jsonError("SERVER_RESTART_REQUIRED", 500);
   }
 

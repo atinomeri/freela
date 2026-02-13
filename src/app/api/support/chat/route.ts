@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { Prisma } from "@prisma/client";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -76,7 +77,7 @@ export async function GET(req: Request) {
     | null = null;
 
   if (threadId) {
-    const where: any = { id: threadId };
+    const where: Prisma.SupportThreadWhereInput = { id: threadId };
     if (userId) {
       where.OR = [{ requesterUserId: userId }, ...(tokenHash ? [{ visitorTokenHash: tokenHash }] : [])];
     } else if (tokenHash) {
@@ -156,7 +157,7 @@ export async function POST(req: Request) {
   });
   if (!limit.allowed) return jsonError("RATE_LIMITED", 429);
 
-  const whereAccess: any[] = [];
+  const whereAccess: Prisma.SupportThreadWhereInput[] = [];
   if (userId) whereAccess.push({ requesterUserId: userId });
   if (tokenHash) whereAccess.push({ visitorTokenHash: tokenHash });
 

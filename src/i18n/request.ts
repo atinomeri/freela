@@ -9,7 +9,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const fromMiddleware = await requestLocale;
   const fromCookie = (await cookies()).get("NEXT_LOCALE")?.value;
   const candidate = fromCookie || fromMiddleware;
-  const locale = candidate && routing.locales.includes(candidate as any) ? candidate : routing.defaultLocale;
+  const isRoutingLocale = (value: string): value is (typeof routing.locales)[number] =>
+    routing.locales.includes(value as (typeof routing.locales)[number]);
+  const locale = candidate && isRoutingLocale(candidate) ? candidate : routing.defaultLocale;
 
   const messages = (await import(`../../messages/${locale}.json`)).default;
 

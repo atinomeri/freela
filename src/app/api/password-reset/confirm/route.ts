@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   if (!confirmPassword) return jsonError("CONFIRM_REQUIRED", 400);
   if (password !== confirmPassword) return jsonError("PASSWORDS_MISMATCH", 400);
 
-  if (!(prisma as any).passwordResetToken) {
+  if (!("passwordResetToken" in prisma)) {
     return jsonError("SERVER_RESTART_REQUIRED", 500);
   }
 

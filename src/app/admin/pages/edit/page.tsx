@@ -31,7 +31,7 @@ export default async function AdminEditBuiltInPage({
 }) {
   const t = await getTranslations("adminPageContent");
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
 
   if (role !== "ADMIN") {
     return (
@@ -58,9 +58,9 @@ export default async function AdminEditBuiltInPage({
   }
 
   const [messagesKa, messagesEn, messagesRu] = await Promise.all([
-    import("../../../../../messages/ka.json").then((m) => m.default as any),
-    import("../../../../../messages/en.json").then((m) => m.default as any),
-    import("../../../../../messages/ru.json").then((m) => m.default as any)
+    import("../../../../../messages/ka.json").then((m) => m.default as Record<string, unknown>),
+    import("../../../../../messages/en.json").then((m) => m.default as Record<string, unknown>),
+    import("../../../../../messages/ru.json").then((m) => m.default as Record<string, unknown>)
   ]);
 
   const keys = namespaces

@@ -54,7 +54,7 @@ export default async function ProjectsPage({ searchParams }: Props) {
   const page = Math.max(1, Number.parseInt(typeof sp.page === "string" ? sp.page : "1", 10) || 1);
   const pageSize = Math.min(50, Math.max(1, Number.parseInt(typeof sp.pageSize === "string" ? sp.pageSize : "12", 10) || 12));
 
-  const where: any = {};
+  const where: Prisma.ProjectWhereInput = {};
   where.isOpen = true;
   if (category) where.category = category;
   if (q) {

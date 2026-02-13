@@ -117,8 +117,8 @@ export function ProjectsTable({ initialProjects }: { initialProjects: ProjectRow
                             const next = !p.isOpen;
                             await postJson(`/api/admin/projects/${encodeURIComponent(p.id)}/open`, { isOpen: next });
                             setProjects((prev) => prev.map((x) => (x.id === p.id ? { ...x, isOpen: next } : x)));
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } catch (e: unknown) {
+                            setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                           } finally {
                             setPendingId(null);
                           }
@@ -141,8 +141,8 @@ export function ProjectsTable({ initialProjects }: { initialProjects: ProjectRow
                                 x.id === p.id ? { ...x, completedAt: new Date().toISOString(), isOpen: false } : x
                               )
                             );
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } catch (e: unknown) {
+                            setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                           } finally {
                             setPendingId(null);
                           }
@@ -164,8 +164,8 @@ export function ProjectsTable({ initialProjects }: { initialProjects: ProjectRow
                           try {
                             await postJson(`/api/admin/projects/${encodeURIComponent(p.id)}/delete`, {});
                             setProjects((prev) => prev.filter((x) => x.id !== p.id));
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } catch (e: unknown) {
+                            setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                           } finally {
                             setPendingId(null);
                           }

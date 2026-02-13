@@ -98,8 +98,8 @@ describe("errors", () => {
 
   it("validationError should format Zod issues", async () => {
     const response = errors.validationError([
-      { path: ["email"], message: "Invalid email", code: "invalid_string" } as any,
-      { path: ["password"], message: "Too short", code: "too_small" } as any,
+      { path: ["email"], message: "Invalid email", code: "custom" },
+      { path: ["password"], message: "Too short", code: "custom" }
     ]);
     const json = await response.json();
 

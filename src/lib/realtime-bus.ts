@@ -1,6 +1,6 @@
 import { createClient, type RedisClientType } from "redis";
 
-type Handler = (payload: any) => void;
+type Handler = (payload: unknown) => void;
 
 let publisher: RedisClientType | null = null;
 let subscriber: RedisClientType | null = null;
@@ -50,7 +50,7 @@ export async function subscribe(channel: string, handler: Handler) {
   if (!channelSubscribed.has(channel)) {
     channelSubscribed.add(channel);
     await client.subscribe(channel, (message) => {
-      let payload: any = null;
+      let payload: unknown = null;
       try {
         payload = JSON.parse(message);
       } catch {

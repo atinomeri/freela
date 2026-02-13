@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import { UsersTable } from "@/app/admin/users/users-table";
-import { Role } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("adminUsers");
@@ -21,7 +21,7 @@ function toSingle(value: string | string[] | undefined) {
 export default async function AdminUsersPage({ searchParams }: Props) {
   const t = await getTranslations("adminUsers");
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
 
   if (role !== "ADMIN") {
     return (
@@ -37,7 +37,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
   const roleFilter = toSingle(sp.role).trim().toUpperCase();
   const disabledFilter = toSingle(sp.disabled).trim().toLowerCase();
 
-  const where: any = {};
+  const where: Prisma.UserWhereInput = {};
   if (q) {
     where.OR = [
       { email: { contains: q, mode: "insensitive" } },

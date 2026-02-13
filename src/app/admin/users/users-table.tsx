@@ -118,8 +118,8 @@ export function UsersTable({
                         try {
                           await postJson(`/api/admin/users/${encodeURIComponent(u.id)}/role`, { role: nextRole });
                           setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, role: nextRole } : x)));
-                        } catch (e: any) {
-                          setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                        } catch (e: unknown) {
+                          setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                         } finally {
                           setPendingId(null);
                         }
@@ -157,8 +157,8 @@ export function UsersTable({
                             setUsers((prev) =>
                               prev.map((x) => (x.id === u.id ? { ...x, emailVerifiedAt: new Date().toISOString() } : x))
                             );
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } catch (e: unknown) {
+                            setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                           } finally {
                             setPendingId(null);
                           }
@@ -194,8 +194,8 @@ export function UsersTable({
                                   : x
                               )
                             );
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } catch (e: unknown) {
+                            setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                           } finally {
                             setPendingId(null);
                           }
@@ -216,8 +216,8 @@ export function UsersTable({
                           try {
                             await postJson(`/api/admin/users/${encodeURIComponent(u.id)}/delete`, {});
                             setUsers((prev) => prev.filter((x) => x.id !== u.id));
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                          } catch (e: unknown) {
+                            setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                           } finally {
                             setPendingId(null);
                           }

@@ -19,15 +19,16 @@ function isReservedCustomPath(path: string) {
 
 type Locale = "ka" | "en" | "ru";
 
-function normalizeContent(input: any) {
-  const title = String(input?.title ?? "");
-  const body = String(input?.body ?? "");
+function normalizeContent(input: unknown) {
+  const content = input && typeof input === "object" ? (input as Record<string, unknown>) : {};
+  const title = String(content.title ?? "");
+  const body = String(content.body ?? "");
   return { title, body };
 }
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
   if (!session) return jsonError("UNAUTHORIZED", 401);
   if (role !== "ADMIN") return jsonError("FORBIDDEN", 403);
 
@@ -41,7 +42,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   if (!isValidPagePath(path)) return jsonError("PAGE_PATH_INVALID", 400);
   if (isReservedCustomPath(path)) return jsonError("PAGE_PATH_RESERVED", 400);
 
-  const contentsRaw = (body?.contents ?? null) as any;
+  const contentsRaw = body?.contents && typeof body.contents === "object" ? (body.contents as Record<string, unknown>) : null;
   const locales: Locale[] = ["ka", "en", "ru"];
   const contents = locales.map((locale) => ({ locale, ...normalizeContent(contentsRaw?.[locale]) }));
 
@@ -56,8 +57,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
         });
       }
     });
-  } catch (e: any) {
-    const msg = String(e?.message ?? "");
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "";
     if (msg.includes("SitePage_path_key") || msg.includes("Unique constraint") || msg.includes("unique constraint")) {
       return jsonError("PAGE_EXISTS", 409);
     }

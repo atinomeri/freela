@@ -44,6 +44,8 @@ export function PageEditor({
   const [error, setError] = useState("");
   const [ok, setOk] = useState(false);
 
+  const getErrorCode = (value: unknown) => (value instanceof Error ? value.message : "REQUEST_FAILED");
+
   const payload = useMemo(() => ({ path, contents }), [path, contents]);
 
   return (
@@ -78,7 +80,7 @@ export function PageEditor({
               try {
                 if (mode === "create") {
                   const res = await postJson("/api/admin/pages/create", payload);
-                  const newId = String((res as any)?.id ?? "");
+                  const newId = String(res?.id ?? "");
                   setOk(true);
                   if (newId) router.push(`/admin/pages/${encodeURIComponent(newId)}`);
                   else router.push("/admin/pages");
@@ -86,8 +88,8 @@ export function PageEditor({
                   await postJson(`/api/admin/pages/${encodeURIComponent(pageId)}/update`, payload);
                   setOk(true);
                 }
-              } catch (e: any) {
-                setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+              } catch (e: unknown) {
+                setError(tErrors(getErrorCode(e)));
               } finally {
                 setPending(false);
               }

@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminPagesPage() {
   const t = await getTranslations("adminPages");
   const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role;
 
   if (role !== "ADMIN") {
     return (

@@ -114,8 +114,8 @@ export function Chatbox() {
       setThreadId(nextThreadId);
       setMessages(Array.isArray(json?.messages) ? json.messages : []);
       setError("");
-    } catch (e: any) {
-      setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+    } catch (e: unknown) {
+      setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
     } finally {
       setLoading(false);
     }
@@ -226,8 +226,8 @@ export function Chatbox() {
                   setThreadId(String(json?.threadId ?? ""));
                   setMessages(Array.isArray(json?.messages) ? json.messages : []);
                   setInput("");
-                } catch (e: any) {
-                  setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
+                } catch (e: unknown) {
+                  setError(tErrors(e instanceof Error ? e.message : "REQUEST_FAILED"));
                 } finally {
                   setPending(false);
                 }

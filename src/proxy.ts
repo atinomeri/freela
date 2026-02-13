@@ -17,9 +17,9 @@ export default async function proxy(req: NextRequest) {
 
   if (needsAuth) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    const tokenRole = (token as any)?.role as string | undefined;
-    const tokenUserId = typeof (token as any)?.sub === "string" ? ((token as any).sub as string) : "";
-    const tokenIsActive = (token as any)?.isActive !== false;
+    const tokenRole = token?.role;
+    const tokenUserId = typeof token?.sub === "string" ? token.sub : "";
+    const tokenIsActive = token?.isActive !== false;
 
     if (!token || !tokenUserId || !tokenIsActive) {
       const url = req.nextUrl.clone();

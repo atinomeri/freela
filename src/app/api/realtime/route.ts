@@ -9,9 +9,9 @@ type Envelope =
   | {
       type: "message" | "message_status" | "notification" | "proposal_status" | "new_proposal";
       toUserIds: string[];
-      data: any;
+      data: Record<string, unknown> | string | number | boolean | null;
     }
-  | any;
+  | Record<string, unknown>;
 
 let subscribed = false;
 
