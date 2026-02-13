@@ -81,11 +81,6 @@ export default async function HomePage() {
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
   const homeTitle = t("title");
-  const guideSteps = [
-    { title: t("steps.items.0.title"), description: t("steps.items.0.description") },
-    { title: t("steps.items.1.title"), description: t("steps.items.1.description") },
-    { title: t("steps.items.2.title"), description: t("steps.items.2.description") }
-  ] as const;
 
   const stats = [
     { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
@@ -217,22 +212,6 @@ export default async function HomePage() {
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">{t("ctaCard.signUp")}</p>
                     </div>
-                  </div>
-
-                  <div className="mt-4 space-y-2.5">
-                    {guideSteps.map((step, index) => (
-                      <div key={step.title} className="rounded-xl border border-border/70 bg-background/80 p-3">
-                        <div className="flex items-start gap-3">
-                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">
-                            {index + 1}
-                          </span>
-                          <div>
-                            <p className="text-[13px] font-semibold leading-tight">{step.title}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">{step.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
                   </div>
 
                   <div className="mt-4 flex flex-col gap-2 sm:flex-row">
