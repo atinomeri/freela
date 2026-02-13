@@ -20,12 +20,11 @@ export function BrandLogo({
     <span className={cn("inline-flex items-center gap-3", className)}>
       <span
         className={cn(
-          "relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-primary/10 via-background to-background shadow-sm ring-1 ring-primary/15",
+          "relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border border-border/50 bg-background shadow-sm",
           markClassName
         )}
       >
-        <span className="pointer-events-none absolute inset-0 rounded-[inherit] bg-primary/5" />
-        <Image src="/mark.svg" alt="Freela" width={34} height={34} priority={priority} className="relative" />
+        <Image src="/mark.svg" alt="Freela" width={32} height={32} priority={priority} className="relative" />
       </span>
 
       {showWordmark ? <span className={cn("font-semibold tracking-tight text-foreground", textClassName)}>Freela</span> : null}
