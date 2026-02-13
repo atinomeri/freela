@@ -152,7 +152,7 @@ export default async function HomePage() {
                 {t("badge")}
               </Badge>
               <h1
-                className="mx-auto mt-6 max-w-[12.5ch] animate-fade-in text-balance text-4xl font-bold leading-[1.06] tracking-tight sm:text-[2.9rem] md:text-[3.1rem] lg:mx-0 lg:text-[3.05rem]"
+                className="mx-auto mt-6 max-w-[18ch] animate-fade-in text-4xl font-bold leading-tight tracking-tight sm:text-[2.9rem] md:text-[3rem] lg:mx-0 lg:text-[3rem]"
                 style={{ animationDelay: "100ms" }}
               >
                 {renderHighlightedHomeTitle(homeTitle, locale)}
