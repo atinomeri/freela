@@ -826,8 +826,6 @@
     "close": "დახურვა",
     "reopen": "გახსნა",
     "markCompleted": "დასრულებულად მონიშვნა",
-    "delete": "წაშლა",
-    "deletePrompt": "წასაშლელად შეიყვანე შეკვეთის სათაური: {title}",
     "empty": "შეკვეთები ვერ მოიძებნა."
   },
   "adminContentPricing": {

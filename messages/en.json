@@ -841,8 +841,6 @@
     "close": "Close",
     "reopen": "Reopen",
     "markCompleted": "Mark completed",
-    "delete": "Delete",
-    "deletePrompt": "Type the order title to delete: {title}",
     "empty": "No orders found."
   },
   "adminSupport": {

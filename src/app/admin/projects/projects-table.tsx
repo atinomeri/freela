@@ -150,29 +150,6 @@ export function ProjectsTable({ initialProjects }: { initialProjects: ProjectRow
                       >
                         {t("markCompleted")}
                       </Button>
-
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        disabled={pending}
-                        onClick={async () => {
-                          const confirmation = window.prompt(t("deletePrompt", { title: p.title }))?.trim() ?? "";
-                          if (confirmation !== p.title.trim()) return;
-
-                          setPendingId(p.id);
-                          setError("");
-                          try {
-                            await postJson(`/api/admin/projects/${encodeURIComponent(p.id)}/delete`, {});
-                            setProjects((prev) => prev.filter((x) => x.id !== p.id));
-                          } catch (e: any) {
-                            setError(tErrors(String(e?.message ?? "REQUEST_FAILED")));
-                          } finally {
-                            setPendingId(null);
-                          }
-                        }}
-                      >
-                        {t("delete")}
-                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -191,3 +168,4 @@ export function ProjectsTable({ initialProjects }: { initialProjects: ProjectRow
     </div>
   );
 }
+
