@@ -100,6 +100,7 @@ Optional flags:
 
 - `--no-pull` (use current checked-out commit)
 - `--no-migrate` (skip `prisma migrate deploy`)
+- `--no-build-gate` (skip pre-deploy `docker compose build app` check)
 
 Note: `update-host.sh` enforces a GitHub-first flow and deploys only from `main`. If host branch has uncommitted changes or local commits not pushed to upstream, it aborts and asks you to push first.
 

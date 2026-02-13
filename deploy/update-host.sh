@@ -28,7 +28,16 @@ fi
 
 RUN_PULL=true
 RUN_MIGRATE=true
+RUN_BUILD_GATE=true
 HEALTH_URL="${DEPLOY_HEALTHCHECK_URL:-}"
+
+on_exit() {
+  local code=$?
+  if [[ $code -ne 0 ]]; then
+    echo "[update-host] FAILED (exit ${code})"
+  fi
+}
+trap on_exit EXIT
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -38,6 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --no-migrate)
       RUN_MIGRATE=false
+      shift
+      ;;
+    --no-build-gate)
+      RUN_BUILD_GATE=false
       shift
       ;;
     --health-url)
@@ -51,6 +64,7 @@ Usage: ./deploy/update-host.sh [options]
 Options:
   --no-pull         Skip git pull
   --no-migrate      Skip prisma migrate deploy
+  --no-build-gate   Skip pre-deploy docker build check
   --health-url URL  Check health endpoint after deploy
   -h, --help        Show this help
 EOF
@@ -66,6 +80,7 @@ done
 cd "${PROJECT_ROOT}"
 
 echo "[update-host] project root: ${PROJECT_ROOT}"
+echo "[update-host] started at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "${CURRENT_BRANCH}" != "${DEPLOY_BRANCH}" ]]; then
@@ -105,8 +120,17 @@ else
   fi
 fi
 
+echo "[update-host] deploy commit: $(git rev-parse --short HEAD)"
+
+if [[ "${RUN_BUILD_GATE}" == "true" ]]; then
+  echo "[update-host] pre-deploy build gate (docker compose build app)"
+  docker compose -f "${COMPOSE_FILE}" build app
+else
+  echo "[update-host] skipping pre-deploy build gate"
+fi
+
 echo "[update-host] rebuilding and restarting containers"
-docker compose -f "${COMPOSE_FILE}" up -d --build
+docker compose -f "${COMPOSE_FILE}" up -d --no-build
 
 if [[ "${RUN_MIGRATE}" == "true" ]]; then
   echo "[update-host] running prisma migrate deploy"
@@ -129,3 +153,4 @@ if [[ -n "${HEALTH_URL}" ]]; then
 fi
 
 echo "[update-host] done"
+echo "[update-host] finished at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
