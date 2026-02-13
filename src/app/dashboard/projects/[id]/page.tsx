@@ -114,7 +114,17 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
                     </div>
                   </div>
                   <div className="mt-2">
-                    <Badge>{proposalStatusLabel(proposal.status, tStatuses)}</Badge>
+                    <Badge
+                      className={
+                        proposal.status === "ACCEPTED"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
+                          : proposal.status === "REJECTED"
+                            ? "border-destructive/30 bg-destructive/10 text-destructive"
+                            : undefined
+                      }
+                    >
+                      {proposalStatusLabel(proposal.status, tStatuses)}
+                    </Badge>
                   </div>
                   <div className="mt-3 text-sm text-muted-foreground">{proposal.message}</div>
                   <div className="mt-2 text-xs text-muted-foreground">
@@ -123,7 +133,17 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
                   {proposal.status === "PENDING" ? (
                     <ProposalActions proposalId={proposal.id} disabled={false} />
                   ) : (
-                    <div className="mt-3 text-xs text-muted-foreground">{proposalStatusLabel(proposal.status, tStatuses)}</div>
+                    <div
+                      className={`mt-3 text-xs font-medium ${
+                        proposal.status === "ACCEPTED"
+                          ? "text-emerald-700"
+                          : proposal.status === "REJECTED"
+                            ? "text-destructive"
+                            : "text-muted-foreground"
+                      }`}
+                    >
+                      {proposalStatusLabel(proposal.status, tStatuses)}
+                    </div>
                   )}
                   <StartChatButton projectId={project.id} freelancerId={proposal.freelancer.id} />
                   {status === "completed" && proposal.status === "ACCEPTED" ? (
