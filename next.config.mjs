@@ -1,9 +1,20 @@
-import bundleAnalyzer from "@next/bundle-analyzer";
 import createNextIntlPlugin from "next-intl/plugin";
+import { createRequire } from "node:module";
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true"
-});
+const require = createRequire(import.meta.url);
+
+let withBundleAnalyzer = (config) => config;
+if (process.env.ANALYZE === "true") {
+  try {
+    const bundleAnalyzer = require("@next/bundle-analyzer");
+    const factory = typeof bundleAnalyzer === "function" ? bundleAnalyzer : bundleAnalyzer.default;
+    if (typeof factory === "function") {
+      withBundleAnalyzer = factory({ enabled: true });
+    }
+  } catch {
+    // analyzer is optional in runtime images where devDependencies are pruned
+  }
+}
 
 const withNextIntl = createNextIntlPlugin();
 
