@@ -57,13 +57,13 @@ function MobileNavInner({ items, pathname, t }: { items: readonly Item[]; pathna
 
         <div
           className={cn(
-            "absolute right-0 top-0 h-dvh w-80 max-w-[85vw] border-l border-border bg-background shadow-xl transition-transform",
+            "absolute right-0 top-0 h-dvh w-80 max-w-[85vw] border-l border-border bg-background/95 shadow-xl backdrop-blur-xl transition-transform",
             open ? "translate-x-0" : "translate-x-full"
           )}
           role="dialog"
           aria-modal="true"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4">
+          <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-4">
             <div className="text-sm font-semibold">{t("menu")}</div>
             <button
               type="button"
