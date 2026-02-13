@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Bell } from "lucide-react";
@@ -30,11 +29,11 @@ export function RealtimeNotificationLink({ initialCount }: { initialCount: numbe
   return (
     <Link
       href="/dashboard/notifications"
-      className="hidden h-10 items-center gap-2 rounded-xl border border-border bg-background/70 px-3 text-sm font-medium text-foreground/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground md:inline-flex"
+      className="hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-background/70 text-foreground/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground md:inline-flex"
+      aria-label={count > 0 ? `${t("label")} (${count})` : t("label")}
+      title={count > 0 ? `${t("label")} (${count})` : t("label")}
     >
       <Bell className="h-4 w-4" aria-hidden="true" />
-      <span>{t("label")}</span>
-      {count > 0 ? <Badge>{count}</Badge> : null}
     </Link>
   );
 }
