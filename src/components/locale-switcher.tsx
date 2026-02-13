@@ -32,10 +32,10 @@ export function LocaleSwitcher() {
     <div className="hidden sm:inline-flex">
       <Dropdown>
         <DropdownTrigger
-          className="gap-2 border-border bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-background/70"
+          className="h-10 gap-2 rounded-xl border border-border bg-background/70 px-3 text-sm font-medium text-foreground/90 shadow-sm backdrop-blur-sm hover:bg-background"
           aria-label={t("label")}
         >
-          <span className="text-foreground">{t(current)}</span>
+          <span>{t(current)}</span>
         </DropdownTrigger>
         <DropdownContent align="end" className="min-w-[140px]">
           <DropdownLabel>{t("label")}</DropdownLabel>

@@ -16,13 +16,13 @@ export function AuthButtons() {
   if (!data?.user) {
     return (
       <>
-        <ButtonLink href="/auth/login" variant="ghost" className="hidden sm:inline-flex">
+        <ButtonLink href="/auth/login" variant="ghost" size="sm" className="hidden sm:inline-flex rounded-xl">
           {t("login")}
         </ButtonLink>
-        <ButtonLink href="/auth/register" className="hidden sm:inline-flex">
+        <ButtonLink href="/auth/register" size="sm" className="hidden sm:inline-flex rounded-xl">
           {t("register")}
         </ButtonLink>
-        <ButtonLink href="/auth/login" variant="secondary" className="sm:hidden">
+        <ButtonLink href="/auth/login" variant="secondary" size="sm" className="rounded-xl sm:hidden">
           {t("login")}
         </ButtonLink>
       </>
@@ -31,13 +31,14 @@ export function AuthButtons() {
 
   return (
     <>
-      <ButtonLink href="/dashboard" variant="secondary" className="hidden sm:inline-flex">
+      <ButtonLink href="/dashboard" variant="secondary" size="sm" className="hidden rounded-xl sm:inline-flex">
         {t("dashboard")}
       </ButtonLink>
       <Button
         type="button"
         variant="ghost"
-        className="hidden sm:inline-flex"
+        size="sm"
+        className="hidden rounded-xl sm:inline-flex"
         onClick={() => {
           void signOut({ callbackUrl: "/" });
         }}

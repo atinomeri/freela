@@ -39,12 +39,14 @@ export async function SiteHeader() {
           <span className="font-semibold tracking-tight">Freela</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-2 md:flex">
           {nav.map((i) => (
             <Link
               key={i.href}
               href={i.href}
-              className={cn("text-sm text-foreground/70 transition-colors hover:text-foreground")}
+              className={cn(
+                "rounded-xl px-3 py-2 text-sm font-medium text-foreground/75 transition-colors hover:bg-muted/50 hover:text-foreground"
+              )}
             >
               {i.label}
             </Link>

@@ -30,7 +30,7 @@ export function RealtimeNotificationLink({ initialCount }: { initialCount: numbe
   return (
     <Link
       href="/dashboard/notifications"
-      className="hidden items-center gap-2 rounded-lg border border-border bg-background/70 px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground md:inline-flex"
+      className="hidden h-10 items-center gap-2 rounded-xl border border-border bg-background/70 px-3 text-sm font-medium text-foreground/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground md:inline-flex"
     >
       <Bell className="h-4 w-4" aria-hidden="true" />
       <span>{t("label")}</span>
