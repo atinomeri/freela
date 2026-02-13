@@ -1,11 +1,9 @@
 import {
   ArrowRight,
-  Briefcase,
   Brush,
   Code2,
   Megaphone,
   PenTool,
-  Rocket,
   Search,
   Shield,
   ShoppingBag,
@@ -76,7 +74,6 @@ function renderHighlightedHomeTitle(title: string, locale: string) {
 export default async function HomePage() {
   if (!(await isPageEnabled("/"))) notFound();
   const locale = await getLocale();
-  const navT = await getTranslations("nav");
   const baseT = await getTranslations("home");
   const overrides = await getSiteContentMap({ prefix: "home.", locale });
   const t = withOverrides(baseT, overrides, "home.");
@@ -145,85 +142,37 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
 
         <Container className="py-14 sm:py-20 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-            <div className="mx-auto w-full max-w-[600px] text-center lg:mx-0 lg:pr-6 lg:text-left">
-              <Badge className="inline-flex animate-fade-in items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" />
-                {t("badge")}
-              </Badge>
-              <h1
-                className="mx-auto mt-6 max-w-[18ch] animate-fade-in text-4xl font-bold leading-tight tracking-tight sm:text-[2.9rem] md:text-[3rem] lg:mx-0 lg:text-[3rem]"
-                style={{ animationDelay: "100ms" }}
-              >
-                {renderHighlightedHomeTitle(homeTitle, locale)}
-              </h1>
-              <p className="mt-6 animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-[1.1rem]" style={{ animationDelay: "200ms" }}>
-                {t("subtitle", { siteName: site.name })}
-              </p>
+          <div className="mx-auto w-full max-w-5xl text-center">
+            <Badge className="inline-flex animate-fade-in items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("badge")}
+            </Badge>
+            <h1 className="mt-6 animate-fade-in text-4xl font-bold leading-tight tracking-tight sm:text-[2.9rem] md:text-[3.2rem] lg:text-[3.35rem]" style={{ animationDelay: "100ms" }}>
+              {renderHighlightedHomeTitle(homeTitle, locale)}
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-[1.1rem]" style={{ animationDelay: "200ms" }}>
+              {t("subtitle", { siteName: site.name })}
+            </p>
 
-              <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start" style={{ animationDelay: "300ms" }}>
-                <ButtonLink href="/projects" size="lg" className="group gap-2 rounded-xl bg-primary px-8 shadow-xl shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-2xl hover:shadow-primary/35">
-                  {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </ButtonLink>
-                <ButtonLink href="/freelancers" size="lg" variant="ghost" className="rounded-xl border border-border/70 bg-background/45 px-8 text-foreground/85 hover:border-primary/30 hover:bg-background/80">
-                  {t("cta.findFreelancer")}
-                </ButtonLink>
-              </div>
-
-              <div className="mt-8 grid animate-fade-in grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
-                {stats.map((s) => (
-                  <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative">
-                      <div className="text-3xl font-bold text-primary">{s.value}</div>
-                      <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+            <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row sm:justify-center" style={{ animationDelay: "300ms" }}>
+              <ButtonLink href="/projects" size="lg" className="group gap-2 rounded-xl bg-primary px-8 shadow-xl shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-2xl hover:shadow-primary/35">
+                {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </ButtonLink>
+              <ButtonLink href="/freelancers" size="lg" variant="ghost" className="rounded-xl border border-border/70 bg-background/45 px-8 text-foreground/85 hover:border-primary/30 hover:bg-background/80">
+                {t("cta.findFreelancer")}
+              </ButtonLink>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[600px] animate-fade-in lg:mx-0 lg:pt-12" style={{ animationDelay: "220ms" }}>
-              <Card className="relative overflow-hidden border-border/70 bg-card/80 p-5 shadow-2xl backdrop-blur-md sm:p-6">
-                <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-20 -left-14 h-56 w-56 rounded-full bg-success/20 blur-3xl" />
-
-                <div className="relative">
-                  <div className="flex items-center justify-between gap-3">
-                    <Badge variant="secondary" className="gap-1.5 border border-primary/20 bg-primary/10 text-primary">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      {t("ctaCard.title")}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">freela.ge</span>
+            <div className="mx-auto mt-8 grid max-w-4xl animate-fade-in grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
+              {stats.map((s) => (
+                <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="relative">
+                    <div className="text-3xl font-bold text-primary">{s.value}</div>
+                    <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
                   </div>
-
-                  <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-                    <div className="rounded-xl border border-border/70 bg-background/75 p-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                        <Briefcase className="h-4 w-4" />
-                        {navT("projects")}
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">{t("ctaCard.postProject")}</p>
-                    </div>
-                    <div className="rounded-xl border border-border/70 bg-background/75 p-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-success">
-                        <Rocket className="h-4 w-4" />
-                        {navT("freelancers")}
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">{t("ctaCard.signUp")}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                    <ButtonLink href="/projects/new" size="sm" className="flex-1 rounded-lg">
-                      {t("ctaCard.postProject")}
-                    </ButtonLink>
-                    <ButtonLink href="/auth/register" size="sm" variant="ghost" className="flex-1 rounded-lg border border-border/70 bg-background/70">
-                      {t("ctaCard.signUp")}
-                    </ButtonLink>
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              ))}
             </div>
           </div>
         </Container>
