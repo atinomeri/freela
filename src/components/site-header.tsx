@@ -5,12 +5,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { getServerSession } from "next-auth";
-import Image from "next/image";
 import { MobileNav } from "@/components/mobile-nav";
 import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Link } from "@/i18n/navigation";
 import { getUnlistedPaths } from "@/lib/site-pages";
+import { BrandLogo } from "@/components/brand-logo";
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");
@@ -33,10 +33,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border/80 bg-white shadow-sm ring-1 ring-border/40">
-            <Image src="/mark.svg" alt="Freela" width={40} height={40} priority />
-          </span>
-          <span className="font-semibold tracking-tight">Freela</span>
+          <BrandLogo priority />
         </Link>
 
         <nav className="hidden items-center gap-1 rounded-2xl border border-border/70 bg-background/60 p-1 shadow-sm backdrop-blur md:flex">

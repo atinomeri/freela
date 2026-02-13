@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Github, Linkedin, Twitter, Mail } from "lucide-react";
 import { getUnlistedPaths } from "@/lib/site-pages";
+import { BrandLogo } from "@/components/brand-logo";
 
 export async function SiteFooter() {
   const locale = await getLocale();
@@ -46,10 +47,7 @@ export async function SiteFooter() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-                F
-              </div>
-              <span className="text-lg font-bold">{site.name}</span>
+              <BrandLogo markClassName="h-9 w-9" textClassName="text-lg font-bold" />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
               {tSite("description")}
