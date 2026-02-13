@@ -46,7 +46,7 @@ export function ReviewForm({ projectId, freelancerId, freelancerName }: Props) {
   };
 
   return (
-    <div className="mt-3 rounded-lg border border-border bg-background/60 p-3">
+    <div className="mt-3 rounded-2xl border border-border/70 bg-background/70 p-3 shadow-sm backdrop-blur-sm">
       <div className="text-xs font-medium text-muted-foreground">{t("title")}</div>
       <div className="mt-3 grid gap-3">
         {error ? <div className="text-xs text-destructive">{error}</div> : null}
@@ -57,7 +57,7 @@ export function ReviewForm({ projectId, freelancerId, freelancerName }: Props) {
           <select
             value={rating}
             onChange={(e) => setRating(e.target.value)}
-            className="h-10 w-full rounded-lg border border-border bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="h-10 w-full rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
           >
             <option value="5">5</option>
             <option value="4">4</option>
@@ -72,13 +72,13 @@ export function ReviewForm({ projectId, freelancerId, freelancerName }: Props) {
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="min-h-20 w-full rounded-lg border border-border bg-background/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+            className="min-h-20 w-full rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             placeholder={t("commentPlaceholder")}
           />
           <div className="text-xs text-muted-foreground">{t("commentHint")}</div>
         </label>
 
-        <Button type="button" variant="secondary" disabled={!isValid || pending} onClick={submit}>
+        <Button type="button" size="sm" className="rounded-xl" variant="secondary" disabled={!isValid || pending} onClick={submit}>
           {pending ? t("submitting") : t("submit")}
         </Button>
       </div>

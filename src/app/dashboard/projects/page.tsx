@@ -37,15 +37,15 @@ export default async function MyProjectsPage() {
           <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <ButtonLink href="/projects/new">{t("postProject")}</ButtonLink>
+        <ButtonLink href="/projects/new" size="sm" className="rounded-xl">{t("postProject")}</ButtonLink>
       </div>
 
       {projects.length === 0 ? (
-        <Card className="mt-6 p-6">
+        <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
           <div className="font-medium">{t("emptyTitle")}</div>
           <div className="mt-2 text-sm text-muted-foreground">{t("emptySubtitle")}</div>
           <div className="mt-4">
-            <ButtonLink href="/projects/new">{t("postProject")}</ButtonLink>
+            <ButtonLink href="/projects/new" size="sm" className="rounded-xl">{t("postProject")}</ButtonLink>
           </div>
         </Card>
       ) : (
@@ -54,7 +54,7 @@ export default async function MyProjectsPage() {
             const count = p._count.proposals;
             const status = p.completedAt ? "completed" : p.isOpen ? "open" : "canceled";
             return (
-              <Card key={p.id} className="p-6">
+              <Card key={p.id} className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="font-medium">{p.title}</div>
@@ -91,7 +91,7 @@ export default async function MyProjectsPage() {
                       {t("viewProposals")}
                     </Link>
                   </div>
-                  <div className="w-full sm:w-auto">
+                    <div className="w-full sm:w-auto">
                     {status !== "completed" ? <ProjectStatusButton projectId={p.id} isOpen={p.isOpen} /> : null}
                   </div>
                 </div>

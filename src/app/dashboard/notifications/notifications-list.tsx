@@ -58,7 +58,7 @@ export function NotificationsList({ initial, locale }: { initial: NotificationIt
     <div>
       {error ? <div className="mb-2 text-xs text-destructive">{error}</div> : null}
       <div className="flex justify-end">
-        <Button type="button" variant="secondary" onClick={markAll} disabled={pending}>
+        <Button type="button" size="sm" className="rounded-xl" variant="secondary" onClick={markAll} disabled={pending}>
           {pending ? t("sending") : t("markAllRead")}
         </Button>
       </div>
@@ -66,7 +66,7 @@ export function NotificationsList({ initial, locale }: { initial: NotificationIt
         {items.map((n) => (
           <Card
             key={n.id}
-            className={`p-4 cursor-pointer ${n.readAt ? "opacity-70" : "border-primary/40"}`}
+            className={`cursor-pointer rounded-2xl border-border/70 bg-background/70 p-4 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md ${n.readAt ? "opacity-75" : "border-primary/40"}`}
             onClick={onItemClick(n)}
           >
             <div className="flex items-start justify-between gap-3">

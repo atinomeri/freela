@@ -25,7 +25,7 @@ function ActionLink({
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-xl border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted/40 hover:text-foreground"
+      className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/70 bg-background/70 px-4 text-sm font-medium text-foreground/85 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground"
     >
       {children}
     </Link>
@@ -58,25 +58,25 @@ export default async function DashboardPage() {
             {t("hello")} <span className="font-medium text-foreground">{session.user.name}</span>.
           </p>
         </div>
-        <ButtonLink href="/" variant="secondary">
+        <ButtonLink href="/" variant="secondary" size="sm" className="rounded-xl">
           {t("home")}
         </ButtonLink>
       </div>
 
       {isEmployer ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <Card className="p-6">
+          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="text-sm text-muted-foreground">{t("stats.projectsPublished")}</div>
             <div className="mt-2 text-3xl font-semibold">{employerProjectsCount}</div>
           </Card>
-          <Card className="p-6">
+          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="text-sm text-muted-foreground">{t("stats.acceptedProposals")}</div>
             <div className="mt-2 text-3xl font-semibold">{employerAcceptedProposalsCount}</div>
           </Card>
         </div>
       ) : null}
 
-      <Card className="mt-8 p-6">
+      <Card className="mt-8 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
         <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
           {isEmployer ? (
             <>

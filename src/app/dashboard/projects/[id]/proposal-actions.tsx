@@ -38,12 +38,13 @@ export function ProposalActions({ proposalId, disabled }: Props) {
     <div className="mt-3">
       {error ? <div className="mb-2 text-xs text-destructive">{error}</div> : null}
       <div className="flex flex-wrap gap-2">
-        <Button type="button" size="md" disabled={disabled || pending} onClick={() => act("ACCEPTED")}>
+        <Button type="button" size="sm" className="rounded-xl" disabled={disabled || pending} onClick={() => act("ACCEPTED")}>
           {t("accept")}
         </Button>
         <Button
           type="button"
-          size="md"
+          size="sm"
+          className="rounded-xl"
           variant="secondary"
           disabled={disabled || pending}
           onClick={() => act("REJECTED")}

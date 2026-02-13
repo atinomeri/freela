@@ -28,7 +28,7 @@ export function CompleteProjectButton({ projectId, disabled }: { projectId: stri
   return (
     <div className="w-full">
       {error ? <div className="mb-2 text-xs text-destructive">{error}</div> : null}
-      <Button type="button" disabled={disabled || pending} onClick={act}>
+      <Button type="button" size="sm" className="rounded-xl" disabled={disabled || pending} onClick={act}>
         {pending ? t("completing") : t("complete")}
       </Button>
     </div>

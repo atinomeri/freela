@@ -44,6 +44,7 @@ export function ProjectStatusButton({ projectId, isOpen, size = "md" }: Props) {
         type="button"
         size={size}
         variant={isOpen ? "secondary" : "primary"}
+        className="rounded-xl"
         disabled={pending}
         onClick={act}
       >

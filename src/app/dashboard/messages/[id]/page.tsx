@@ -54,12 +54,12 @@ export default async function ThreadPage({ params }: Props) {
             {t("conversation")}: {counterparty}
           </p>
         </div>
-        <Link className="text-sm text-muted-foreground underline hover:text-foreground" href="/dashboard/messages">
+        <Link className="inline-flex h-10 items-center rounded-xl border border-border/70 bg-background/70 px-4 text-sm font-medium text-foreground/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground" href="/dashboard/messages">
           {t("allConversations")}
         </Link>
       </div>
 
-      <Card className="mt-6 p-6">
+      <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
         <MessageThread
           key={thread.messages[thread.messages.length - 1]?.id ?? "empty"}
           threadId={thread.id}

@@ -66,12 +66,12 @@ export function MessageComposer({ threadId }: { threadId: string }) {
   };
 
   return (
-    <div className="mt-4 rounded-xl border border-border bg-background/60 p-4">
+    <div className="mt-4 rounded-2xl border border-border/70 bg-background/70 p-4 shadow-sm backdrop-blur-sm">
       {error ? <div className="mb-2 text-xs text-destructive">{error}</div> : null}
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        className="min-h-24 w-full rounded-lg border border-border bg-background/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+        className="min-h-24 w-full rounded-xl border border-border/80 bg-background/70 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/30"
         placeholder={t("placeholder")}
       />
       <div className="mt-3 grid gap-3">
@@ -102,7 +102,8 @@ export function MessageComposer({ threadId }: { threadId: string }) {
             <Button
               type="button"
               variant="secondary"
-              className="h-9 gap-2"
+              size="sm"
+              className="gap-2 rounded-xl"
               disabled={pending}
               onClick={() => fileInputRef.current?.click()}
             >
@@ -114,13 +115,13 @@ export function MessageComposer({ threadId }: { threadId: string }) {
             </div>
           </div>
 
-          <Button type="button" disabled={pending} onClick={send} className="h-9">
+          <Button type="button" size="sm" className="rounded-xl" disabled={pending} onClick={send}>
             {pending ? t("sending") : t("send")}
           </Button>
         </div>
 
         {files.length > 0 ? (
-          <div className="rounded-lg border border-border bg-background/70 p-3">
+          <div className="rounded-xl border border-border/80 bg-background/70 p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="text-xs text-muted-foreground">
                 {t("selected", { count: files.length, size: formatBytes(pickedTotalBytes) })}
@@ -128,7 +129,7 @@ export function MessageComposer({ threadId }: { threadId: string }) {
               <Button
                 type="button"
                 variant="ghost"
-                className="h-8 px-2 text-xs"
+                  className="h-8 rounded-lg px-2 text-xs"
                 disabled={pending}
                 onClick={() => {
                   setFiles([]);
@@ -141,7 +142,7 @@ export function MessageComposer({ threadId }: { threadId: string }) {
 
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {files.map((f) => (
-                <div key={`${f.name}_${f.size}_${f.lastModified}`} className="flex items-center justify-between gap-2 rounded-md border border-border bg-background px-3 py-2">
+                <div key={`${f.name}_${f.size}_${f.lastModified}`} className="flex items-center justify-between gap-2 rounded-lg border border-border/80 bg-background px-3 py-2">
                   <div className="min-w-0">
                     <div className="truncate text-sm">{f.name}</div>
                     <div className="mt-0.5 text-xs text-muted-foreground">{formatBytes(f.size)}</div>

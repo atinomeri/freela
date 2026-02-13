@@ -37,20 +37,20 @@ export default async function MyProposalsPage() {
           <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <Link className="text-sm text-muted-foreground underline hover:text-foreground" href="/projects">
+        <Link className="inline-flex h-10 items-center rounded-xl border border-border/70 bg-background/70 px-4 text-sm font-medium text-foreground/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground" href="/projects">
           {t("viewProjects")}
         </Link>
       </div>
 
       {proposals.length === 0 ? (
-        <Card className="mt-6 p-6">
+        <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
           <div className="font-medium">{t("emptyTitle")}</div>
           <div className="mt-2 text-sm text-muted-foreground">{t("emptySubtitle")}</div>
         </Card>
       ) : (
         <div className="mt-6 grid gap-4">
           {proposals.map((p) => (
-            <Card key={p.id} className="p-6">
+            <Card key={p.id} className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="font-medium">{p.project.title}</div>
