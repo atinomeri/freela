@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:critical": "playwright test tests/e2e/smoke.spec.ts --grep \"register freelancer → browse by category and orders list|admin can save content via admin API|admin can reply to support thread\"",
     "analyze": "cross-env ANALYZE=true npm run build",
     "ci:db:reset": "cross-env CI=true node scripts/ci-reset-db.mjs",
     "db:backup": "node scripts/pg-backup.mjs",
