@@ -96,9 +96,23 @@ export async function checkRateLimit(params: {
 
   const keySafe = (params.key || "unknown").slice(0, 200);
   const redisKey = `rl:${params.scope}:${keySafe}`;
+  const strictInProd = process.env.NODE_ENV === "production" && process.env.RATE_LIMIT_STRICT === "true";
 
   const client = await getRedisClient().catch(() => null);
-  if (!client) return checkMemory(redisKey, params.limit, params.windowSeconds);
+  if (!client) {
+    if (strictInProd) {
+      return {
+        allowed: false,
+        limit: params.limit,
+        remaining: 0,
+        retryAfterSeconds: params.windowSeconds
+      };
+    }
+    if (process.env.NODE_ENV === "production") {
+      console.warn("[rate-limit] Redis unavailable in production; using in-memory fallback (set RATE_LIMIT_STRICT=true to fail-closed).");
+    }
+    return checkMemory(redisKey, params.limit, params.windowSeconds);
+  }
 
   try {
     const count = await client.incr(redisKey);
@@ -120,7 +134,18 @@ export async function checkRateLimit(params: {
       retryAfterSeconds: Math.max(0, ttl)
     };
   } catch {
-    // If Redis is down, fall back to in-memory buckets instead of fail-open.
+    if (strictInProd) {
+      return {
+        allowed: false,
+        limit: params.limit,
+        remaining: 0,
+        retryAfterSeconds: params.windowSeconds
+      };
+    }
+    if (process.env.NODE_ENV === "production") {
+      console.warn("[rate-limit] Redis operation failed in production; using in-memory fallback (set RATE_LIMIT_STRICT=true to fail-closed).");
+    }
+    // If Redis is down, fall back to in-memory buckets in non-production environments.
     return checkMemory(redisKey, params.limit, params.windowSeconds);
   }
 }

@@ -40,9 +40,9 @@ const nextConfig = {
               "font-src 'self' data:",
               "style-src 'self' 'unsafe-inline'",
               // Next.js uses inline scripts; keep CSP meaningful while staying compatible.
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              // Allow API calls, Sentry, and websockets (SSE/WS) where applicable.
-              "connect-src 'self' https: wss: ws:",
+              "script-src 'self' 'unsafe-inline'",
+              // Allow same-origin APIs and optional Sentry ingest.
+              "connect-src 'self' https://*.ingest.sentry.io",
               "upgrade-insecure-requests"
             ].join("; ")
           }

@@ -56,6 +56,10 @@ Required:
 - `DATABASE_URL`
 - `REDIS_URL`
 
+Recommended:
+
+- `RATE_LIMIT_STRICT=false` (set `true` only if Redis availability is guaranteed)
+
 ## 4) Start services
 
 From `deploy/`:
@@ -77,6 +81,29 @@ docker compose -f docker-compose.prod.yml exec app npm run prisma:migrate:deploy
   - `https://<DOMAIN>/api/health`
 
 ## Updates
+
+One-command update (recommended):
+
+```bash
+cd freela
+chmod +x deploy/update-host.sh
+./deploy/update-host.sh --health-url "https://<DOMAIN>/api/health"
+```
+
+Windows PowerShell (runs deploy remotely over SSH):
+
+```powershell
+./deploy/update-host.ps1 -Host "<VPS_IP_OR_DOMAIN>" -User "<SSH_USER>" -AppDir "~/freela" -HealthUrl "https://<DOMAIN>/api/health"
+```
+
+Optional flags:
+
+- `--no-pull` (use current checked-out commit)
+- `--no-migrate` (skip `prisma migrate deploy`)
+
+Note: `update-host.sh` enforces a GitHub-first flow and deploys only from `main`. If host branch has uncommitted changes or local commits not pushed to upstream, it aborts and asks you to push first.
+
+Manual alternative:
 
 ```bash
 cd freela

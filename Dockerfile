@@ -43,6 +43,8 @@ COPY --from=builder /app/next.config.mjs ./next.config.mjs
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
+RUN npm prune --omit=dev && npm cache clean --force
+
 RUN chmod +x /app/scripts/docker-entrypoint.sh
 
 EXPOSE 3000

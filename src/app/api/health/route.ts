@@ -82,7 +82,7 @@ export async function GET() {
       await withTimeout(checkDb(), 3000, "db");
       res.checks.db = { ok: true, ms: Date.now() - t0 };
     } catch (e) {
-      res.checks.db = { ok: false, ms: Date.now() - t0, error: String((e as any)?.message ?? e) };
+      res.checks.db = { ok: false, ms: Date.now() - t0, error: "CHECK_FAILED" };
     }
   }
 
@@ -101,7 +101,7 @@ export async function GET() {
         ok: false,
         configured: true,
         ms: Date.now() - t0,
-        error: String((e as any)?.message ?? e)
+        error: "CHECK_FAILED"
       };
     }
   }
