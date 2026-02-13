@@ -168,4 +168,3 @@ export function ProjectsTable({ initialProjects }: { initialProjects: ProjectRow
     </div>
   );
 }
-
