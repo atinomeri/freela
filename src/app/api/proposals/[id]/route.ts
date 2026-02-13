@@ -31,15 +31,74 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   });
   if (!proposal) return jsonError("NOT_FOUND", 404);
 
-  if (proposal.status !== "PENDING") {
+  const txResult = await prisma.$transaction(async (tx) => {
+    if (status === "ACCEPTED") {
+      const hasAccepted = await tx.proposal.findFirst({
+        where: {
+          projectId: proposal.projectId,
+          status: "ACCEPTED",
+          id: { not: proposal.id }
+        },
+        select: { id: true }
+      });
+      if (hasAccepted) {
+        return { kind: "conflict" as const };
+      }
+
+      const acceptedCount = await tx.proposal.updateMany({
+        where: { id: proposal.id, status: "PENDING" },
+        data: { status: "ACCEPTED" }
+      });
+      if (acceptedCount.count !== 1) {
+        return { kind: "conflict" as const };
+      }
+
+      const autoRejected = await tx.proposal.findMany({
+        where: {
+          projectId: proposal.projectId,
+          id: { not: proposal.id },
+          status: "PENDING"
+        },
+        select: { id: true, freelancerId: true }
+      });
+
+      if (autoRejected.length > 0) {
+        await tx.proposal.updateMany({
+          where: {
+            projectId: proposal.projectId,
+            id: { in: autoRejected.map((p) => p.id) }
+          },
+          data: { status: "REJECTED" }
+        });
+      }
+
+      return {
+        kind: "updated" as const,
+        updated: { id: proposal.id, status: "ACCEPTED" as const },
+        autoRejected
+      };
+    }
+
+    const rejectedCount = await tx.proposal.updateMany({
+      where: { id: proposal.id, status: "PENDING" },
+      data: { status: "REJECTED" }
+    });
+    if (rejectedCount.count !== 1) {
+      return { kind: "conflict" as const };
+    }
+
+    return {
+      kind: "updated" as const,
+      updated: { id: proposal.id, status: "REJECTED" as const },
+      autoRejected: [] as { id: string; freelancerId: string }[]
+    };
+  });
+
+  if (txResult.kind !== "updated") {
     return jsonError("STATUS_ALREADY_DECIDED", 409);
   }
 
-  const updated = await prisma.proposal.update({
-    where: { id },
-    data: { status: status as "ACCEPTED" | "REJECTED" },
-    select: { id: true, status: true }
-  });
+  const updated = txResult.updated;
 
   const notification = await prisma.notification.create({
     data: {
@@ -52,6 +111,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     select: { id: true, type: true, title: true, body: true, href: true, createdAt: true }
   });
 
+  const autoRejectNotifications =
+    updated.status === "ACCEPTED" && txResult.autoRejected.length > 0
+      ? await Promise.all(
+          txResult.autoRejected.map((p) =>
+            prisma.notification.create({
+              data: {
+                userId: p.freelancerId,
+                type: "PROPOSAL_STATUS",
+                title: "REJECTED",
+                body: proposal.project?.title ?? undefined,
+                href: "/dashboard/proposals"
+              },
+              select: { id: true, type: true, title: true, body: true, href: true, createdAt: true }
+            })
+          )
+        )
+      : [];
+
   try {
     await publish("events", {
       type: "proposal_status",
@@ -63,6 +140,22 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       toUserIds: [proposal.freelancerId],
       data: { notification }
     });
+
+    for (const p of txResult.autoRejected) {
+      await publish("events", {
+        type: "proposal_status",
+        toUserIds: [p.freelancerId],
+        data: { proposalId: p.id, status: "REJECTED", projectId: proposal.projectId }
+      });
+    }
+
+    if (autoRejectNotifications.length > 0) {
+      await publish("events", {
+        type: "notification",
+        toUserIds: txResult.autoRejected.map((p) => p.freelancerId),
+        data: { notifications: autoRejectNotifications }
+      });
+    }
   } catch (e) {
     if (process.env.NODE_ENV !== "production") console.error("[proposal] publish failed", e);
   }
