@@ -14,18 +14,20 @@ export function BrandLogo({
   markClassName,
   textClassName,
   showWordmark = true,
-  priority = false
+  priority = false // priority is no longer used but kept for compatibility
 }: BrandLogoProps) {
   return (
     <span className={cn("inline-flex items-center gap-3", className)}>
-      <span
-        className={cn(
-          "relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-border bg-gradient-to-b from-background to-muted/50 shadow-sm ring-1 ring-inset ring-white/10",
-          markClassName
-        )}
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 64 64"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("transition-transform duration-300 group-hover:scale-110", markClassName)}
       >
-        <Image src="/mark.svg" alt="Freela" width={26} height={26} priority={priority} className="relative transition-transform duration-300 group-hover:scale-110" />
-      </span>
+        <rect width="64" height="64" rx="14" className="fill-primary" />
+        <path d="M22 44V20H41.5V26H29V30H39V36H29V44H22Z" className="fill-primary-foreground" />
+      </svg>
 
       {showWordmark ? <span className={cn("font-semibold tracking-tight text-foreground", textClassName)}>Freela</span> : null}
     </span>
