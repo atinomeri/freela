@@ -5,23 +5,26 @@ import { subscribe } from "@/lib/realtime-bus";
 
 export const runtime = "nodejs";
 
-type Envelope =
-  | {
-      type: "message" | "message_status" | "notification" | "proposal_status" | "new_proposal";
-      toUserIds: string[];
-      data: Record<string, unknown> | string | number | boolean | null;
-    }
-  | Record<string, unknown>;
+type Envelope = {
+  type?: unknown;
+  toUserIds?: unknown;
+  data?: unknown;
+};
+
+function asEnvelope(payload: unknown): Envelope {
+  return payload && typeof payload === "object" ? (payload as Envelope) : {};
+}
 
 let subscribed = false;
 
 async function ensureSubscribed() {
   if (subscribed) return;
   subscribed = true;
-  await subscribe("events", (payload: Envelope) => {
-    const type = String(payload?.type ?? "");
-    const toUserIds = Array.isArray(payload?.toUserIds) ? payload.toUserIds.map(String) : [];
-    const data = payload?.data;
+  await subscribe("events", (payload: unknown) => {
+    const envelope = asEnvelope(payload);
+    const type = String(envelope.type ?? "");
+    const toUserIds = Array.isArray(envelope.toUserIds) ? envelope.toUserIds.map(String) : [];
+    const data = envelope.data;
     if (!type || toUserIds.length === 0) return;
     for (const userId of toUserIds) {
       fanoutToUser(userId, type, data);
