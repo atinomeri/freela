@@ -1,18 +1,20 @@
-name: CI Fast
+name: CI Full
 
 on:
   push:
-    branches: ["**"]
-  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-full-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  fast-gate:
+  full-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
 
     env:
       NEXTAUTH_URL: http://localhost:3000
@@ -63,11 +65,11 @@ jobs:
       - name: Prisma migrate (test DB)
         run: npm run prisma:migrate:deploy
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Unit tests
-        run: npm run test
-
       - name: Build
         run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E smoke tests
+        run: npm run test:e2e

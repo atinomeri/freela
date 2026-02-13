@@ -117,7 +117,12 @@ docker compose -f docker-compose.prod.yml exec app npm run prisma:migrate:deploy
 ## GitHub Actions auto deploy
 
 This repository includes `.github/workflows/deploy.yml`.
-It deploys automatically after `CI` succeeds on `main` (and supports manual `workflow_dispatch`).
+It deploys automatically after `CI Fast` succeeds on `main` (and supports manual `workflow_dispatch`).
+
+CI is split into two workflows:
+
+- `CI Fast` (`.github/workflows/ci.yml`) runs on push/PR with lint + unit tests + build.
+- `CI Full` (`.github/workflows/ci-full.yml`) runs full Playwright E2E on `main`, nightly schedule, or manual run.
 
 Add these repository secrets in GitHub:
 
