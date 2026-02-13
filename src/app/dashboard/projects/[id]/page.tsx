@@ -120,7 +120,11 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
                   <div className="mt-2 text-xs text-muted-foreground">
                     {t("price")} {proposal.priceGEL ? `${proposal.priceGEL} ₾` : t("notSpecified")}
                   </div>
-                  <ProposalActions proposalId={proposal.id} disabled={proposal.status !== "PENDING"} />
+                  {proposal.status === "PENDING" ? (
+                    <ProposalActions proposalId={proposal.id} disabled={false} />
+                  ) : (
+                    <div className="mt-3 text-xs text-muted-foreground">{proposalStatusLabel(proposal.status, tStatuses)}</div>
+                  )}
                   <StartChatButton projectId={project.id} freelancerId={proposal.freelancer.id} />
                   {status === "completed" && proposal.status === "ACCEPTED" ? (
                     reviewedSet.has(proposal.freelancer.id) ? (
