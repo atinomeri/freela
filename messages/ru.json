@@ -826,8 +826,6 @@
     "close": "Закрыть",
     "reopen": "Открыть",
     "markCompleted": "Отметить завершенным",
-    "delete": "Удалить",
-    "deletePrompt": "Введите название заказа для удаления: {title}",
     "empty": "Заказы не найдены."
   },
   "adminContentPricing": {
