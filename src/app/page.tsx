@@ -192,7 +192,7 @@ export default async function HomePage() {
                   <div className="flex items-center justify-between gap-3">
                     <Badge variant="secondary" className="gap-1.5 border border-primary/20 bg-primary/10 text-primary">
                       <Sparkles className="h-3.5 w-3.5" />
-                      {t("steps.title")}
+                      {t("ctaCard.title")}
                     </Badge>
                     <span className="text-xs text-muted-foreground">freela.ge</span>
                   </div>
