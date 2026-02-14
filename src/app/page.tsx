@@ -166,9 +166,9 @@ export default async function HomePage() {
 
             <div className="mx-auto mt-8 grid max-w-4xl animate-fade-in grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
               {stats.map((s) => (
-                <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
+                <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-center backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <div className="relative">
+                  <div className="relative flex flex-col items-center justify-center">
                     {s.kind === "logo" ? (
                       <div className="flex items-center justify-center py-0.5 text-primary">
                         <span
