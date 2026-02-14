@@ -170,14 +170,25 @@ export default async function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   <div className="relative">
                     {s.kind === "logo" ? (
-                      <div className="flex items-center gap-2 text-primary">
-                        <Image src="/contract.png" alt="Contract" width={26} height={26} className="h-6 w-6" />
-                        <div className="text-xl font-bold">{s.value}</div>
+                      <div className="flex items-center justify-center py-0.5 text-primary">
+                        <span
+                          className="h-6 w-6 bg-primary"
+                          style={{
+                            WebkitMaskImage: "url(/contract.png)",
+                            maskImage: "url(/contract.png)",
+                            WebkitMaskRepeat: "no-repeat",
+                            maskRepeat: "no-repeat",
+                            WebkitMaskPosition: "center",
+                            maskPosition: "center",
+                            WebkitMaskSize: "contain",
+                            maskSize: "contain"
+                          }}
+                        />
                       </div>
                     ) : (
                       <div className="text-3xl font-bold text-primary">{s.value}</div>
                     )}
-                    {s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
+                    {s.kind !== "logo" && s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
                   </div>
                 </Card>
               ))}
