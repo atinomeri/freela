@@ -171,7 +171,7 @@ export default async function HomePage() {
                   <div className="relative">
                     {s.kind === "logo" ? (
                       <div className="flex items-center gap-2 text-primary">
-                        <Image src="/mark.svg" alt="Freela" width={26} height={26} className="h-6 w-6" />
+                        <Image src="/contract.png" alt="Contract" width={26} height={26} className="h-6 w-6" />
                         <div className="text-xl font-bold">{s.value}</div>
                       </div>
                     ) : (
