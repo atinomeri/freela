@@ -172,7 +172,7 @@ export default async function HomePage() {
                     {s.kind === "logo" ? (
                       <div className="flex items-center justify-center py-0.5 text-primary">
                         <span
-                          className="h-9 w-9 bg-primary"
+                          className="h-9 w-9 bg-primary brightness-75 contrast-125 saturate-150"
                           style={{
                             WebkitMaskImage: "url(/contract.png)",
                             maskImage: "url(/contract.png)",
