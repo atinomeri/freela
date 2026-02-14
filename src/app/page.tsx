@@ -170,9 +170,9 @@ export default async function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   <div className="relative flex flex-col items-center justify-center">
                     {s.kind === "logo" ? (
-                      <div className="flex items-center justify-center py-0.5 text-primary">
+                      <div className="flex items-center justify-center py-0.5 text-primary/90">
                         <span
-                          className="h-9 w-9 bg-primary brightness-75 contrast-125 saturate-150"
+                          className="h-9 w-9 bg-primary/90"
                           style={{
                             WebkitMaskImage: "url(/contract.png)",
                             maskImage: "url(/contract.png)",
@@ -186,7 +186,7 @@ export default async function HomePage() {
                         />
                       </div>
                     ) : (
-                      <div className="text-3xl font-bold text-primary">{s.value}</div>
+                      <div className="text-3xl font-bold text-primary/90">{s.value}</div>
                     )}
                     {s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
                   </div>
