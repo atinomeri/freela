@@ -11,6 +11,7 @@ import {
   Video,
   Wallet
 } from "lucide-react";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -80,9 +81,9 @@ export default async function HomePage() {
   const homeTitle = t("title");
 
   const stats = [
-    { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel") },
-    { value: t("stats.gelValue"), label: t("stats.gelLabel") },
-    { value: t("stats.availabilityValue"), label: t("stats.availabilityLabel") }
+    { value: t("stats.postProjectValue"), label: t("stats.postProjectLabel"), kind: "default" as const },
+    { value: t("stats.gelValue"), label: t("stats.gelLabel"), kind: "logo" as const },
+    { value: t("stats.availabilityValue"), label: t("stats.availabilityLabel"), kind: "default" as const }
   ] as const;
 
   const categories = [
@@ -168,8 +169,15 @@ export default async function HomePage() {
                 <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-left backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                   <div className="relative">
-                    <div className="text-3xl font-bold text-primary">{s.value}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
+                    {s.kind === "logo" ? (
+                      <div className="flex items-center gap-2 text-primary">
+                        <Image src="/mark.svg" alt="Freela" width={26} height={26} className="h-6 w-6" />
+                        <div className="text-xl font-bold">{s.value}</div>
+                      </div>
+                    ) : (
+                      <div className="text-3xl font-bold text-primary">{s.value}</div>
+                    )}
+                    {s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
                   </div>
                 </Card>
               ))}
