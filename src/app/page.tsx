@@ -172,7 +172,7 @@ export default async function HomePage() {
                     {s.kind === "logo" ? (
                       <div className="flex items-center justify-center py-0.5 text-primary">
                         <span
-                          className="h-6 w-6 bg-primary"
+                          className="h-9 w-9 bg-primary"
                           style={{
                             WebkitMaskImage: "url(/contract.png)",
                             maskImage: "url(/contract.png)",
@@ -188,7 +188,7 @@ export default async function HomePage() {
                     ) : (
                       <div className="text-3xl font-bold text-primary">{s.value}</div>
                     )}
-                    {s.kind !== "logo" && s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
+                    {s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
                   </div>
                 </Card>
               ))}
