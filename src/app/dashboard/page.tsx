@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ProjectSubscriptionToggle } from "@/app/dashboard/project-subscription-toggle";
+import { PersonalInfoForm } from "@/app/dashboard/personal-info-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboardHome");
@@ -42,7 +43,7 @@ export default async function DashboardPage() {
   const isFreelancer = session.user.role === "FREELANCER";
   const isAdmin = session.user.role === "ADMIN";
 
-  const [unreadCount, employerProjectsCount, employerAcceptedProposalsCount, freelancerSubscribed] = await Promise.all([
+  const [unreadCount, employerProjectsCount, employerAcceptedProposalsCount, freelancerSubscribed, userData] = await Promise.all([
     prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
     isEmployer ? prisma.project.count({ where: { employerId: session.user.id } }) : Promise.resolve(0),
     isEmployer
@@ -50,7 +51,8 @@ export default async function DashboardPage() {
       : Promise.resolve(0),
     isFreelancer
       ? prisma.user.findUnique({ where: { id: session.user.id }, select: { projectEmailSubscribed: true } }).then((u) => u?.projectEmailSubscribed ?? false)
-      : Promise.resolve(false)
+      : Promise.resolve(false),
+    prisma.user.findUnique({ where: { id: session.user.id }, select: { name: true, email: true, phone: true } })
   ]);
 
   return (
@@ -111,6 +113,16 @@ export default async function DashboardPage() {
           <p className="mt-2 text-xs text-muted-foreground">{t("subscription.hint")}</p>
         </Card>
       ) : null}
+
+      <div className="mt-8">
+        <PersonalInfoForm
+          initial={{
+            name: userData?.name ?? "",
+            email: userData?.email ?? "",
+            phone: userData?.phone ?? ""
+          }}
+        />
+      </div>
     </Container>
   );
 }

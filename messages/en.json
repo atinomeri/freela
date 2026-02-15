@@ -727,6 +727,22 @@
     "saving": "Saving...",
     "save": "Save"
   },
+  "personalInfoForm": {
+    "title": "Personal information",
+    "name": "Full name",
+    "namePlaceholder": "Your full name",
+    "email": "Email",
+    "emailHint": "Email cannot be changed.",
+    "phone": "Phone",
+    "phonePlaceholder": "+995 5XX XXX XXX",
+    "saving": "Saving...",
+    "save": "Save",
+    "saved": "Saved.",
+    "errors": {
+      "nameMin": "Name must be at least 2 characters.",
+      "saveFailed": "Could not save."
+    }
+  },
   "roles": {
     "EMPLOYER": "Employer",
     "FREELANCER": "Freelancer",
@@ -1002,6 +1018,8 @@
     "CATEGORY_INVALID": "Invalid category.",
     "EMPLOYER_TYPE_INVALID": "Please choose an employer type.",
     "NAME_REQUIRED": "Full name is required.",
+    "NAME_MIN": "Name must be at least 2 characters.",
+    "NAME_MAX": "Name must be at most 100 characters.",
     "PERSONAL_ID_LENGTH": "Personal ID must be 11 digits.",
     "BIRTHDATE_INVALID": "Invalid birth date.",
     "COMPANY_NAME_REQUIRED": "Company name is required.",
