@@ -4,7 +4,7 @@ import storybook from "eslint-plugin-storybook";
 import next from "eslint-config-next";
 
 const config = [{
-  ignores: ["node_modules/**", ".next/**", "playwright-report/**", "test-results/**"]
+  ignores: ["node_modules/**", ".next/**", "playwright-report/**", "test-results/**", "coverage/**", "src/stories/**"]
 }, ...next, ...storybook.configs["flat/recommended"]];
 
 export default config;
