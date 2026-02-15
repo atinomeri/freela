@@ -44,7 +44,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium",
+        "btn-haptic inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium",
         "transition-all duration-200 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:pointer-events-none disabled:opacity-50",
@@ -87,7 +87,7 @@ export function ButtonLink({
   return (
     <Link
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium",
+        "btn-haptic inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium",
         "transition-all duration-200 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         variantClasses[variant],
@@ -111,12 +111,11 @@ export function IconButton({
   return (
     <button
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-lg",
+        "btn-haptic inline-flex h-9 w-9 items-center justify-center rounded-lg",
         "text-muted-foreground transition-all duration-200",
         "hover:bg-muted hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
         "disabled:pointer-events-none disabled:opacity-50",
-        "active:scale-95",
         className
       )}
       {...props}

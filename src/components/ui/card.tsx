@@ -11,7 +11,7 @@ export function Card({ className, hover = true, clickable = false, ...props }: C
       className={cn(
         "rounded-xl border border-border/70 bg-card/80 text-card-foreground shadow-sm backdrop-blur-sm transition-all duration-200",
         hover && "hover:shadow-soft hover:border-border",
-        clickable && "cursor-pointer active:scale-[0.99]",
+        clickable && "cursor-pointer card-touch",
         className
       )}
       {...props}

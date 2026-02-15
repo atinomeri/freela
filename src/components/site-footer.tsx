@@ -39,7 +39,7 @@ export async function SiteFooter() {
   const legalVisible = legalLinks.filter((l) => !unlisted.has(l.href));
 
   return (
-    <footer className="border-t bg-muted/30">
+    <footer className="border-t bg-muted/30 pwa-footer safe-x">
       <Container className="py-12 sm:py-16">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
