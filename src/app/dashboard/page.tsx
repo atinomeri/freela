@@ -92,8 +92,6 @@ export default async function DashboardPage() {
             </>
           ) : null}
 
-          {isEmployer || isFreelancer ? <ActionLink href="/dashboard/messages">{t("actions.chat")}</ActionLink> : null}
-
           <ActionLink href="/dashboard/notifications">
             {t("actions.notifications")} {unreadCount > 0 ? <Badge>{unreadCount}</Badge> : null}
           </ActionLink>
