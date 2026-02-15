@@ -165,6 +165,31 @@
         }
       }
     },
+    "howItWorks": {
+      "badge": "Visual Guide",
+      "title": "How to use Freela with maximum impact",
+      "subtitle": "This guide shows both journeys step by step: from posting or finding a project to agreement, delivery and review.",
+      "employer": {
+        "title": "Employer Journey",
+        "subtitle": "How to find the right specialist quickly and with clear control.",
+        "steps": [
+          { "title": "1) Define your task", "description": "Describe the outcome, timeline, and budget in GEL so the right people respond quickly." },
+          { "title": "2) Find and compare candidates", "description": "Review profiles, experience, ratings, and proposals in one place." },
+          { "title": "3) Align on execution", "description": "Agree on scope, milestones, and communication for clear expectations on both sides." },
+          { "title": "4) Accept and review", "description": "Leave a review after completion and build a reliable collaboration history." }
+        ]
+      },
+      "freelancer": {
+        "title": "Freelancer Journey",
+        "subtitle": "How to get more projects and build stronger platform reputation.",
+        "steps": [
+          { "title": "1) Strengthen your profile", "description": "Add specialization, focused bio, and portfolio so you appear in more shortlists." },
+          { "title": "2) Find relevant projects", "description": "Use filters to target the right opportunities in your niche." },
+          { "title": "3) Send precise proposals", "description": "Clear messages and realistic pricing improve acceptance rate." },
+          { "title": "4) Deliver and grow your rating", "description": "Reliable delivery and quality work unlock better future opportunities." }
+        ]
+      }
+    },
     "steps": {
       "title": "3 steps to get started",
       "subtitle": "For clients and freelancers — everything in one place.",

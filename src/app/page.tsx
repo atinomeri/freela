@@ -1,9 +1,16 @@
 import {
   ArrowRight,
+  BadgeCheck,
+  BriefcaseBusiness,
   Brush,
+  ClipboardList,
   Code2,
+  Handshake,
   Megaphone,
+  MessageSquare,
   PenTool,
+  Rocket,
+  Search,
   ShoppingBag,
   Sparkles,
   Video
@@ -130,6 +137,20 @@ export default async function HomePage() {
     { q: t("faq.items.2.q"), a: t("faq.items.2.a") }
   ] as const;
 
+  const employerSteps = [
+    { title: t("howItWorks.employer.steps.0.title"), description: t("howItWorks.employer.steps.0.description"), icon: ClipboardList },
+    { title: t("howItWorks.employer.steps.1.title"), description: t("howItWorks.employer.steps.1.description"), icon: Search },
+    { title: t("howItWorks.employer.steps.2.title"), description: t("howItWorks.employer.steps.2.description"), icon: Handshake },
+    { title: t("howItWorks.employer.steps.3.title"), description: t("howItWorks.employer.steps.3.description"), icon: BadgeCheck }
+  ] as const;
+
+  const freelancerSteps = [
+    { title: t("howItWorks.freelancer.steps.0.title"), description: t("howItWorks.freelancer.steps.0.description"), icon: Sparkles },
+    { title: t("howItWorks.freelancer.steps.1.title"), description: t("howItWorks.freelancer.steps.1.description"), icon: BriefcaseBusiness },
+    { title: t("howItWorks.freelancer.steps.2.title"), description: t("howItWorks.freelancer.steps.2.description"), icon: MessageSquare },
+    { title: t("howItWorks.freelancer.steps.3.title"), description: t("howItWorks.freelancer.steps.3.description"), icon: Rocket }
+  ] as const;
+
   return (
     <>
       <section className="relative overflow-hidden border-b">
@@ -219,6 +240,82 @@ export default async function HomePage() {
                 </div>
               </Card>
             ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* How It Works - Two Column Guide */}
+      <section className="relative overflow-hidden border-b bg-gradient-to-b from-background to-muted/30">
+        <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 bottom-1/4 h-96 w-96 rounded-full bg-success/5 blur-3xl" />
+        <Container className="relative py-16 sm:py-20">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <Badge className="mb-4 inline-flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t("howItWorks.badge")}
+            </Badge>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">{t("howItWorks.title")}</h2>
+            <p className="mt-4 text-muted-foreground">{t("howItWorks.subtitle")}</p>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-2">
+            {/* Employer Journey */}
+            <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+              <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
+              <div className="relative">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ClipboardList className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-primary">{t("howItWorks.employer.title")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("howItWorks.employer.subtitle")}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {employerSteps.map((step, i) => (
+                    <div key={step.title} className="group flex gap-4 rounded-lg p-3 transition-colors hover:bg-muted/50">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        {i + 1}
+                      </div>
+                      <div>
+                        <div className="font-semibold">{step.title.replace(/^\d+\)\s*/, "")}</div>
+                        <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+
+            {/* Freelancer Journey */}
+            <Card className="relative overflow-hidden border-success/20 bg-gradient-to-br from-success/5 via-background to-background p-6 sm:p-8">
+              <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-success/10 blur-3xl" />
+              <div className="relative">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 text-success">
+                    <BriefcaseBusiness className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-success">{t("howItWorks.freelancer.title")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("howItWorks.freelancer.subtitle")}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {freelancerSteps.map((step, i) => (
+                    <div key={step.title} className="group flex gap-4 rounded-lg p-3 transition-colors hover:bg-muted/50">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success/10 text-sm font-bold text-success">
+                        {i + 1}
+                      </div>
+                      <div>
+                        <div className="font-semibold">{step.title.replace(/^\d+\)\s*/, "")}</div>
+                        <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
           </div>
         </Container>
       </section>
