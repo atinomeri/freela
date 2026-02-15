@@ -127,8 +127,7 @@ export default async function HomePage() {
   const faqs = [
     { q: t("faq.items.0.q"), a: t("faq.items.0.a") },
     { q: t("faq.items.1.q"), a: t("faq.items.1.a") },
-    { q: t("faq.items.2.q"), a: t("faq.items.2.a") },
-    { q: t("faq.items.3.q"), a: t("faq.items.3.a") }
+    { q: t("faq.items.2.q"), a: t("faq.items.2.a") }
   ] as const;
 
   return (
