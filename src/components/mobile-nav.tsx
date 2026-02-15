@@ -4,16 +4,40 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { signOut, useSession } from "next-auth/react";
+import { LogOut, LayoutDashboard, LogIn, UserPlus } from "lucide-react";
 
 type Item = { href: string; label: string };
 
 export function MobileNav({ items }: { items: readonly Item[] }) {
   const t = useTranslations("mobileNav");
+  const tAuth = useTranslations("authButtons");
   const pathname = usePathname();
-  return <MobileNavInner key={pathname} t={t} pathname={pathname ?? ""} items={items} />;
+  const { data: session, status } = useSession();
+  
+  return (
+    <MobileNavInner 
+      key={pathname} 
+      t={t} 
+      tAuth={tAuth}
+      pathname={pathname ?? ""} 
+      items={items} 
+      session={session}
+      sessionStatus={status}
+    />
+  );
 }
 
-function MobileNavInner({ items, pathname, t }: { items: readonly Item[]; pathname: string; t: (key: string) => string }) {
+type MobileNavInnerProps = {
+  items: readonly Item[];
+  pathname: string;
+  t: (key: string) => string;
+  tAuth: (key: string) => string;
+  session: { user?: { name?: string | null; email?: string | null } } | null;
+  sessionStatus: "loading" | "authenticated" | "unauthenticated";
+};
+
+function MobileNavInner({ items, pathname, t, tAuth, session, sessionStatus }: MobileNavInnerProps) {
   const [open, setOpen] = useState(false);
 
   const activeHref = useMemo(() => {
@@ -93,6 +117,59 @@ function MobileNavInner({ items, pathname, t }: { items: readonly Item[]; pathna
               );
             })}
           </nav>
+
+          {/* Auth section */}
+          <div className="border-t border-border/70 p-2">
+            {sessionStatus === "loading" ? (
+              <div className="px-4 py-3 text-sm text-muted-foreground">...</div>
+            ) : session?.user ? (
+              <div className="grid gap-1">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors",
+                    pathname === "/dashboard" || pathname.startsWith("/dashboard/")
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground/80 hover:bg-muted/40 hover:text-foreground"
+                  )}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  {tAuth("dashboard")}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    void signOut({ callbackUrl: "/" });
+                  }}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                >
+                  <LogOut className="h-4 w-4" />
+                  {tAuth("logout")}
+                </button>
+              </div>
+            ) : (
+              <div className="grid gap-1">
+                <Link
+                  href="/auth/login"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-foreground/80 transition-colors hover:bg-muted/40 hover:text-foreground"
+                >
+                  <LogIn className="h-4 w-4" />
+                  {tAuth("login")}
+                </Link>
+                <Link
+                  href="/auth/register"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary transition-colors hover:bg-primary/20"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  {tAuth("register")}
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
