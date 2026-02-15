@@ -320,68 +320,6 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <section className="border-b bg-muted/20">
-        <Container className="py-16 sm:py-20">
-          <div className="grid gap-8 lg:grid-cols-3">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("steps.title")}</h2>
-            </div>
-            <div className="lg:col-span-2">
-              <div className="grid gap-4 md:grid-cols-3">
-                <Card className="group relative overflow-hidden p-6 transition-all hover:shadow-md">
-                  <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-primary to-primary/50" />
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">1</div>
-                  <div className="mt-4 font-semibold">{t("steps.items.0.title")}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">{t("steps.items.0.description")}</p>
-                </Card>
-                <Card className="group relative overflow-hidden p-6 transition-all hover:shadow-md">
-                  <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-primary/50 to-primary" />
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">2</div>
-                  <div className="mt-4 font-semibold">{t("steps.items.1.title")}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">{t("steps.items.1.description")}</p>
-                </Card>
-                <Card className="group relative overflow-hidden p-6 transition-all hover:shadow-md">
-                  <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-primary to-success" />
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success/10 text-lg font-bold text-success">3</div>
-                  <div className="mt-4 font-semibold">{t("steps.items.2.title")}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">{t("steps.items.2.description")}</p>
-                </Card>
-              </div>
-            </div>
-
-            <Card className="relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background p-8 shadow-xl lg:col-span-3 lg:mt-4">
-              <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-              <div className="relative grid gap-6 lg:grid-cols-2 lg:items-center">
-                <div>
-                  <Badge variant="default" className="mb-4">CTA</Badge>
-                  <h3 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("ctaCard.title")}</h3>
-                  <p className="mt-3 text-muted-foreground">{t("ctaCard.description")}</p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                  <ButtonLink href="/auth/register" size="lg" className="shadow-lg shadow-primary/25">
-                    {t("ctaCard.signUp")}
-                  </ButtonLink>
-                  <ButtonLink href="/projects/new" size="lg" variant="secondary">
-                    {t("ctaCard.postProject")}
-                  </ButtonLink>
-                </div>
-              </div>
-              <p className="mt-6 text-xs text-muted-foreground">
-                {t("ctaCard.termsPrefix")}{" "}
-                <Link className="underline hover:text-foreground" href="/legal/terms">
-                  {t("ctaCard.terms")}
-                </Link>{" "}
-                {t("ctaCard.and")}{" "}
-                <Link className="underline hover:text-foreground" href="/legal/privacy">
-                  {t("ctaCard.privacy")}
-                </Link>
-                .
-              </p>
-            </Card>
-          </div>
-        </Container>
-      </section>
-
       <section className="border-b">
         <Container className="py-16 sm:py-20">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("testimonials.title")}</h2>
