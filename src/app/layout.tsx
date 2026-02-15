@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Georgian } from "next/font/google";
 import "./globals.css";
 import { AuthSessionProvider } from "@/components/auth/session-provider";
@@ -13,6 +13,18 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
 export const runtime = "nodejs";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#5c6cf9" },
+    { media: "(prefers-color-scheme: dark)", color: "#5c6cf9" }
+  ]
+};
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], display: "swap", variable: "--font-inter" });
 const georgian = Noto_Sans_Georgian({ subsets: ["georgian"], display: "swap", variable: "--font-georgian" });
@@ -33,6 +45,23 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: site.name, template: `%s · ${site.name}` },
     description,
     alternates: { canonical: "/" },
+    icons: {
+      icon: [
+        { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" }
+      ],
+      shortcut: "/icons/favicon-32x32.png",
+      apple: [
+        { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+      ]
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: site.name
+    },
     openGraph: {
       type: "website",
       locale: ogLocale(locale),
@@ -64,6 +93,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={`${inter.variable} ${georgian.variable} dark`} suppressHydrationWarning>
       <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5c6cf9" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-dvh font-sans antialiased">
