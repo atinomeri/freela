@@ -42,7 +42,7 @@ export async function SiteHeader() {
               key={i.href}
               href={i.href}
               className={cn(
-                "rounded-xl px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted/70 hover:text-foreground"
+                "whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted/70 hover:text-foreground"
               )}
             >
               {i.label}
