@@ -119,7 +119,8 @@ async function getCookieHeader(page: { context: () => { cookies: (url: string) =
   return (await page.context().cookies(baseURL)).map((c) => `${c.name}=${c.value}`).join("; ");
 }
 
-test.afterAll(async () => {
+// Disconnect Prisma when process exits
+process.on("beforeExit", async () => {
   await prisma.$disconnect();
 });
 
