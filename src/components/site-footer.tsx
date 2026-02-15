@@ -110,9 +110,6 @@ export async function SiteFooter() {
                 <Mail className="h-4 w-4" />
                 {site.supportEmail}
               </a>
-              <p className="text-sm text-muted-foreground">
-                {tFooter("support")}
-              </p>
             </div>
           </div>
         </div>
