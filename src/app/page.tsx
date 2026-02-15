@@ -4,12 +4,9 @@ import {
   Code2,
   Megaphone,
   PenTool,
-  Search,
-  Shield,
   ShoppingBag,
   Sparkles,
-  Video,
-  Wallet
+  Video
 } from "lucide-react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
@@ -193,43 +190,6 @@ export default async function HomePage() {
                 </Card>
               ))}
             </div>
-          </div>
-        </Container>
-      </section>
-
-      <section className="border-b bg-muted/30">
-        <Container className="py-16 sm:py-20">
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="group relative overflow-hidden p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-all group-hover:bg-primary/20" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <Search className="h-6 w-6" />
-                </div>
-                <h2 className="mt-4 text-lg font-semibold">{t("features.fastSelection.title")}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{t("features.fastSelection.description")}</p>
-              </div>
-            </Card>
-            <Card className="group relative overflow-hidden p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-all group-hover:bg-primary/20" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <Shield className="h-6 w-6" />
-                </div>
-                <h2 className="mt-4 text-lg font-semibold">{t("features.secureProcess.title")}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{t("features.secureProcess.description")}</p>
-              </div>
-            </Card>
-            <Card className="group relative overflow-hidden p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-all group-hover:bg-primary/20" />
-              <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <Wallet className="h-6 w-6" />
-                </div>
-                <h2 className="mt-4 text-lg font-semibold">{t("features.gelBudget.title")}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{t("features.gelBudget.description")}</p>
-              </div>
-            </Card>
           </div>
         </Container>
       </section>
