@@ -111,11 +111,10 @@ export async function POST(req: Request) {
   // Validate password strength
   const passwordStrength = validatePasswordStrength(password);
   if (!passwordStrength.isAcceptable) {
-    return jsonError("PASSWORD_WEAK", 400, {
-      feedback: passwordStrength.feedback,
-      suggestions: passwordStrength.suggestions,
-      score: passwordStrength.score
-    });
+    return NextResponse.json(
+      { ok: false, errorCode: "PASSWORD_WEAK", feedback: passwordStrength.feedback, suggestions: passwordStrength.suggestions, score: passwordStrength.score },
+      { status: 400 }
+    );
   }
 
   const confirmPassword = typeof raw.confirmPassword === "string" ? String(raw.confirmPassword) : "";
