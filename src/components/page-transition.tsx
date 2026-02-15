@@ -19,7 +19,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, children]);
 
   return (
     <div className={isVisible ? "page-enter" : "page-exit"}>
