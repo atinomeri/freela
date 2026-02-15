@@ -43,8 +43,8 @@ Sentry.init({
       // Redact password fields
       const sensitiveFields = ["password", "confirmPassword", "passwordHash", "token"];
       for (const field of sensitiveFields) {
-        if (typeof event.request.data === "object" && field in event.request.data) {
-          event.request.data[field] = "[REDACTED]";
+        if (typeof event.request.data === "object" && event.request.data !== null && field in event.request.data) {
+          (event.request.data as Record<string, unknown>)[field] = "[REDACTED]";
         }
       }
     }
