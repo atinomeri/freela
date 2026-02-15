@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { isFreelancerCategory } from "@/lib/categories";
+import { cacheFreelancerListing } from "@/lib/cache";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -58,8 +59,31 @@ export async function GET(req: Request) {
         ? [{ hourlyGEL: "desc" }, { updatedAt: "desc" }]
         : [{ updatedAt: "desc" }];
 
+  type FreelancerListResponse = {
+    ok: true;
+    items: Array<{
+      userId: string;
+      name: string;
+      title: string;
+      category: string | null;
+      bioExcerpt: string;
+      skills: string[];
+      hourlyGEL: number | null;
+      updatedAt: Date;
+      createdAt: Date;
+    }>;
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+
+  const cacheKey = { q, category, minRate, maxRate, sort, page, pageSize };
+  const cached = await cacheFreelancerListing<FreelancerListResponse>(cacheKey);
+  if (cached) return NextResponse.json(cached);
+
   let total = 0;
-  let items = [];
+  let items: Array<{ user: { id: string; name: string }; title: string | null; category: string | null; bio: string | null; skills: unknown; hourlyGEL: number | null; updatedAt: Date; createdAt: Date }> = [];
   try {
     const where = buildWhere(true);
     [total, items] = await Promise.all([
@@ -101,7 +125,7 @@ export async function GET(req: Request) {
     return [];
   };
 
-  return NextResponse.json({
+  const response: FreelancerListResponse = {
     ok: true,
     items: items.map((p) => ({
       userId: p.user.id,
@@ -118,5 +142,8 @@ export async function GET(req: Request) {
     pageSize,
     total,
     totalPages
-  });
+  };
+
+  await cacheFreelancerListing(cacheKey, response);
+  return NextResponse.json(response);
 }

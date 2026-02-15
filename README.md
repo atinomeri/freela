@@ -27,6 +27,11 @@ NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your_strong_secret
 DATABASE_URL=postgresql://freela:freela_password@localhost:5432/freela?schema=public
 REDIS_URL=redis://localhost:6379
+
+# Security/ops (recommended for production)
+# TRUST_PROXY_HEADERS=true (enable X-Forwarded-For/X-Real-IP trust behind proxy)
+# RATE_LIMIT_STRICT=true (fail-closed if Redis is unavailable in production)
+# HEALTH_CHECK_TOKEN=your_health_token (unlock full /api/health details with x-health-secret)
 ```
 
 ნიმუში იხილე `.env.example`.
@@ -70,3 +75,4 @@ npm run dev
 - აუცილებელია `DATABASE_URL` და (multi-instance realtime-ისთვის) `REDIS_URL`
 - Email (password reset): `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USER`, `SMTP_PASS` (სურვილისამებრ)
 - Observability (optional): `SENTRY_DSN`
+- Security (recommended): `TRUST_PROXY_HEADERS=true`, `RATE_LIMIT_STRICT=true`, `HEALTH_CHECK_TOKEN` for `/api/health`

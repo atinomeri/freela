@@ -54,8 +54,11 @@ async function checkRedis() {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const startedAt = Date.now();
+  const secret = process.env.HEALTH_CHECK_TOKEN?.trim();
+  const provided = req.headers.get("x-health-secret")?.trim();
+  const allowDetails = Boolean(secret && provided && provided === secret);
 
   const res: {
     ok: boolean;
@@ -110,6 +113,22 @@ export async function GET() {
 
   const status = res.ok ? 200 : 503;
   const totalMs = Date.now() - startedAt;
-  return NextResponse.json({ ...res, ms: totalMs }, { status });
+
+  const headers = new Headers();
+  headers.set("Cache-Control", "no-store");
+
+  if (allowDetails) {
+    return NextResponse.json({ ...res, ms: totalMs }, { status, headers });
+  }
+
+  return NextResponse.json(
+    {
+      ok: res.ok,
+      time: res.time,
+      uptimeSeconds: res.uptimeSeconds,
+      ms: totalMs
+    },
+    { status, headers }
+  );
 }
 

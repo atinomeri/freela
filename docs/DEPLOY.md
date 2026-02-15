@@ -8,6 +8,11 @@
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` (SMTP config, required for password reset in production)
 - `SENTRY_DSN` (optional but recommended: error monitoring)
 
+## Security/ops environment variables (recommended)
+- `TRUST_PROXY_HEADERS=true` (trust X-Forwarded-For/X-Real-IP behind reverse proxy)
+- `RATE_LIMIT_STRICT=true` (fail-closed if Redis is unavailable in production)
+- `HEALTH_CHECK_TOKEN=<secret>` (allows full `/api/health` details with header `x-health-secret`)
+
 ## Recommended setup (Option 1)
 **App on VPS + Managed Postgres**
 - Keep the Next.js app on your VPS (systemd/Docker/PM2).
@@ -60,4 +65,5 @@ npm run db:restore -- --file=./backups/<file>.dump
 - Configure `SENTRY_DSN` so production errors are reported (recommended).
 - In production, serve the app behind HTTPS (recommended): the app enables secure auth cookies and sets HSTS.
 - Monitoring: use `/api/health` for uptime checks (returns 200 when DB/Redis checks are OK, otherwise 503).
+- `/api/health` is public but minimal; for full details send `x-health-secret: $HEALTH_CHECK_TOKEN`.
 - Uploads: chat attachments are stored on disk (default `./data/uploads`). On VPS, mount this as a persistent volume or set `UPLOADS_DIR` to a persistent path.

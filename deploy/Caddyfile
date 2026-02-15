@@ -1,5 +1,27 @@
 {$DOMAIN} {
   encode gzip zstd
+  header -Server
+
+  @static_immutable {
+    path /_next/static/*
+    path /icon.svg
+    path /favicon.ico
+  }
+  header @static_immutable Cache-Control "public, max-age=31536000, immutable"
+
+  @static_short {
+    path /robots.txt
+    path /sitemap.xml
+  }
+  header @static_short Cache-Control "public, max-age=3600"
+
+  header {
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "strict-origin-when-cross-origin"
+    X-Frame-Options "DENY"
+    Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  }
+
   reverse_proxy app:3000
 }
 

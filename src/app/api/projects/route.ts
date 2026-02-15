@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { isFreelancerCategory } from "@/lib/categories";
+import { cacheProjectListing, invalidateProjectListingCache } from "@/lib/cache";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -59,6 +60,26 @@ export async function GET(req: Request) {
         ? [{ budgetGEL: "desc" }, { createdAt: "desc" }]
         : [{ createdAt: "desc" }];
 
+  type ProjectListResponse = {
+    ok: true;
+    items: Array<{
+      id: string;
+      title: string;
+      category: string | null;
+      budgetGEL: number | null;
+      createdAt: Date;
+      description: string;
+    }>;
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+
+  const cacheKey = { q, category, minBudget, maxBudget, sort, page, pageSize };
+  const cached = await cacheProjectListing<ProjectListResponse>(cacheKey);
+  if (cached) return NextResponse.json(cached);
+
   const [total, items] = await Promise.all([
     prisma.project.count({ where }),
     prisma.project.findMany({
@@ -71,8 +92,7 @@ export async function GET(req: Request) {
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  return NextResponse.json({
+  const response = {
     ok: true,
     items: items.map((p) => ({
       id: p.id,
@@ -86,7 +106,10 @@ export async function GET(req: Request) {
     pageSize,
     total,
     totalPages
-  });
+  };
+
+  await cacheProjectListing(cacheKey, response);
+  return NextResponse.json(response);
 }
 
 export async function POST(req: Request) {
@@ -134,6 +157,8 @@ export async function POST(req: Request) {
       },
       select: { id: true, title: true, category: true, createdAt: true }
     });
+
+    await invalidateProjectListingCache();
 
     return NextResponse.json({ ok: true, project }, { status: 200 });
   } catch (err) {

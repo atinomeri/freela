@@ -55,6 +55,10 @@ export async function POST(req: Request) {
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   if (!user) return okResponse();
 
+  await prisma.passwordResetToken.deleteMany({
+    where: { userId: user.id, usedAt: null }
+  });
+
   const token = crypto.randomBytes(32).toString("base64url");
   const tokenHash = sha256(token);
   const expiresAt = new Date(Date.now() + TOKEN_TTL_MINUTES * 60_000);

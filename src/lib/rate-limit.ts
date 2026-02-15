@@ -3,6 +3,10 @@ import { createClient } from "redis";
 
 type HeadersLike = Headers | Record<string, string | string[] | undefined> | undefined | null;
 
+function trustProxyHeaders(): boolean {
+  return String(process.env.TRUST_PROXY_HEADERS ?? "").trim().toLowerCase() === "true";
+}
+
 export function getClientIpFromHeaders(headers: HeadersLike): string {
   if (!headers) return "unknown";
 
@@ -13,11 +17,13 @@ export function getClientIpFromHeaders(headers: HeadersLike): string {
     return v ?? null;
   };
 
-  const xff = get("x-forwarded-for");
-  if (xff) return String(xff).split(",")[0]!.trim() || "unknown";
+  const trusted = trustProxyHeaders();
 
-  const realIp = get("x-real-ip");
-  if (realIp) return String(realIp).trim() || "unknown";
+  const xRealIp = get("x-real-ip");
+  if (trusted && xRealIp) return String(xRealIp).trim() || "unknown";
+
+  const xff = get("x-forwarded-for");
+  if (trusted && xff) return String(xff).split(",")[0]!.trim() || "unknown";
 
   return "unknown";
 }
@@ -96,7 +102,8 @@ export async function checkRateLimit(params: {
 
   const keySafe = (params.key || "unknown").slice(0, 200);
   const redisKey = `rl:${params.scope}:${keySafe}`;
-  const strictInProd = process.env.NODE_ENV === "production" && process.env.RATE_LIMIT_STRICT === "true";
+  const strictInProd =
+    process.env.NODE_ENV === "production" && String(process.env.RATE_LIMIT_STRICT ?? "true").toLowerCase() !== "false";
 
   const client = await getRedisClient().catch(() => null);
   if (!client) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { invalidateProjectListingCache } from "@/lib/cache";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -40,6 +41,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     data: { isOpen },
     select: { id: true, isOpen: true }
   });
+
+  await invalidateProjectListingCache();
 
   return NextResponse.json({ ok: true, project: updated }, { status: 200 });
 }

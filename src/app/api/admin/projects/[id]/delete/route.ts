@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { invalidateProjectListingCache } from "@/lib/cache";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -18,6 +19,7 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
   if (!exists) return jsonError("NOT_FOUND", 404);
 
   await prisma.project.delete({ where: { id } });
+  await invalidateProjectListingCache();
   return NextResponse.json({ ok: true }, { status: 200 });
 }
 

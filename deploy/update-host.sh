@@ -30,6 +30,7 @@ RUN_PULL=true
 RUN_MIGRATE=true
 RUN_BUILD_GATE=true
 HEALTH_URL="${DEPLOY_HEALTHCHECK_URL:-}"
+HEALTH_TOKEN="${HEALTH_CHECK_TOKEN:-}"
 
 on_exit() {
   local code=$?
@@ -145,7 +146,11 @@ docker compose -f "${COMPOSE_FILE}" ps
 if [[ -n "${HEALTH_URL}" ]]; then
   if command -v curl >/dev/null 2>&1; then
     echo "[update-host] health check: ${HEALTH_URL}"
-    curl -fsS "${HEALTH_URL}" >/dev/null
+    if [[ -n "${HEALTH_TOKEN}" ]]; then
+      curl -fsS -H "x-health-secret: ${HEALTH_TOKEN}" "${HEALTH_URL}" >/dev/null
+    else
+      curl -fsS "${HEALTH_URL}" >/dev/null
+    fi
     echo "[update-host] health check OK"
   else
     echo "[update-host] curl not found; skipping health check"

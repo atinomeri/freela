@@ -58,7 +58,9 @@ Required:
 
 Recommended:
 
-- `RATE_LIMIT_STRICT=false` (set `true` only if Redis availability is guaranteed)
+- `RATE_LIMIT_STRICT=true` (fail-closed if Redis is unavailable)
+- `TRUST_PROXY_HEADERS=true` (trust X-Forwarded-For/X-Real-IP behind Caddy)
+- `HEALTH_CHECK_TOKEN` (unlock full `/api/health` details with `x-health-secret`)
 
 ## 4) Start services
 
@@ -79,6 +81,7 @@ docker compose -f docker-compose.prod.yml exec app npm run prisma:migrate:deploy
 - Open `https://<DOMAIN>`
 - Health check:
   - `https://<DOMAIN>/api/health`
+  - Full details (optional): `curl -H "x-health-secret: $HEALTH_CHECK_TOKEN" https://<DOMAIN>/api/health`
 
 ## Updates
 
