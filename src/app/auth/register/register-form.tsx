@@ -389,6 +389,7 @@ export function RegisterForm() {
                 value={companyId}
                 onChange={(e) => setCompanyId(digitsOnly(e.target.value))}
                 inputMode="numeric"
+                maxLength={9}
                 placeholder={t("fields.companyId.placeholder")}
                 required
               />
@@ -437,6 +438,7 @@ export function RegisterForm() {
                   value={personalId}
                   onChange={(e) => setPersonalId(digitsOnly(e.target.value))}
                   inputMode="numeric"
+                  maxLength={11}
                   placeholder={t("fields.personalId.placeholder")}
                   required
                 />
