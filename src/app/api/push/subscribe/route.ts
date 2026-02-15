@@ -36,7 +36,9 @@ export async function POST(req: Request) {
     return jsonError("INVALID_SUBSCRIPTION", 400);
   }
 
-  const { endpoint, keys } = body;
+  const endpoint = body.endpoint;
+  const p256dh = body.keys.p256dh;
+  const auth = body.keys.auth;
 
   try {
     // Upsert subscription (update if endpoint exists, create if not)
@@ -45,14 +47,14 @@ export async function POST(req: Request) {
       create: {
         userId: session.user.id,
         endpoint,
-        p256dh: keys.p256dh,
-        auth: keys.auth,
+        p256dh,
+        auth,
         userAgent: req.headers.get("user-agent") || undefined,
       },
       update: {
         userId: session.user.id,
-        p256dh: keys.p256dh,
-        auth: keys.auth,
+        p256dh,
+        auth,
         userAgent: req.headers.get("user-agent") || undefined,
       },
     });
