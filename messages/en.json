@@ -969,6 +969,7 @@
     "PHONE_REQUIRED": "Phone number is required.",
     "PHONE_INVALID": "Invalid phone number.",
     "PASSWORD_MIN": "Password must be at least 8 characters.",
+    "PASSWORD_WEAK": "Password is too weak. Use a complex password with letters, numbers, and symbols.",
     "CONFIRM_REQUIRED": "Please confirm your password.",
     "PASSWORDS_MISMATCH": "Passwords do not match.",
     "CATEGORY_REQUIRED": "Category is required.",
