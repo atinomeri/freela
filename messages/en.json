@@ -743,6 +743,13 @@
       "saveFailed": "Could not save."
     }
   },
+  "push": {
+    "enabled": "Push notifications enabled",
+    "disabled": "Push notifications disabled",
+    "enabledDesc": "You will receive notifications on this device.",
+    "disabledDesc": "Enable to receive notifications.",
+    "blocked": "Notifications are blocked in browser settings."
+  },
   "roles": {
     "EMPLOYER": "Employer",
     "FREELANCER": "Freelancer",
