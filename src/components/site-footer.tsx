@@ -21,7 +21,6 @@ export async function SiteFooter() {
   
   const companyLinks = [
     { href: "/about", label: tNav("about") },
-    { href: "/contact", label: tNav("contact") },
   ] as const;
   
   const legalLinks = [
