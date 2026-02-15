@@ -6,6 +6,9 @@ import { Pool } from "pg";
 const databaseUrl = process.env.DATABASE_URL || "postgresql://freela:freela_password@localhost:5432/freela?schema=public";
 const prisma = new PrismaClient({ adapter: new PrismaPg(new Pool({ connectionString: databaseUrl })) });
 
+// Strong password that passes zxcvbn validation (score >= 2)
+const TEST_PASSWORD = "E2E_TestPass#2026!";
+
 function randSuffix() {
   return `${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
 }
@@ -127,7 +130,7 @@ test("register freelancer → browse by category and orders list", async ({ page
 
   const suffix = randSuffix();
   const email = `e2e_freelancer_${suffix}@example.com`;
-  const password = "password123";
+  const password = TEST_PASSWORD;
   const name = `E2E Freelancer ${suffix}`;
 
   const { status, json } = await registerFreelancer(baseURL, {
@@ -164,8 +167,8 @@ test("registration rejects missing category for freelancers", async ({ baseURL }
       birthDate: "1995-01-01",
       phone,
       email,
-      password: "password123",
-      confirmPassword: "password123"
+      password: TEST_PASSWORD,
+      confirmPassword: TEST_PASSWORD
     })
   });
 
@@ -180,7 +183,7 @@ test("employer can cancel and restore a project", async ({ page, baseURL }) => {
 
   const suffix = randSuffix();
   const employerEmail = `e2e_employer_${suffix}@example.com`;
-  const employerPassword = "password123";
+  const employerPassword = TEST_PASSWORD;
 
   expect((await registerEmployer(baseURL, { email: employerEmail, password: employerPassword, name: `E2E Employer ${suffix}` })).status).toBe(200);
 
@@ -231,9 +234,9 @@ test("completion enables employer review", async ({ page, baseURL, browser }) =>
 
   const suffix = randSuffix();
   const employerEmail = `e2e_employer2_${suffix}@example.com`;
-  const employerPassword = "password123";
+  const employerPassword = TEST_PASSWORD;
   const freelancerEmail = `e2e_freelancer2_${suffix}@example.com`;
-  const freelancerPassword = "password123";
+  const freelancerPassword = TEST_PASSWORD;
 
   expect((await registerEmployer(baseURL, { email: employerEmail, password: employerPassword, name: `E2E Employer2 ${suffix}` })).status).toBe(200);
   expect((await registerFreelancer(baseURL, { email: freelancerEmail, password: freelancerPassword, category: "IT_DEVELOPMENT", name: `E2E Freelancer2 ${suffix}` })).status).toBe(200);
@@ -319,7 +322,7 @@ test("admin can save content via admin API", async ({ page, baseURL }) => {
 
   const suffix = randSuffix();
   const adminEmail = `e2e_admin_content_${suffix}@example.com`;
-  const adminPassword = "password123";
+  const adminPassword = TEST_PASSWORD;
 
   expect((await registerEmployer(baseURL, { email: adminEmail, password: adminPassword, name: `E2E Admin ${suffix}` })).status).toBe(200);
   await promoteUserToAdmin(adminEmail);
@@ -347,7 +350,7 @@ test("admin can reply to support thread", async ({ page, baseURL }) => {
 
   const suffix = randSuffix();
   const adminEmail = `e2e_admin_support_${suffix}@example.com`;
-  const adminPassword = "password123";
+  const adminPassword = TEST_PASSWORD;
 
   expect((await registerEmployer(baseURL, { email: adminEmail, password: adminPassword, name: `E2E Support Admin ${suffix}` })).status).toBe(200);
   const adminUserId = await promoteUserToAdmin(adminEmail);
@@ -390,9 +393,9 @@ test("message thread supports file attachments", async ({ page, baseURL, browser
 
   const suffix = randSuffix();
   const employerEmail = `e2e_employer_upload_${suffix}@example.com`;
-  const employerPassword = "password123";
+  const employerPassword = TEST_PASSWORD;
   const freelancerEmail = `e2e_freelancer_upload_${suffix}@example.com`;
-  const freelancerPassword = "password123";
+  const freelancerPassword = TEST_PASSWORD;
 
   expect((await registerEmployer(baseURL, { email: employerEmail, password: employerPassword, name: `E2E Employer Upload ${suffix}` })).status).toBe(200);
   expect(
