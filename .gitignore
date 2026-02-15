@@ -21,5 +21,8 @@ coverage/
 playwright-report/
 test-results/
 
+# Build info
+tsconfig.tsbuildinfo
+
 # Storybook examples (auto-generated)
 src/stories/
