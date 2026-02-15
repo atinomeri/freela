@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { isFreelancerCategory, type FreelancerCategory } from "@/lib/categories";
 import { EmployerType, Role } from "@prisma/client";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { validatePasswordStrength } from "@/lib/password-strength";
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import { isEmailConfigured, sendEmail } from "@/lib/email";
@@ -106,7 +107,16 @@ export async function POST(req: Request) {
 
   const phoneDigits = digitsOnly(phone);
   if (phoneDigits.length < 9 || phoneDigits.length > 15) return jsonError("PHONE_INVALID", 400);
-  if (password.length < 8) return jsonError("PASSWORD_MIN", 400);
+  
+  // Validate password strength
+  const passwordStrength = validatePasswordStrength(password);
+  if (!passwordStrength.isAcceptable) {
+    return jsonError("PASSWORD_WEAK", 400, {
+      feedback: passwordStrength.feedback,
+      suggestions: passwordStrength.suggestions,
+      score: passwordStrength.score
+    });
+  }
 
   const confirmPassword = typeof raw.confirmPassword === "string" ? String(raw.confirmPassword) : "";
   if (!confirmPassword) return jsonError("CONFIRM_REQUIRED", 400);

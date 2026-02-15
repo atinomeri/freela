@@ -52,7 +52,8 @@
     "react-dom": "^19.2.4",
     "redis": "^5.10.0",
     "tailwind-merge": "^2.5.5",
-    "zod": "^3.24.0"
+    "zod": "^3.24.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.6",

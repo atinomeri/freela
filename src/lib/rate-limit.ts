@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "redis";
+import { trackRateLimitBreach } from "./rate-limit-alerts";
 
 type HeadersLike = Headers | Record<string, string | string[] | undefined> | undefined | null;
 
@@ -108,6 +109,15 @@ export async function checkRateLimit(params: {
   const client = await getRedisClient().catch(() => null);
   if (!client) {
     if (strictInProd) {
+      trackRateLimitBreach({
+        timestamp: new Date(),
+        scope: params.scope,
+        key: keySafe,
+        limit: params.limit,
+        windowSeconds: params.windowSeconds,
+        attemptCount: 1,
+        severity: "high"
+      });
       return {
         allowed: false,
         limit: params.limit,
@@ -134,8 +144,23 @@ export async function checkRateLimit(params: {
     }
 
     const remaining = Math.max(0, params.limit - count);
+    const allowed = count <= params.limit;
+    
+    // Track breach for monitoring
+    if (!allowed) {
+      trackRateLimitBreach({
+        timestamp: new Date(),
+        scope: params.scope,
+        key: keySafe,
+        limit: params.limit,
+        windowSeconds: params.windowSeconds,
+        attemptCount: count,
+        severity: count > params.limit * 2 ? "critical" : count > params.limit ? "medium" : "low"
+      });
+    }
+    
     return {
-      allowed: count <= params.limit,
+      allowed,
       limit: params.limit,
       remaining,
       retryAfterSeconds: Math.max(0, ttl)

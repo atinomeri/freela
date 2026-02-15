@@ -2,6 +2,27 @@
   encode gzip zstd
   header -Server
 
+  # OWASP CRS-inspired rules: Block common attack patterns
+  @malicious {
+    path_regexp admin /admin|wp-admin|xmlrpc
+    path_regexp sqli '(\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b).*(%20|%09)'i
+    path_regexp lfi '(\.\./|\.\.\\)'
+    path_regexp xss '(<script|javascript:|onerror=|onload=)'i
+    query_regexp sql '(\bunion\b|\bselect\b|\bor\b.*=.*)'i
+  }
+  respond @malicious 403 {
+    body "Forbidden"
+  }
+
+  # Rate limiting: Global request rate
+  rate_limit {$DOMAIN} 100r/s {
+    zone "global"
+    key "ip"
+  }
+
+  # Strict transport security
+  header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
   @static_immutable {
     path /_next/static/*
     path /icon.svg
@@ -20,8 +41,7 @@
     Referrer-Policy "strict-origin-when-cross-origin"
     X-Frame-Options "DENY"
     Permissions-Policy "camera=(), microphone=(), geolocation=()"
-  }
-
-  reverse_proxy app:3000
-}
+    X-XSS-Protection "1; mode=block"
+    Cross-Origin-Embedder-Policy "require-corp"
+    Cross-Origin-Resource-Policy "cross-origin"
 

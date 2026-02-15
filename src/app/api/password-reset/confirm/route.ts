@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validatePasswordStrength } from "@/lib/password-strength";
 import crypto from "node:crypto";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -28,7 +29,16 @@ export async function POST(req: Request) {
   const confirmPassword = String(body?.confirmPassword ?? "");
 
   if (!token) return jsonError("TOKEN_INVALID", 400);
-  if (password.length < 8) return jsonError("PASSWORD_MIN", 400);
+  
+  // Validate password strength
+  const passwordStrength = validatePasswordStrength(password);
+  if (!passwordStrength.isAcceptable) {
+    return NextResponse.json(
+      { ok: false, errorCode: "PASSWORD_WEAK", feedback: passwordStrength.feedback, suggestions: passwordStrength.suggestions, score: passwordStrength.score },
+      { status: 400 }
+    );
+  }
+  
   if (!confirmPassword) return jsonError("CONFIRM_REQUIRED", 400);
   if (password !== confirmPassword) return jsonError("PASSWORDS_MISMATCH", 400);
 
