@@ -1,0 +1,1301 @@
+openapi: 3.0.3
+info:
+  title: Freela Platform API
+  description: |
+    REST API for Freela - Georgian freelance marketplace connecting employers with freelancers.
+    
+    ## Authentication
+    Most endpoints require JWT authentication via NextAuth.js. Include the session cookie or 
+    provide credentials through the `/api/auth/[...nextauth]` endpoint.
+    
+    ## Rate Limiting
+    Several endpoints implement rate limiting using Redis. When rate limited, the response 
+    includes `Retry-After` header. Rate limit scopes:
+    - `login:ip` - 30 requests per 15 minutes per IP
+    - `login:email` - 10 requests per 15 minutes per email
+    - `register:ip` - 20 requests per 15 minutes per IP
+    - `register:email` - 5 requests per hour per email
+    
+    ## Error Responses
+    All error responses follow the format:
+    ```json
+    { "ok": false, "error": "ERROR_CODE", "message": "Human readable message" }
+    ```
+  version: 1.0.0
+  contact:
+    name: Freela Support
+    url: https://freela.ge/contact
+servers:
+  - url: https://freela.ge/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Development server
+
+tags:
+  - name: Auth
+    description: Authentication and session management
+  - name: Register
+    description: User registration
+  - name: Password Reset
+    description: Password recovery flow
+  - name: Profile
+    description: Freelancer profile management
+  - name: Projects
+    description: Job listings and management
+  - name: Proposals
+    description: Project applications
+  - name: Threads
+    description: Messaging system
+  - name: Notifications
+    description: User notifications
+  - name: Freelancers
+    description: Freelancer directory
+  - name: Reviews
+    description: Freelancer reviews and ratings
+  - name: Support
+    description: Support chat system
+  - name: Admin
+    description: Administrative endpoints
+  - name: Health
+    description: System health checks
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Returns system health status including database and Redis connectivity
+      parameters:
+        - name: x-health-secret
+          in: header
+          description: Secret token for detailed health info
+          schema:
+            type: string
+      responses:
+        '200':
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: System unhealthy
+
+  /register:
+    post:
+      tags: [Register]
+      summary: Register new user
+      description: Register as freelancer or employer (individual/company)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RegisterFreelancer'
+                - $ref: '#/components/schemas/RegisterEmployerIndividual'
+                - $ref: '#/components/schemas/RegisterEmployerCompany'
+      responses:
+        '200':
+          description: Registration successful, verification email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limited
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+
+  /password-reset/request:
+    post:
+      tags: [Password Reset]
+      summary: Request password reset
+      description: Sends password reset email if user exists
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Reset email sent (always returns success for security)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  messageCode:
+                    type: string
+                    example: PASSWORD_RESET_SENT
+        '429':
+          description: Rate limited
+
+  /password-reset/confirm:
+    post:
+      tags: [Password Reset]
+      summary: Confirm password reset
+      description: Reset password using token from email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password, confirmPassword]
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+                confirmPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password reset successful
+        '400':
+          description: Invalid token or password
+
+  /profile:
+    get:
+      tags: [Profile]
+      summary: Get current freelancer profile
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Not a freelancer
+    patch:
+      tags: [Profile]
+      summary: Update freelancer profile
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Validation error
+
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List projects
+      description: Search and filter available projects
+      parameters:
+        - name: q
+          in: query
+          description: Search term (min 2 chars)
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            $ref: '#/components/schemas/FreelancerCategory'
+        - name: minBudget
+          in: query
+          schema:
+            type: integer
+        - name: maxBudget
+          in: query
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [new, budget_asc, budget_desc]
+            default: new
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Paginated project list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+    post:
+      tags: [Projects]
+      summary: Create new project
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProject'
+      responses:
+        '200':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateProjectResponse'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Not an employer
+
+  /projects/{id}:
+    get:
+      tags: [Projects]
+      summary: Get project details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project details
+        '404':
+          description: Project not found
+
+  /projects/{id}/apply:
+    post:
+      tags: [Proposals]
+      summary: Apply to project
+      description: Submit a proposal for a project (freelancers only)
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProposal'
+      responses:
+        '200':
+          description: Proposal submitted
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Not a freelancer
+        '404':
+          description: Project not found
+        '409':
+          description: Duplicate proposal
+        '429':
+          description: Rate limited
+
+  /projects/{id}/complete:
+    patch:
+      tags: [Projects]
+      summary: Mark project as completed
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project marked complete
+        '403':
+          description: Not project owner
+        '404':
+          description: Project not found
+
+  /projects/{id}/status:
+    patch:
+      tags: [Projects]
+      summary: Update project status
+      description: Cancel or restore a project
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isOpen:
+                  type: boolean
+                action:
+                  type: string
+                  enum: [cancel, restore]
+      responses:
+        '200':
+          description: Status updated
+
+  /proposals/{id}:
+    patch:
+      tags: [Proposals]
+      summary: Accept or reject proposal
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [ACCEPTED, REJECTED]
+      responses:
+        '200':
+          description: Proposal status updated
+        '404':
+          description: Proposal not found
+
+  /threads:
+    get:
+      tags: [Threads]
+      summary: List message threads
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Thread list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadListResponse'
+        '401':
+          description: Unauthorized
+
+  /threads/create:
+    post:
+      tags: [Threads]
+      summary: Create message thread
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [projectId]
+              properties:
+                projectId:
+                  type: string
+                freelancerId:
+                  type: string
+                  description: Required for employers
+      responses:
+        '200':
+          description: Thread created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  threadId:
+                    type: string
+        '429':
+          description: Rate limited
+
+  /threads/{id}/messages:
+    get:
+      tags: [Threads]
+      summary: Get thread messages
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+        '404':
+          description: Thread not found
+    post:
+      tags: [Threads]
+      summary: Send message
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Message sent
+        '429':
+          description: Rate limited
+
+  /threads/{id}/ack:
+    post:
+      tags: [Threads]
+      summary: Acknowledge messages
+      description: Mark messages as delivered or read
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messageIds:
+                  type: array
+                  items:
+                    type: string
+                read:
+                  type: boolean
+      responses:
+        '200':
+          description: Acknowledgment recorded
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            maximum: 50
+      responses:
+        '200':
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponse'
+
+  /notifications/mark-all-read:
+    post:
+      tags: [Notifications]
+      summary: Mark all as read
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: All notifications marked read
+
+  /notifications/{id}:
+    patch:
+      tags: [Notifications]
+      summary: Mark notification as read
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification marked read
+
+  /freelancers:
+    get:
+      tags: [Freelancers]
+      summary: List freelancers
+      description: Search freelancer directory
+      parameters:
+        - name: q
+          in: query
+          description: Search term
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/FreelancerCategory'
+        - name: minRate
+          in: query
+          schema:
+            type: integer
+        - name: maxRate
+          in: query
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [new, rate_asc, rate_desc]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            maximum: 50
+      responses:
+        '200':
+          description: Freelancer list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreelancerListResponse'
+
+  /reviews:
+    get:
+      tags: [Reviews]
+      summary: Get freelancer reviews
+      parameters:
+        - name: freelancerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: take
+          in: query
+          schema:
+            type: integer
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Reviews with stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+    post:
+      tags: [Reviews]
+      summary: Submit review
+      description: Employers can review freelancers after project completion
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReview'
+      responses:
+        '200':
+          description: Review submitted
+        '400':
+          description: Project not completed or already reviewed
+
+  /support/chat:
+    get:
+      tags: [Support]
+      summary: Get support chat
+      description: Works for authenticated users or visitors with token
+      parameters:
+        - name: threadId
+          in: query
+          schema:
+            type: string
+        - name: token
+          in: query
+          description: Visitor session token
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Support chat messages
+    post:
+      tags: [Support]
+      summary: Send support message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                threadId:
+                  type: string
+                token:
+                  type: string
+                body:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+      responses:
+        '200':
+          description: Message sent
+        '429':
+          description: Rate limited
+
+  /files/{id}:
+    get:
+      tags: [Threads]
+      summary: Download attachment
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File stream
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found
+
+  /admin/content:
+    post:
+      tags: [Admin]
+      summary: Update site content
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                locale:
+                  type: string
+                  enum: [ka, en, ru]
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: Content updated
+        '403':
+          description: Admin only
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: NextAuth.js session cookie
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        time:
+          type: string
+          format: date-time
+        uptimeSeconds:
+          type: integer
+        checks:
+          type: object
+          properties:
+            db:
+              type: object
+              properties:
+                ok:
+                  type: boolean
+                ms:
+                  type: integer
+            redis:
+              type: object
+              properties:
+                ok:
+                  type: boolean
+                configured:
+                  type: boolean
+                ms:
+                  type: integer
+
+    FreelancerCategory:
+      type: string
+      enum:
+        - IT_DEVELOPMENT
+        - DESIGN_CREATIVE
+        - MARKETING_CONTENT
+        - FINANCE
+        - LOGISTICS
+        - BUSINESS_ADMIN
+        - CONSTRUCTION
+        - TRANSPORT
+        - OTHER
+
+    RegisterFreelancer:
+      type: object
+      required: [role, category, name, personalId, birthDate, phone, email, password, confirmPassword]
+      properties:
+        role:
+          type: string
+          enum: [freelancer]
+        category:
+          $ref: '#/components/schemas/FreelancerCategory'
+        name:
+          type: string
+          minLength: 2
+        personalId:
+          type: string
+          pattern: '^\d{11}$'
+        birthDate:
+          type: string
+          format: date
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        confirmPassword:
+          type: string
+
+    RegisterEmployerIndividual:
+      type: object
+      required: [role, employerType, name, personalId, birthDate, phone, email, password, confirmPassword]
+      properties:
+        role:
+          type: string
+          enum: [employer]
+        employerType:
+          type: string
+          enum: [individual]
+        name:
+          type: string
+          minLength: 2
+        personalId:
+          type: string
+          pattern: '^\d{11}$'
+        birthDate:
+          type: string
+          format: date
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        confirmPassword:
+          type: string
+
+    RegisterEmployerCompany:
+      type: object
+      required: [role, employerType, companyName, companyId, phone, email, password, confirmPassword]
+      properties:
+        role:
+          type: string
+          enum: [employer]
+        employerType:
+          type: string
+          enum: [company]
+        companyName:
+          type: string
+          minLength: 2
+        companyId:
+          type: string
+          pattern: '^\d{9}$'
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        confirmPassword:
+          type: string
+
+    RegisterResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            role:
+              type: string
+        messageCode:
+          type: string
+          example: EMAIL_VERIFICATION_SENT
+
+    ProfileResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        profile:
+          type: object
+          properties:
+            id:
+              type: string
+            userId:
+              type: string
+            title:
+              type: string
+            bio:
+              type: string
+            skills:
+              type: array
+              items:
+                type: string
+            hourlyGEL:
+              type: number
+              nullable: true
+            updatedAt:
+              type: string
+              format: date-time
+
+    ProfileUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 2
+        bio:
+          type: string
+          minLength: 20
+          maxLength: 1000
+        skills:
+          type: string
+          description: Comma-separated skills
+        hourlyGEL:
+          type: number
+          nullable: true
+
+    CreateProject:
+      type: object
+      required: [title, description, category]
+      properties:
+        title:
+          type: string
+          minLength: 5
+        description:
+          type: string
+          minLength: 20
+        budgetGEL:
+          type: integer
+          minimum: 1
+        category:
+          $ref: '#/components/schemas/FreelancerCategory'
+
+    CreateProjectResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        project:
+          type: object
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+            category:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+
+    ProjectListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              category:
+                type: string
+                nullable: true
+              budgetGEL:
+                type: number
+                nullable: true
+              createdAt:
+                type: string
+                format: date-time
+              description:
+                type: string
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    CreateProposal:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 20
+        priceGEL:
+          type: integer
+          minimum: 1
+
+    ThreadListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              project:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+              employer:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+              freelancer:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+              lastMessage:
+                type: object
+                properties:
+                  body:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+              updatedAt:
+                type: string
+                format: date-time
+
+    MessageListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              body:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+              deliveredAt:
+                type: string
+                format: date-time
+                nullable: true
+              readAt:
+                type: string
+                format: date-time
+                nullable: true
+              sender:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+              attachments:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    originalName:
+                      type: string
+                    mimeType:
+                      type: string
+                    sizeBytes:
+                      type: integer
+
+    NotificationListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+              title:
+                type: string
+              body:
+                type: string
+              href:
+                type: string
+              readAt:
+                type: string
+                format: date-time
+                nullable: true
+              createdAt:
+                type: string
+                format: date-time
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        unreadCount:
+          type: integer
+
+    FreelancerListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              name:
+                type: string
+              title:
+                type: string
+              category:
+                type: string
+                nullable: true
+              bioExcerpt:
+                type: string
+              skills:
+                type: array
+                items:
+                  type: string
+              hourlyGEL:
+                type: number
+                nullable: true
+              updatedAt:
+                type: string
+                format: date-time
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    ReviewListResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        stats:
+          type: object
+          properties:
+            avgRating:
+              type: number
+              nullable: true
+            count:
+              type: integer
+        reviews:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              rating:
+                type: integer
+                minimum: 1
+                maximum: 5
+              comment:
+                type: string
+                nullable: true
+              createdAt:
+                type: string
+                format: date-time
+              reviewer:
+                type: object
+                properties:
+                  name:
+                    type: string
+              project:
+                type: object
+                properties:
+                  id:
+                    type: string
+
+    CreateReview:
+      type: object
+      required: [projectId, freelancerId, rating]
+      properties:
+        projectId:
+          type: string
+        freelancerId:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          maxLength: 1000

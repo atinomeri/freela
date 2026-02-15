@@ -13,3 +13,6 @@ data/
 dev.db
 dev.db-journal
 prisma/dev.db
+
+*storybook.log
+storybook-static

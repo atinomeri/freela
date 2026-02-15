@@ -1,6 +1,9 @@
 // Vitest setup file
 import { vi, afterEach } from "vitest";
 
+// Ensure NODE_ENV is set to "test"
+process.env.NODE_ENV = "test";
+
 // Mock environment variables for tests
 process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
 process.env.NEXTAUTH_SECRET = "test-secret-for-unit-tests";
