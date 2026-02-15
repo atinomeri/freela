@@ -320,21 +320,6 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <section className="border-b">
-        <Container className="py-16 sm:py-20">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("testimonials.title")}</h2>
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
-            {testimonials.map((it) => (
-              <Card key={it.name} className="p-6">
-                <p className="text-sm text-muted-foreground">&ldquo;{it.quote}&rdquo;</p>
-                <div className="mt-4 font-medium">{it.name}</div>
-                <div className="text-xs text-muted-foreground">{it.role}</div>
-              </Card>
-            ))}
-          </div>
-        </Container>
-      </section>
-
       <section>
         <Container className="py-12 sm:py-16">
           <div className="flex items-end justify-between gap-6">
