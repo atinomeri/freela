@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { isFreelancerCategory } from "@/lib/categories";
 import { cacheProjectListing, invalidateProjectListingCache } from "@/lib/cache";
+import { sendEmail, isEmailConfigured } from "@/lib/email";
+import { newProjectTemplate } from "@/lib/email-templates/new-project";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -159,6 +161,41 @@ export async function POST(req: Request) {
     });
 
     await invalidateProjectListingCache();
+
+    // Send email notifications to subscribed freelancers (async, non-blocking)
+    if (isEmailConfigured()) {
+      const baseUrl = process.env.NEXTAUTH_URL || "https://freela.ge";
+      const projectUrl = `${baseUrl}/projects/${project.id}`;
+
+      prisma.user
+        .findMany({
+          where: {
+            role: "FREELANCER",
+            projectEmailSubscribed: true,
+            isDisabled: false,
+            emailVerifiedAt: { not: null }
+          },
+          select: { email: true }
+        })
+        .then((subscribers) => {
+          for (const sub of subscribers) {
+            const { subject, text, html } = newProjectTemplate({
+              projectTitle: project.title,
+              projectUrl
+            });
+            sendEmail({ to: sub.email, subject, text, html }).catch((err) => {
+              if (process.env.NODE_ENV !== "production") {
+                console.error("[projects] failed to send subscription email", err);
+              }
+            });
+          }
+        })
+        .catch((err) => {
+          if (process.env.NODE_ENV !== "production") {
+            console.error("[projects] failed to fetch subscribers", err);
+          }
+        });
+    }
 
     return NextResponse.json({ ok: true, project }, { status: 200 });
   } catch (err) {

@@ -62,6 +62,7 @@ model User {
   isDisabled   Boolean  @default(false)
   disabledAt   DateTime?
   disabledReason String?
+  projectEmailSubscribed Boolean @default(false)
 
   phone       String?
   personalId  String?   @unique

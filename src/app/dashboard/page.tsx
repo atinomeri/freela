@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { ProjectSubscriptionToggle } from "@/app/dashboard/project-subscription-toggle";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboardHome");
@@ -41,12 +42,15 @@ export default async function DashboardPage() {
   const isFreelancer = session.user.role === "FREELANCER";
   const isAdmin = session.user.role === "ADMIN";
 
-  const [unreadCount, employerProjectsCount, employerAcceptedProposalsCount] = await Promise.all([
+  const [unreadCount, employerProjectsCount, employerAcceptedProposalsCount, freelancerSubscribed] = await Promise.all([
     prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
     isEmployer ? prisma.project.count({ where: { employerId: session.user.id } }) : Promise.resolve(0),
     isEmployer
       ? prisma.proposal.count({ where: { status: "ACCEPTED", project: { employerId: session.user.id } } })
-      : Promise.resolve(0)
+      : Promise.resolve(0),
+    isFreelancer
+      ? prisma.user.findUnique({ where: { id: session.user.id }, select: { projectEmailSubscribed: true } }).then((u) => u?.projectEmailSubscribed ?? false)
+      : Promise.resolve(false)
   ]);
 
   return (
@@ -99,6 +103,14 @@ export default async function DashboardPage() {
           {isAdmin ? <ActionLink href="/admin">{t("actions.admin")}</ActionLink> : null}
         </div>
       </Card>
+
+      {isFreelancer ? (
+        <Card className="mt-4 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
+          <div className="text-sm font-semibold mb-3">{t("subscription.title")}</div>
+          <ProjectSubscriptionToggle initial={freelancerSubscribed} />
+          <p className="mt-2 text-xs text-muted-foreground">{t("subscription.hint")}</p>
+        </Card>
+      ) : null}
     </Container>
   );
 }

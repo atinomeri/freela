@@ -541,6 +541,11 @@
       "chat": "Chat",
       "notifications": "Notifications",
       "admin": "Admin panel"
+    },
+    "subscription": {
+      "title": "Order subscription",
+      "label": "Receive notifications about new orders",
+      "hint": "You will receive an email when a new order is posted."
     }
   },
   "dashboardProjects": {
