@@ -12,27 +12,50 @@
 
 :root {
   color-scheme: light;
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
+  /* Design system: SaaS / FinTech minimal palette */
+  --ds-primary: 225 84% 56%;
+  --ds-dark: 222 47% 11%;
+  --ds-accent: 186 85% 42%;
+  --ds-background: 0 0% 100%;
+
+  /* Typography scale */
+  --font-size-h1: clamp(2.125rem, 1.5rem + 2.2vw, 3.25rem);
+  --font-size-h2: clamp(1.625rem, 1.25rem + 1.35vw, 2.375rem);
+  --font-size-h3: clamp(1.25rem, 1.1rem + 0.85vw, 1.75rem);
+  --font-size-body: 1rem;
+  --font-size-small: 0.875rem;
+  --line-height-heading: 1.18;
+  --line-height-body: 1.68;
+
+  /* Spacing system (8px grid) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+
+  --background: var(--ds-background);
+  --foreground: var(--ds-dark);
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
+  --card-foreground: var(--ds-dark);
+  --muted: 220 18% 97%;
   --muted-foreground: 215 16% 47%;
-  --primary: 231 90% 60%;
+  --primary: var(--ds-primary);
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+  --secondary: 220 18% 97%;
+  --secondary-foreground: var(--ds-dark);
+  --accent: var(--ds-accent);
+  --accent-foreground: 0 0% 100%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --success: 142 76% 36%;
   --success-foreground: 0 0% 100%;
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
-  --ring: 231 90% 60%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
+  --ring: var(--ds-primary);
+  --border: 220 16% 94%;
+  --input: 220 16% 94%;
   --radius: 12px;
   
   /* Toast colors */
@@ -42,25 +65,30 @@
 
 .dark {
   color-scheme: dark;
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 8%;
+  --ds-primary: 225 90% 66%;
+  --ds-dark: 210 40% 98%;
+  --ds-accent: 186 88% 48%;
+  --ds-background: 222 47% 7%;
+
+  --background: var(--ds-background);
+  --foreground: var(--ds-dark);
+  --card: 222 47% 9%;
   --card-foreground: 210 40% 98%;
   --muted: 217 33% 17%;
   --muted-foreground: 215 20% 65%;
-  --primary: 231 90% 65%;
+  --primary: var(--ds-primary);
   --primary-foreground: 0 0% 100%;
   --secondary: 217 33% 17%;
   --secondary-foreground: 210 40% 98%;
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
+  --accent: var(--ds-accent);
+  --accent-foreground: 222 47% 8%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
   --success: 142 70% 45%;
   --success-foreground: 0 0% 100%;
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 100%;
-  --ring: 231 90% 65%;
+  --ring: var(--ds-primary);
   --border: 217 33% 20%;
   --input: 217 33% 20%;
   
@@ -76,26 +104,80 @@ body {
   overscroll-behavior-y: none;
 }
 
+@layer base {
+  html {
+    font-family: var(--font-inter), var(--font-georgian), "Segoe UI", Arial, sans-serif;
+  }
+
+  h1 {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-heading);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  h2 {
+    font-size: var(--font-size-h2);
+    line-height: var(--line-height-heading);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: var(--font-size-h3);
+    line-height: var(--line-height-heading);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: hsl(var(--foreground));
+  }
+
+  body {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    background: hsl(var(--background));
+  }
+
+  p,
+  li {
+    color: hsl(var(--foreground) / 0.86);
+  }
+
+  p,
+  li,
+  input,
+  textarea,
+  select,
+  button {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+  }
+
+  small {
+    font-size: var(--font-size-small);
+    line-height: 1.45;
+  }
+}
+
 body {
-  background-image: radial-gradient(
-      900px circle at 50% -10%,
-      hsl(var(--primary) / 0.12),
-      transparent 45%
-    ),
-    linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  background-image: none;
   color: hsl(var(--foreground));
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-kerning: normal;
+  letter-spacing: 0;
 }
 
 .dark body {
-  background-image: radial-gradient(
-      900px circle at 50% -10%,
-      hsl(var(--primary) / 0.08),
-      transparent 45%
-    ),
-    linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  background-image: none;
 }
 
 ::selection {
@@ -305,24 +387,24 @@ body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   user-select: none;
-  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  transition: transform 0.24s ease-out, box-shadow 0.24s ease-out, background-color 0.24s ease-out, opacity 0.24s ease-out;
 }
 
 .btn-haptic:active {
-  transform: scale(0.96);
-  opacity: 0.9;
+  transform: scale(0.985);
+  opacity: 0.96;
 }
 
 /* Card touch feedback */
 .card-touch {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+  transition: transform 0.28s ease-out, box-shadow 0.28s ease-out;
 }
 
 .card-touch:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transform: scale(0.992);
+  box-shadow: 0 8px 20px hsl(var(--foreground) / 0.08);
 }
 
 /* Prevent text selection on interactive elements */
@@ -375,5 +457,10 @@ body {
   .btn-haptic:active,
   .card-touch:active {
     transform: none !important;
+  }
+
+  .btn-haptic,
+  .card-touch {
+    transition: none !important;
   }
 }

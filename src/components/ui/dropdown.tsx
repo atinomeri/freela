@@ -101,8 +101,8 @@ export function DropdownTrigger({
       type="button"
       onClick={() => setIsOpen(!isOpen)}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm",
-        "transition-all duration-200 hover:bg-muted",
+        "inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card px-4 py-2 text-sm font-medium",
+        "shadow-sm transition-all duration-250 hover:bg-muted/55",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
         className
       )}
@@ -143,7 +143,7 @@ export function DropdownContent({
   return (
     <div
       className={cn(
-        "absolute top-full z-50 mt-1 min-w-[180px] overflow-hidden rounded-lg border border-border bg-background shadow-lg",
+        "absolute top-full z-50 mt-2 min-w-[180px] overflow-hidden rounded-xl border border-border/70 bg-card shadow-soft",
         "animate-fade-in",
         alignClasses[align],
         className
@@ -188,11 +188,11 @@ export function DropdownItem({
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        "flex w-full items-center gap-2 px-3 py-2 text-left text-sm",
-        "transition-colors duration-150",
+        "flex w-full items-center gap-2 px-4 py-2 text-left text-sm",
+        "transition-colors duration-200",
         disabled
           ? "cursor-not-allowed opacity-50"
-          : "hover:bg-muted",
+          : "hover:bg-muted/65",
         destructive && "text-destructive hover:bg-destructive/10",
         className
       )}
@@ -219,7 +219,7 @@ export function DropdownLabel({
   return (
     <div
       className={cn(
-        "px-3 py-1.5 text-xs font-semibold text-muted-foreground",
+        "px-4 py-2 text-xs font-semibold text-muted-foreground",
         className
       )}
     >

@@ -7,7 +7,22 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-georgian)", "var(--font-inter)", ...defaultTheme.fontFamily.sans]
+        sans: ["var(--font-inter)", "var(--font-georgian)", ...defaultTheme.fontFamily.sans]
+      },
+      fontSize: {
+        h1: ["var(--font-size-h1)", { lineHeight: "var(--line-height-heading)", letterSpacing: "-0.025em", fontWeight: "800" }],
+        h2: ["var(--font-size-h2)", { lineHeight: "var(--line-height-heading)", letterSpacing: "-0.02em", fontWeight: "700" }],
+        h3: ["var(--font-size-h3)", { lineHeight: "var(--line-height-heading)", letterSpacing: "-0.015em", fontWeight: "600" }],
+        body: ["var(--font-size-body)", { lineHeight: "var(--line-height-body)", fontWeight: "400" }],
+        small: ["var(--font-size-small)", { lineHeight: "1.45", fontWeight: "400" }]
+      },
+      spacing: {
+        s1: "var(--space-1)",
+        s2: "var(--space-2)",
+        s3: "var(--space-3)",
+        s4: "var(--space-4)",
+        s6: "var(--space-6)",
+        s8: "var(--space-8)"
       },
       colors: {
         background: "hsl(var(--background))",
@@ -39,8 +54,8 @@ export default {
         sm: "calc(var(--radius) - 6px)"
       },
       boxShadow: {
-        soft: "0 10px 30px rgba(0,0,0,.08)",
-        "soft-lg": "0 15px 40px rgba(0,0,0,.12)",
+        soft: "0 8px 24px rgba(15, 23, 42, 0.08)",
+        "soft-lg": "0 14px 36px rgba(15, 23, 42, 0.12)",
         glow: "0 0 20px hsl(var(--primary) / 0.3)",
         "glow-sm": "0 0 10px hsl(var(--primary) / 0.2)"
       },

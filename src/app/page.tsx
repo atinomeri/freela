@@ -30,21 +30,6 @@ import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
 import { prisma } from "@/lib/prisma";
 
-const titleHighlightTerms: Record<string, string[]> = {
-  ka: ["ფრილანსერი", "შეკვეთა"],
-  en: ["freelancer", "order"],
-  ru: [
-    "\u0444\u0440\u0438\u043b\u0430\u043d\u0441\u0435\u0440\u0430",
-    "\u0444\u0440\u0438\u043b\u0430\u043d\u0441\u0435\u0440",
-    "\u0437\u0430\u043a\u0430\u0437",
-    "\u0437\u0430\u043a\u0430\u0437\u044b",
-    "\u0437\u0430\u043a\u0430\u0437\u0430"
-  ]
-};
-
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 
 function toStars(rating: number) {
   const safe = Math.max(1, Math.min(5, Math.round(rating)));
@@ -55,25 +40,6 @@ function toShortText(value: string, max = 220) {
   const text = value.trim();
   if (text.length <= max) return text;
   return `${text.slice(0, max - 1).trim()}…`;
-}
-
-function renderHighlightedHomeTitle(title: string, locale: string) {
-  const terms = (titleHighlightTerms[locale] ?? titleHighlightTerms.en).slice().sort((a, b) => b.length - a.length);
-  const matcher = new RegExp(`(${terms.map(escapeRegExp).join("|")})`, "giu");
-  const normalizedTerms = new Set(terms.map((term) => term.toLocaleLowerCase(locale)));
-
-  return title.split(matcher).map((part, index) => {
-    if (!part) return null;
-    const normalized = part.toLocaleLowerCase(locale);
-    if (normalizedTerms.has(normalized)) {
-      return (
-        <span key={`h-${index}`} className="text-success drop-shadow-[0_0_10px_hsl(var(--success)/0.35)]">
-          {part}
-        </span>
-      );
-    }
-    return <span key={`n-${index}`}>{part}</span>;
-  });
 }
 
 export default async function HomePage() {
@@ -154,37 +120,24 @@ export default async function HomePage() {
   return (
     <>
       <section className="relative overflow-hidden border-b">
-        <div className="hero-mesh absolute inset-0 -z-20" />
-        <div className="hero-pattern absolute inset-0 -z-10" />
-        <div className="pointer-events-none absolute -left-20 top-8 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-success/15 blur-3xl" />
-
-        <Container className="py-14 sm:py-20 lg:py-24">
-          <div className="mx-auto w-full max-w-5xl text-center">
-            <Badge className="inline-flex animate-fade-in items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" />
-              {t("badge")}
-            </Badge>
-            <h1 className="mt-6 animate-fade-in text-4xl font-bold leading-tight tracking-tight sm:text-[2.9rem] md:text-[3.2rem] lg:text-[3.35rem]" style={{ animationDelay: "100ms" }}>
-              {renderHighlightedHomeTitle(homeTitle, locale)}
+        <Container className="py-16 sm:py-20 lg:py-24">
+          <div className="mx-auto w-full max-w-4xl text-center">
+            <h1 className="mx-auto max-w-3xl animate-fade-in text-balance text-h1" style={{ animationDelay: "80ms" }}>
+              {homeTitle}
             </h1>
-            <p className="mx-auto mt-6 max-w-3xl animate-fade-in text-balance text-base text-muted-foreground sm:text-lg md:text-[1.1rem]" style={{ animationDelay: "200ms" }}>
+            <p className="mx-auto mt-6 max-w-2xl animate-fade-in text-body text-muted-foreground" style={{ animationDelay: "160ms" }}>
               {t("subtitle", { siteName: site.name })}
             </p>
 
-            <div className="mt-10 flex animate-fade-in flex-col gap-4 sm:flex-row sm:justify-center" style={{ animationDelay: "300ms" }}>
-              <ButtonLink href="/projects" size="lg" className="group gap-2 rounded-xl bg-primary px-8 shadow-xl shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-2xl hover:shadow-primary/35">
-                {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </ButtonLink>
-              <ButtonLink href="/freelancers" size="lg" variant="ghost" className="rounded-xl border border-border/70 bg-background/45 px-8 text-foreground/85 hover:border-primary/30 hover:bg-background/80">
-                {t("cta.findFreelancer")}
+            <div className="mt-8 flex animate-fade-in justify-center" style={{ animationDelay: "240ms" }}>
+              <ButtonLink href="/projects" size="lg" className="group gap-2">
+                {t("cta.findProject")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </ButtonLink>
             </div>
 
-            <div className="mx-auto mt-8 grid max-w-4xl animate-fade-in grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
+            <div className="mx-auto mt-8 grid max-w-4xl animate-fade-in grid-cols-1 gap-4 sm:grid-cols-3" style={{ animationDelay: "320ms" }}>
               {stats.map((s) => (
-                <Card key={s.label} className="group relative overflow-hidden border-border/60 bg-card/70 p-4 text-center backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:shadow-lg">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <Card key={s.label} className="p-4 text-center">
                   <div className="relative flex flex-col items-center justify-center">
                     {s.kind === "logo" ? (
                       <div className="flex items-center justify-center py-0.5 text-primary/90">
@@ -205,7 +158,7 @@ export default async function HomePage() {
                     ) : (
                       <div className="text-3xl font-bold text-primary/90">{s.value}</div>
                     )}
-                    {s.label ? <div className="mt-1 text-sm text-muted-foreground">{s.label}</div> : null}
+                    {s.label ? <div className="mt-2 text-sm text-muted-foreground">{s.label}</div> : null}
                   </div>
                 </Card>
               ))}

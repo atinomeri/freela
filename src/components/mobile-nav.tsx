@@ -52,7 +52,7 @@ function MobileNavInner({ items, pathname, t, tAuth, session, sessionStatus }: M
     <div className="md:hidden">
       <button
         type="button"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background/70 text-sm text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-background"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-card text-sm text-foreground shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:bg-muted/55"
         aria-label={t("menu")}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -91,7 +91,7 @@ function MobileNavInner({ items, pathname, t, tAuth, session, sessionStatus }: M
             <div className="text-sm font-semibold">{t("menu")}</div>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background/70 text-sm shadow-sm transition-colors hover:bg-background"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-card text-sm shadow-sm transition-all duration-250 hover:-translate-y-0.5 hover:bg-muted/55"
               aria-label={t("close")}
               onClick={() => setOpen(false)}
             >

@@ -13,29 +13,29 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       return (
         <div className="relative">
           {leftIcon && (
-            <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
               {leftIcon}
             </div>
           )}
           <input
             ref={ref}
             className={cn(
-              "h-11 w-full rounded-lg border bg-background/70 text-sm",
+              "h-11 w-full rounded-lg border bg-background/80 text-sm",
               "outline-none transition-all duration-200",
               "placeholder:text-muted-foreground/70",
-              "focus-visible:ring-2 focus-visible:ring-ring/30",
+              "focus-visible:border-ring/50 focus-visible:ring-2 focus-visible:ring-ring/30",
               "disabled:cursor-not-allowed disabled:opacity-60",
               error
                 ? "border-destructive focus-visible:ring-destructive/30"
-                : "border-border",
-              leftIcon ? "pl-10" : "px-3",
-              rightIcon ? "pr-10" : "px-3",
+                : "border-border/80 hover:border-border",
+              leftIcon ? "pl-12" : "px-4",
+              rightIcon ? "pr-12" : "px-4",
               className
             )}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
               {rightIcon}
             </div>
           )}
@@ -47,14 +47,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         className={cn(
-          "h-11 w-full rounded-lg border bg-background/70 px-3 text-sm",
+          "h-11 w-full rounded-lg border bg-background/80 px-4 text-sm",
           "outline-none transition-all duration-200",
           "placeholder:text-muted-foreground/70",
-          "focus-visible:ring-2 focus-visible:ring-ring/30",
+          "focus-visible:border-ring/50 focus-visible:ring-2 focus-visible:ring-ring/30",
           "disabled:cursor-not-allowed disabled:opacity-60",
           error
             ? "border-destructive focus-visible:ring-destructive/30"
-            : "border-border",
+            : "border-border/80 hover:border-border",
           className
         )}
         {...props}

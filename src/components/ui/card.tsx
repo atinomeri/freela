@@ -9,8 +9,8 @@ export function Card({ className, hover = true, clickable = false, ...props }: C
   return (
     <div
       className={cn(
-        "rounded-xl border border-border/70 bg-card/80 text-card-foreground shadow-sm backdrop-blur-sm transition-all duration-200",
-        hover && "hover:shadow-soft hover:border-border",
+        "rounded-2xl bg-card text-card-foreground shadow-soft transition-all duration-300 ease-out will-change-transform",
+        hover && "hover:-translate-y-0.5 hover:shadow-soft-lg",
         clickable && "cursor-pointer card-touch",
         className
       )}
@@ -64,12 +64,12 @@ export function GradientCard({ className, ...props }: React.HTMLAttributes<HTMLD
   return (
     <div
       className={cn(
-        "rounded-xl bg-gradient-to-br from-primary/10 via-transparent to-transparent p-[1px]",
+        "rounded-2xl bg-gradient-to-br from-primary/8 via-transparent to-transparent p-[1px]",
         className
       )}
     >
       <div
-        className="h-full w-full rounded-[11px] bg-card p-6"
+        className="h-full w-full rounded-[15px] bg-card p-6 shadow-soft"
         {...props}
       />
     </div>
@@ -81,8 +81,8 @@ export function GlowCard({ className, ...props }: React.HTMLAttributes<HTMLDivEl
   return (
     <div
       className={cn(
-        "group relative rounded-xl border border-border/70 bg-card/80 p-6 text-card-foreground shadow-sm backdrop-blur-sm transition-all duration-300",
-        "hover:border-primary/50 hover:shadow-glow-sm",
+        "group relative rounded-2xl bg-card p-6 text-card-foreground shadow-soft transition-all duration-300 ease-out will-change-transform",
+        "hover:shadow-soft-lg",
         className
       )}
       {...props}

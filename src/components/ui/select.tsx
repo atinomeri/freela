@@ -112,13 +112,13 @@ export function Select({
         onKeyDown={handleKeyDown}
         disabled={disabled}
         className={cn(
-          "flex h-11 w-full items-center justify-between rounded-lg border bg-background/70 px-3 text-sm transition-all",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
+          "flex h-11 w-full items-center justify-between rounded-lg border bg-background/80 px-4 text-sm transition-all",
+          "focus-visible:outline-none focus-visible:border-ring/50 focus-visible:ring-2 focus-visible:ring-ring/30",
           error
             ? "border-destructive"
             : isOpen
             ? "border-ring/50 ring-2 ring-ring/30"
-            : "border-border hover:border-border/80",
+            : "border-border/80 hover:border-border",
           disabled && "cursor-not-allowed opacity-60"
         )}
         aria-haspopup="listbox"
@@ -138,7 +138,7 @@ export function Select({
       {isOpen && (
         <ul
           ref={listRef}
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card py-1 shadow-lg"
+          className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-lg border border-border/80 bg-card/95 py-2 shadow-lg backdrop-blur-sm"
           role="listbox"
         >
           {options.map((option, index) => (
@@ -154,7 +154,7 @@ export function Select({
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
               className={cn(
-                "flex cursor-pointer items-center justify-between px-3 py-2 text-sm",
+                "flex cursor-pointer items-center justify-between px-4 py-2 text-sm",
                 index === highlightedIndex && "bg-muted",
                 option.disabled && "cursor-not-allowed opacity-50",
                 value === option.value && "font-medium"
@@ -235,9 +235,9 @@ export function MultiSelect({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={cn(
-          "flex h-11 w-full items-center justify-between rounded-lg border bg-background/70 px-3 text-sm transition-all",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
-          isOpen ? "border-ring/50 ring-2 ring-ring/30" : "border-border hover:border-border/80",
+          "flex h-11 w-full items-center justify-between rounded-lg border bg-background/80 px-4 text-sm transition-all",
+          "focus-visible:outline-none focus-visible:border-ring/50 focus-visible:ring-2 focus-visible:ring-ring/30",
+          isOpen ? "border-ring/50 ring-2 ring-ring/30" : "border-border/80 hover:border-border",
           disabled && "cursor-not-allowed opacity-60"
         )}
       >
@@ -253,13 +253,13 @@ export function MultiSelect({
       </button>
 
       {isOpen && (
-        <ul className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card py-1 shadow-lg">
+        <ul className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-lg border border-border/80 bg-card/95 py-2 shadow-lg backdrop-blur-sm">
           {options.map((option) => (
             <li
               key={option.value}
               onClick={() => !option.disabled && toggleOption(option.value)}
               className={cn(
-                "flex cursor-pointer items-center gap-2 px-3 py-2 text-sm hover:bg-muted",
+                "flex cursor-pointer items-center gap-2 px-4 py-2 text-sm hover:bg-muted",
                 option.disabled && "cursor-not-allowed opacity-50"
               )}
             >

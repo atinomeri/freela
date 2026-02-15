@@ -82,7 +82,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   try {
     const key = "freela-theme";
     const stored = window.localStorage.getItem(key);
-    const theme = stored === "light" || stored === "dark" ? stored : "dark";
+    const theme = stored === "light" || stored === "dark" ? stored : "light";
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
@@ -91,14 +91,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 `.trim();
 
   return (
-    <html lang={locale} className={`${inter.variable} ${georgian.variable} dark`} suppressHydrationWarning>
+    <html lang={locale} className={`${inter.variable} ${georgian.variable} light`} suppressHydrationWarning>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5c6cf9" />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-dvh font-sans antialiased">
-        <ThemeProvider defaultTheme="dark">
+        <ThemeProvider defaultTheme="light">
           <NextIntlClientProvider locale={locale} messages={messages}>
             <AuthSessionProvider>
               <ToastProvider>

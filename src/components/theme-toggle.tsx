@@ -11,18 +11,18 @@ export function ThemeToggle({ className }: { className?: string }) {
     <button
       onClick={toggleTheme}
       className={cn(
-        "relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background/70",
-        "text-muted-foreground shadow-sm backdrop-blur-sm transition-colors",
-        "hover:bg-background hover:text-foreground",
+        "relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-card",
+        "text-muted-foreground shadow-sm transition-all duration-250",
+        "hover:-translate-y-0.5 hover:bg-muted/55 hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
         className
       )}
       title={theme === "light" ? "მუქი თემა" : "ნათელი თემა"}
     >
       {theme === "dark" ? (
-        <Sun className="h-[18px] w-[18px]" />
+        <Sun className="h-4 w-4" />
       ) : (
-        <Moon className="h-[18px] w-[18px]" />
+        <Moon className="h-4 w-4" />
       )}
       <span className="sr-only">თემის შეცვლა</span>
     </button>

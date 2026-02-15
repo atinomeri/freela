@@ -21,17 +21,17 @@ interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const variantClasses: Record<BadgeVariant, string> = {
   default: "bg-primary/10 text-primary border-primary/20",
-  secondary: "bg-secondary text-secondary-foreground border-border/70",
+  secondary: "bg-muted/65 text-secondary-foreground border-border/70",
   success: "bg-success/10 text-success border-success/20",
   warning: "bg-warning/10 text-warning border-warning/20",
   destructive: "bg-destructive/10 text-destructive border-destructive/20",
-  outline: "border border-border bg-transparent text-foreground",
+  outline: "border border-border/70 bg-transparent text-foreground",
 };
 
 const sizeClasses = {
-  sm: "text-[10px] px-1.5 py-0.5",
-  md: "text-xs px-2.5 py-0.5",
-  lg: "text-sm px-3 py-1",
+  sm: "text-[11px] px-2 py-1",
+  md: "text-xs px-3 py-1",
+  lg: "text-sm px-4 py-2",
 };
 
 export function Badge({
@@ -47,8 +47,8 @@ export function Badge({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border font-medium",
-        "transition-all duration-200",
+        "inline-flex items-center gap-2 rounded-full border font-medium",
+        "transition-colors duration-250",
         variantClasses[variant],
         sizeClasses[size],
         className
