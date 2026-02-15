@@ -16,8 +16,7 @@ export async function SiteFooter() {
   const platformLinks = [
     { href: "/projects", label: tNav("projects") },
     { href: "/freelancers", label: tNav("freelancers") },
-    { href: "/guide", label: guideLabelByLocale[locale] ?? "Guide" },
-    { href: "/pricing", label: tNav("pricing") }
+    { href: "/guide", label: guideLabelByLocale[locale] ?? "Guide" }
   ] as const;
   
   const companyLinks = [
