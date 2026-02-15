@@ -16,3 +16,10 @@ prisma/dev.db
 
 *storybook.log
 storybook-static
+# Test outputs
+coverage/
+playwright-report/
+test-results/
+
+# Storybook examples (auto-generated)
+src/stories/
