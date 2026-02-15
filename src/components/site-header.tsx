@@ -34,9 +34,6 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-8">
         <Link href="/" className="flex items-center gap-4">
           <BrandLogo priority />
-          <span className="hidden text-sm font-medium text-muted-foreground lg:inline">
-            {t("projects")} · {t("freelancers")}
-          </span>
         </Link>
 
         <nav className="hidden items-center gap-2 rounded-2xl bg-card p-2 shadow-soft md:flex">
