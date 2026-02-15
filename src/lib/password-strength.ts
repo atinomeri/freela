@@ -1,5 +1,5 @@
 import "server-only";
-import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
+import zxcvbn from "zxcvbn";
 
 // Custom dictionary for Georgian/common terms
 const customDictionary = {
@@ -18,8 +18,6 @@ const customDictionary = {
     "password123",
   ],
 };
-
-zxcvbnOptions.setOptions({ dictionary: customDictionary });
 
 export type PasswordStrengthResult = {
   score: 0 | 1 | 2 | 3 | 4; // 0 = very weak, 4 = very strong
@@ -51,7 +49,7 @@ export function validatePasswordStrength(password: string): PasswordStrengthResu
     };
   }
 
-  const result = zxcvbn(password);
+  const result = zxcvbn(password, Object.values(customDictionary).flat());
 
   const feedbackMessages: Record<number, string> = {
     0: "Very weak password",
@@ -82,7 +80,7 @@ export function isPasswordStrong(password: string): boolean {
  * Get human-readable password strength level
  */
 export function getPasswordStrengthLevel(password: string): "very-weak" | "weak" | "fair" | "strong" | "very-strong" {
-  const result = zxcvbn(password);
+  const result = zxcvbn(password, Object.values(customDictionary).flat());
   const levels = ["very-weak", "weak", "fair", "strong", "very-strong"] as const;
   return levels[result.score] ?? "very-weak";
 }
