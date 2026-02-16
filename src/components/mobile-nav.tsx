@@ -68,7 +68,7 @@ function MobileNavInner({ items, pathname, t, tAuth, session, sessionStatus }: M
       <div
         className={cn(
           "fixed inset-0 z-50 transition-opacity",
-          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          open ? "pointer-events-auto opacity-100 visible" : "pointer-events-none opacity-0 invisible"
         )}
         aria-hidden={!open}
       >

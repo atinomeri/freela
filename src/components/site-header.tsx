@@ -1,16 +1,24 @@
 import { AuthButtons } from "@/components/auth/auth-buttons";
-import { RealtimeNotificationLink } from "@/components/notifications/realtime-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
 import { getServerSession } from "next-auth";
-import { MobileNav } from "@/components/mobile-nav";
 import { getTranslations } from "next-intl/server";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Link } from "@/i18n/navigation";
 import { getUnlistedPaths } from "@/lib/site-pages";
 import { BrandLogo } from "@/components/brand-logo";
+import dynamic from "next/dynamic";
+
+const MobileNav = dynamic(() => import("@/components/mobile-nav").then((m) => m.MobileNav), {
+  ssr: false
+});
+
+const RealtimeNotificationLink = dynamic(
+  () => import("@/components/notifications/realtime-badge").then((m) => m.RealtimeNotificationLink),
+  { ssr: false }
+);
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");

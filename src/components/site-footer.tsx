@@ -51,13 +51,13 @@ export async function SiteFooter() {
               {tSite("description")}
             </p>
             <div className="mt-4 flex items-center gap-3">
-              <a href="#" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <a href="#" aria-label="Twitter" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                 <Twitter className="h-4 w-4" />
               </a>
-              <a href="#" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <a href="#" aria-label="LinkedIn" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                 <Linkedin className="h-4 w-4" />
               </a>
-              <a href="#" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+              <a href="#" aria-label="GitHub" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                 <Github className="h-4 w-4" />
               </a>
             </div>
