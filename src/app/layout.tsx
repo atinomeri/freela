@@ -1,6 +1,5 @@
 ﻿import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Georgian } from "next/font/google";
-import dynamic from "next/dynamic";
 import "./globals.css";
 import { AuthSessionProvider } from "@/components/auth/session-provider";
 import { PageTransition } from "@/components/page-transition";
@@ -8,13 +7,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
+import { LazyChatbox } from "@/components/lazy-chatbox";
 import { site } from "@/lib/site";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
-
-const Chatbox = dynamic(() => import("@/components/chatbox").then((m) => m.Chatbox), {
-  ssr: false
-});
 
 export const runtime = "nodejs";
 
@@ -113,7 +109,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   </main>
                   <SiteFooter />
                 </div>
-                <Chatbox />
+                <LazyChatbox />
               </ToastProvider>
             </AuthSessionProvider>
           </NextIntlClientProvider>

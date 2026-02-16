@@ -9,16 +9,8 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Link } from "@/i18n/navigation";
 import { getUnlistedPaths } from "@/lib/site-pages";
 import { BrandLogo } from "@/components/brand-logo";
-import dynamic from "next/dynamic";
-
-const MobileNav = dynamic(() => import("@/components/mobile-nav").then((m) => m.MobileNav), {
-  ssr: false
-});
-
-const RealtimeNotificationLink = dynamic(
-  () => import("@/components/notifications/realtime-badge").then((m) => m.RealtimeNotificationLink),
-  { ssr: false }
-);
+import { LazyMobileNav } from "@/components/lazy-mobile-nav";
+import { LazyRealtimeNotificationLink } from "@/components/lazy-realtime-notification-link";
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");
@@ -59,10 +51,10 @@ export async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 rounded-2xl bg-card px-2 py-2 shadow-soft">
-          <MobileNav items={nav} />
+          <LazyMobileNav items={nav} />
           <ThemeToggle />
           <LocaleSwitcher />
-          {session?.user ? <RealtimeNotificationLink initialCount={unreadCount} /> : null}
+          {session?.user ? <LazyRealtimeNotificationLink initialCount={unreadCount} /> : null}
           <AuthButtons />
         </div>
       </div>
