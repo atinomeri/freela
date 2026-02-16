@@ -8,7 +8,6 @@ import {
   MessageSquare,
   Rocket,
   Search,
-  ShieldCheck,
   Sparkles,
   Wallet
 } from "lucide-react";
@@ -29,8 +28,6 @@ type GuideCopy = {
   employerSubtitle: string;
   freelancerTitle: string;
   freelancerSubtitle: string;
-  matrixTitle: string;
-  matrixSubtitle: string;
   ctaTitle: string;
   ctaSubtitle: string;
   ctaEmployer: string;
@@ -47,8 +44,6 @@ const copyByLocale: Record<string, GuideCopy> = {
     employerSubtitle: "როგორ იპოვო სწორი სპეციალისტი სწრაფად და კონტროლირებადად.",
     freelancerTitle: "ფრილანსერის გზა",
     freelancerSubtitle: "როგორ მიიღო მეტი შეკვეთა და ააშენო ძლიერი რეპუტაცია პლატფორმაზე.",
-    matrixTitle: "შესაძლებლობების მატრიცა",
-    matrixSubtitle: "რა ინსტრუმენტს როდის იყენებ და ვის ეხმარება ყველაზე მეტად.",
     ctaTitle: "მზად ხარ დასაწყებად?",
     ctaSubtitle: "აირჩიე შენი როლი და იმოქმედე დღესვე.",
     ctaEmployer: "დავდებ შეკვეთას",
@@ -63,8 +58,6 @@ const copyByLocale: Record<string, GuideCopy> = {
     employerSubtitle: "How to find the right specialist quickly and with clear control.",
     freelancerTitle: "Freelancer Journey",
     freelancerSubtitle: "How to get more projects and build stronger platform reputation.",
-    matrixTitle: "Capabilities Matrix",
-    matrixSubtitle: "Which tools to use, when to use them, and who benefits most.",
     ctaTitle: "Ready to start?",
     ctaSubtitle: "Pick your role and take action today.",
     ctaEmployer: "Post a project",
@@ -79,8 +72,6 @@ const copyByLocale: Record<string, GuideCopy> = {
     employerSubtitle: "Как быстро найти подходящего специалиста и держать процесс под контролем.",
     freelancerTitle: "Путь фрилансера",
     freelancerSubtitle: "Как получать больше проектов и укреплять репутацию на платформе.",
-    matrixTitle: "Матрица возможностей",
-    matrixSubtitle: "Какие инструменты использовать, когда и кому они полезнее всего.",
     ctaTitle: "Готовы начать?",
     ctaSubtitle: "Выберите свою роль и начните уже сегодня.",
     ctaEmployer: "Опубликовать проект",
@@ -232,130 +223,6 @@ const freelancerStepsByLocale: Record<string, Step[]> = {
   ]
 };
 
-type Capability = {
-  title: string;
-  description: string;
-  audience: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
-
-const capabilitiesByLocale: Record<string, Capability[]> = {
-  ka: [
-    {
-      title: "შეკვეთების კატალოგი",
-      description: "სწრაფი ფილტრაცია კატეგორიით, ბიუჯეტით და მოთხოვნებით.",
-      audience: "ორივესთვის",
-      icon: Search
-    },
-    {
-      title: "პროფილი + პორტფოლიო",
-      description: "ხილვადობა და ნდობა სპეციალისტის შერჩევისთვის.",
-      audience: "ფრილანსერისთვის",
-      icon: Sparkles
-    },
-    {
-      title: "შეთავაზებები და სტატუსები",
-      description: "ვინ, როდის და რა პირობებით ჩაერთო შეკვეთაში.",
-      audience: "დამკვეთისთვის",
-      icon: ClipboardList
-    },
-    {
-      title: "ჩატი და რეალური დრო",
-      description: "ოპერატიული კომუნიკაცია და სტატუსების განახლება.",
-      audience: "ორივესთვის",
-      icon: MessageSquare
-    },
-    {
-      title: "შეფასებები და რეპუტაცია",
-      description: "ღია უკუკავშირი ზრდის პლატფორმის ხარისხს.",
-      audience: "ორივესთვის",
-      icon: BadgeCheck
-    },
-    {
-      title: "უსაფრთხო და გამჭვირვალე პროცესი",
-      description: "კონტროლი ეტაპებზე, მკაფიო პასუხისმგებლობები და პროგრესი.",
-      audience: "ორივესთვის",
-      icon: ShieldCheck
-    }
-  ],
-  en: [
-    {
-      title: "Project catalog",
-      description: "Fast filtering by category, budget, and requirements.",
-      audience: "Both",
-      icon: Search
-    },
-    {
-      title: "Profile + portfolio",
-      description: "Visibility and trust for better specialist selection.",
-      audience: "Freelancer",
-      icon: Sparkles
-    },
-    {
-      title: "Proposals and statuses",
-      description: "Clear view of who applied and under what conditions.",
-      audience: "Employer",
-      icon: ClipboardList
-    },
-    {
-      title: "Chat and realtime updates",
-      description: "Faster communication and progress transparency.",
-      audience: "Both",
-      icon: MessageSquare
-    },
-    {
-      title: "Ratings and reputation",
-      description: "Open feedback improves quality across the platform.",
-      audience: "Both",
-      icon: BadgeCheck
-    },
-    {
-      title: "Secure, transparent flow",
-      description: "Control over milestones, responsibilities, and progress.",
-      audience: "Both",
-      icon: ShieldCheck
-    }
-  ],
-  ru: [
-    {
-      title: "Каталог проектов",
-      description: "Быстрые фильтры по категории, бюджету и требованиям.",
-      audience: "Для всех",
-      icon: Search
-    },
-    {
-      title: "Профиль и портфолио",
-      description: "Видимость и доверие для лучшего выбора специалиста.",
-      audience: "Для фрилансера",
-      icon: Sparkles
-    },
-    {
-      title: "Отклики и статусы",
-      description: "Понятно, кто откликнулся и на каких условиях.",
-      audience: "Для заказчика",
-      icon: ClipboardList
-    },
-    {
-      title: "Чат и realtime-обновления",
-      description: "Быстрая коммуникация и прозрачный прогресс.",
-      audience: "Для всех",
-      icon: MessageSquare
-    },
-    {
-      title: "Оценки и репутация",
-      description: "Открытая обратная связь повышает качество платформы.",
-      audience: "Для всех",
-      icon: BadgeCheck
-    },
-    {
-      title: "Безопасный процесс",
-      description: "Контроль этапов, ролей и выполнения задач.",
-      audience: "Для всех",
-      icon: ShieldCheck
-    }
-  ]
-};
-
 function pickLocale<T>(map: Record<string, T>, locale: string): T {
   return map[locale] ?? map.ka;
 }
@@ -373,7 +240,6 @@ export default async function GuidePage() {
   const copy = pickLocale(copyByLocale, locale);
   const employerSteps = pickLocale(employerStepsByLocale, locale);
   const freelancerSteps = pickLocale(freelancerStepsByLocale, locale);
-  const capabilities = pickLocale(capabilitiesByLocale, locale);
 
   return (
     <>
@@ -440,33 +306,6 @@ export default async function GuidePage() {
                 ))}
               </ol>
             </Card>
-          </div>
-        </Container>
-      </section>
-
-      <section className="border-b bg-muted/20">
-        <Container className="py-12 sm:py-16">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{copy.matrixTitle}</h2>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">{copy.matrixSubtitle}</p>
-          </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {capabilities.map((item) => (
-              <Card key={item.title} className="group relative overflow-hidden border-border/70 bg-card/80 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                <div className="relative">
-                  <div className="inline-flex rounded-lg bg-primary/10 p-2 text-primary">
-                    <item.icon className="h-4 w-4" />
-                  </div>
-                  <div className="mt-3 font-semibold">{item.title}</div>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
-                  <Badge variant="secondary" className="mt-3">
-                    {item.audience}
-                  </Badge>
-                </div>
-              </Card>
-            ))}
           </div>
         </Container>
       </section>
