@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
-const AVATAR_MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
+const AVATAR_MAX_FILE_BYTES = 20 * 1024 * 1024; // 20MB
 const AVATAR_ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 let cachedUploadsRoot: string | null = null;
 

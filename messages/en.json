@@ -718,7 +718,7 @@
     "saved": "Profile saved.",
     "avatar": "Profile photo",
     "chooseAvatar": "Choose photo",
-    "avatarHint": "PNG, JPG, WEBP or GIF up to 5 MB.",
+    "avatarHint": "PNG, JPG, WEBP or GIF up to 20 MB.",
     "title": "Title",
     "titlePlaceholder": "e.g. UI/UX Designer",
     "bio": "Bio",

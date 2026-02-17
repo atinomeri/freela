@@ -718,7 +718,7 @@
     "saved": "Профиль сохранён.",
     "avatar": "Фото профиля",
     "chooseAvatar": "Выбрать фото",
-    "avatarHint": "PNG, JPG, WEBP или GIF до 5 МБ.",
+    "avatarHint": "PNG, JPG, WEBP или GIF до 20 МБ.",
     "title": "Заголовок",
     "titlePlaceholder": "напр. UI/UX дизайнер",
     "bio": "О себе",
