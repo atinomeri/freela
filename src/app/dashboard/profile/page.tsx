@@ -24,6 +24,11 @@ export default async function ProfilePage() {
     select: { title: true, bio: true, skills: true, hourlyGEL: true }
   });
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { avatarUrl: true }
+  });
+
   const skillsText = Array.isArray(profile?.skills)
     ? profile?.skills.join(", ")
     : typeof profile?.skills === "string"
@@ -41,7 +46,8 @@ export default async function ProfilePage() {
             title: profile?.title ?? "",
             bio: profile?.bio ?? "",
             skills: skillsText ?? "",
-            hourlyGEL: profile?.hourlyGEL ? String(profile?.hourlyGEL) : ""
+            hourlyGEL: profile?.hourlyGEL ? String(profile?.hourlyGEL) : "",
+            avatarUrl: user?.avatarUrl ?? ""
           }}
         />
       </div>

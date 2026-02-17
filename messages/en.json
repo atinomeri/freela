@@ -716,6 +716,9 @@
       "saveFailed": "Could not save profile."
     },
     "saved": "Profile saved.",
+    "avatar": "Profile photo",
+    "chooseAvatar": "Choose photo",
+    "avatarHint": "PNG, JPG, WEBP or GIF up to 5 MB.",
     "title": "Title",
     "titlePlaceholder": "e.g. UI/UX Designer",
     "bio": "Bio",
@@ -1078,6 +1081,7 @@
     "THREAD_NOT_FOUND": "Conversation not found.",
     "FILE_UPLOAD_FAILED": "File upload failed.",
     "FILE_TOO_LARGE": "File is too large.",
+    "AVATAR_INVALID_TYPE": "Use PNG, JPG, WEBP, or GIF for profile photo.",
     "EMPTY_FILE": "File is empty.",
     "UPLOADS_UNAVAILABLE": "File upload is temporarily unavailable.",
     "ATTACHMENT_QUOTA_EXCEEDED": "Attachment quota exceeded for this conversation.",

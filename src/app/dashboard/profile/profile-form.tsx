@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
 import { useTranslations } from "next-intl";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
     bio: string;
     skills: string;
     hourlyGEL: string;
+    avatarUrl: string;
   };
 };
 
@@ -21,9 +23,21 @@ export function ProfileForm({ initial }: Props) {
   const [bio, setBio] = useState(initial.bio);
   const [skills, setSkills] = useState(initial.skills);
   const [hourlyGEL, setHourlyGEL] = useState(initial.hourlyGEL);
+  const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [pending, setPending] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview);
+      }
+    };
+  }, [avatarPreview]);
 
   const validate = () => {
     if (title.trim().length < 2) return t("errors.titleMin");
@@ -53,6 +67,32 @@ export function ProfileForm({ initial }: Props) {
           setError("");
           setPending(true);
           try {
+            if (avatarFile) {
+              const formData = new FormData();
+              formData.append("avatar", avatarFile);
+              const avatarRes = await fetch("/api/profile/avatar", {
+                method: "POST",
+                body: formData
+              });
+              const avatarJson = (await avatarRes.json().catch(() => null)) as
+                | { ok?: boolean; error?: string; errorCode?: string; avatarUrl?: string }
+                | null;
+              if (!avatarRes.ok || !avatarJson?.ok || !avatarJson.avatarUrl) {
+                setError(avatarJson?.errorCode ? tApiErrors(avatarJson.errorCode) : avatarJson?.error || t("errors.saveFailed"));
+                setSuccess("");
+                return;
+              }
+              setAvatarUrl(avatarJson.avatarUrl);
+              setAvatarFile(null);
+              if (avatarPreview) {
+                URL.revokeObjectURL(avatarPreview);
+                setAvatarPreview("");
+              }
+              if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+              }
+            }
+
             const res = await fetch("/api/profile", {
               method: "PATCH",
               headers: { "content-type": "application/json" },
@@ -75,6 +115,51 @@ export function ProfileForm({ initial }: Props) {
           }
         }}
       >
+        <label className="grid gap-1 text-sm">
+          {t("avatar")}
+          <div className="flex items-center gap-3 rounded-xl border border-border/80 bg-background/70 p-3">
+            <Avatar src={avatarPreview || avatarUrl || undefined} name={title || undefined} size="xl" />
+            <div className="flex flex-col gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setError("");
+                  setSuccess("");
+                  if (!file) {
+                    setAvatarFile(null);
+                    if (avatarPreview) {
+                      URL.revokeObjectURL(avatarPreview);
+                      setAvatarPreview("");
+                    }
+                    return;
+                  }
+                  const nextPreview = URL.createObjectURL(file);
+                  if (avatarPreview) {
+                    URL.revokeObjectURL(avatarPreview);
+                  }
+                  setAvatarFile(file);
+                  setAvatarPreview(nextPreview);
+                }}
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                className="w-fit rounded-xl"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={pending}
+              >
+                {t("chooseAvatar")}
+              </Button>
+              <span className="text-xs text-muted-foreground">{t("avatarHint")}</span>
+            </div>
+          </div>
+        </label>
+
         <label className="grid gap-1 text-sm">
           {t("title")}
           <input

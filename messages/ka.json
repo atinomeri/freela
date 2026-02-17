@@ -716,6 +716,9 @@
       "saveFailed": "პროფილის შენახვა ვერ მოხერხდა."
     },
     "saved": "პროფილი შენახულია.",
+    "avatar": "პროფილის ფოტო",
+    "chooseAvatar": "ფოტოს არჩევა",
+    "avatarHint": "PNG, JPG, WEBP ან GIF მაქს. 5 მბ.",
     "title": "სათაური",
     "titlePlaceholder": "მაგ. UI/UX დიზაინერი",
     "bio": "ბიო",
@@ -1040,6 +1043,7 @@
     "THREAD_NOT_FOUND": "საუბარი ვერ მოიძებნა.",
     "FILE_UPLOAD_FAILED": "ფაილის ატვირთვა ვერ მოხერხდა.",
     "FILE_TOO_LARGE": "ფაილი ძალიან დიდია.",
+    "AVATAR_INVALID_TYPE": "პროფილის ფოტოსთვის გამოიყენე PNG, JPG, WEBP ან GIF.",
     "EMPTY_FILE": "ფაილი ცარიელია.",
     "UPLOADS_UNAVAILABLE": "ფაილის ატვირთვა დროებით მიუწვდომელია.",
     "ATTACHMENT_QUOTA_EXCEEDED": "ამ საუბარში ფაილების ლიმიტი ამოიწურა.",

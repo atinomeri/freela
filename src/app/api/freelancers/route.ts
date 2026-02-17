@@ -64,6 +64,7 @@ export async function GET(req: Request) {
     items: Array<{
       userId: string;
       name: string;
+      avatarUrl: string | null;
       title: string;
       category: string | null;
       bioExcerpt: string;
@@ -83,7 +84,7 @@ export async function GET(req: Request) {
   if (cached) return NextResponse.json(cached);
 
   let total = 0;
-  let items: Array<{ user: { id: string; name: string }; title: string | null; category: string | null; bio: string | null; skills: unknown; hourlyGEL: number | null; updatedAt: Date; createdAt: Date }> = [];
+  let items: Array<{ user: { id: string; name: string; avatarUrl: string | null }; title: string | null; category: string | null; bio: string | null; skills: unknown; hourlyGEL: number | null; updatedAt: Date; createdAt: Date }> = [];
   try {
     const where = buildWhere(true);
     [total, items] = await Promise.all([
@@ -93,7 +94,7 @@ export async function GET(req: Request) {
         orderBy,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        include: { user: { select: { id: true, name: true } } }
+        include: { user: { select: { id: true, name: true, avatarUrl: true } } }
       })
     ]);
   } catch {
@@ -105,7 +106,7 @@ export async function GET(req: Request) {
         orderBy,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        include: { user: { select: { id: true, name: true } } }
+        include: { user: { select: { id: true, name: true, avatarUrl: true } } }
       })
     ]);
   }
@@ -130,6 +131,7 @@ export async function GET(req: Request) {
     items: items.map((p) => ({
       userId: p.user.id,
       name: p.user.name,
+      avatarUrl: p.user.avatarUrl,
       title: p.title ?? "",
       category: p.category,
       bioExcerpt: p.bio ? (p.bio.length > 160 ? `${p.bio.slice(0, 160)}…` : p.bio) : "",

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
+import { Avatar } from "@/components/ui/avatar";
 import { ButtonLink } from "@/components/ui/button";
 import { FreelancersFilters } from "@/app/freelancers/freelancers-filters";
 import { getFreelancerCategoryLabel, isFreelancerCategory } from "@/lib/categories";
@@ -95,7 +96,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
         orderBy,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        include: { user: { select: { id: true, name: true } } }
+        include: { user: { select: { id: true, name: true, avatarUrl: true } } }
       })
     ]);
   } catch {
@@ -107,7 +108,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
         orderBy,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        include: { user: { select: { id: true, name: true } } }
+        include: { user: { select: { id: true, name: true, avatarUrl: true } } }
       })
     ]);
   }
@@ -167,7 +168,10 @@ export default async function FreelancersPage({ searchParams }: Props) {
             return (
               <I18nLink key={f.user.id} href={`/freelancers/${f.user.id}`} className="group">
                 <Card className="h-full rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                  <div className="font-medium">{f.user.name}</div>
+                  <div className="flex items-center gap-3">
+                    <Avatar src={f.user.avatarUrl || undefined} name={f.user.name} size="lg" />
+                    <div className="font-medium">{f.user.name}</div>
+                  </div>
                   <div className="text-sm text-muted-foreground">{f.title ?? t("defaultTitle")}</div>
                   {categoryLabel ? (
                     <div className="mt-3">

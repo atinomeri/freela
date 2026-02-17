@@ -5,6 +5,8 @@ import os from "node:os";
 import path from "node:path";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+const AVATAR_MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
+const AVATAR_ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 let cachedUploadsRoot: string | null = null;
 
 export type SavedUpload = {
@@ -88,6 +90,43 @@ export async function saveAttachmentFile(params: { threadId: string; file: File 
   };
 }
 
+export async function saveAvatarFile(params: { userId: string; file: File }): Promise<SavedUpload> {
+  const { userId, file } = params;
+
+  const sizeBytes = file.size;
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
+    throw new Error("Empty file");
+  }
+  if (sizeBytes > AVATAR_MAX_FILE_BYTES) {
+    throw new Error("File too large");
+  }
+
+  const mimeType = (file.type || "").toLowerCase();
+  if (!AVATAR_ALLOWED_MIME_TYPES.has(mimeType)) {
+    throw new Error("Invalid avatar type");
+  }
+
+  const id = crypto.randomUUID();
+  const originalName = safeFilename(file.name || "avatar");
+  const dirRel = path.join("avatars", userId);
+  const dirAbs = path.join(uploadsRoot(), dirRel);
+  fs.mkdirSync(dirAbs, { recursive: true });
+
+  const filename = `${id}_${originalName}`;
+  const storagePath = path.join(dirRel, filename);
+  const absPath = path.join(uploadsRoot(), storagePath);
+
+  const buf = Buffer.from(await file.arrayBuffer());
+  fs.writeFileSync(absPath, buf);
+
+  return {
+    storagePath: storagePath.replace(/\\/g, "/"),
+    originalName: file.name || originalName,
+    mimeType,
+    sizeBytes
+  };
+}
+
 export function getAttachmentAbsolutePath(storagePath: string) {
   const root = uploadsRoot();
   const rel = storagePath.replace(/\\/g, "/");
@@ -106,4 +145,9 @@ export const ATTACHMENT_LIMITS = {
   // Per-thread quota to prevent unlimited disk growth.
   maxThreadFiles: 60,
   maxThreadBytes: 150 * 1024 * 1024 // 150MB
+};
+
+export const AVATAR_LIMITS = {
+  maxFileBytes: AVATAR_MAX_FILE_BYTES,
+  allowedMimeTypes: Array.from(AVATAR_ALLOWED_MIME_TYPES)
 };
