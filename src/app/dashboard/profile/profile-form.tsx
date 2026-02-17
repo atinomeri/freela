@@ -26,7 +26,7 @@ export function ProfileForm({ initial }: Props) {
   const [skills, setSkills] = useState(initial.skills);
   const [hourlyGEL, setHourlyGEL] = useState(initial.hourlyGEL);
   const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl);
-  const [avatarVersion, setAvatarVersion] = useState<number>(() => Date.now());
+  const [avatarKey, setAvatarKey] = useState<number>(() => Date.now());
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [error, setError] = useState("");
@@ -50,7 +50,13 @@ export function ProfileForm({ initial }: Props) {
     return "";
   };
 
-  const avatarSrc = avatarPreview || (avatarUrl ? `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}v=${avatarVersion}` : undefined);
+  const handleUploadSuccess = (nextAvatarUrl: string) => {
+    setAvatarUrl(nextAvatarUrl);
+    setAvatarKey(Date.now());
+    router.refresh();
+  };
+
+  const avatarSrc = avatarPreview || (avatarUrl ? `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}v=${avatarKey}` : undefined);
 
   return (
     <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
@@ -87,8 +93,7 @@ export function ProfileForm({ initial }: Props) {
                 setSuccess("");
                 return;
               }
-              setAvatarUrl(avatarJson.avatarUrl);
-              setAvatarVersion(Date.now());
+              handleUploadSuccess(avatarJson.avatarUrl);
               setAvatarFile(null);
               if (avatarPreview) {
                 URL.revokeObjectURL(avatarPreview);
@@ -97,7 +102,6 @@ export function ProfileForm({ initial }: Props) {
               if (fileInputRef.current) {
                 fileInputRef.current.value = "";
               }
-              router.refresh();
             }
 
             const res = await fetch("/api/profile", {

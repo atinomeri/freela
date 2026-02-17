@@ -14,10 +14,15 @@ function jsonError(errorCode: string, status: number, extra?: Record<string, unk
 
 function extractAvatarStoragePath(avatarUrl: string | null | undefined) {
   if (!avatarUrl) return "";
-  if (!avatarUrl.startsWith("/api/avatars?path=")) return "";
-  const encodedPath = avatarUrl.slice("/api/avatars?path=".length);
-  const decoded = decodeURIComponent(encodedPath);
-  return decoded.startsWith("avatars/") ? decoded : "";
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(avatarUrl, "http://localhost");
+  } catch {
+    return "";
+  }
+  if (parsedUrl.pathname !== "/api/avatars") return "";
+  const storagePath = parsedUrl.searchParams.get("path") ?? "";
+  return storagePath.startsWith("avatars/") ? storagePath : "";
 }
 
 export async function POST(req: Request) {
@@ -47,7 +52,8 @@ export async function POST(req: Request) {
     return jsonError("FILE_UPLOAD_FAILED", 400);
   }
 
-  const avatarUrl = `/api/avatars?path=${encodeURIComponent(saved.storagePath)}`;
+  const avatarVersion = Date.now();
+  const avatarUrl = `/api/avatars?path=${encodeURIComponent(saved.storagePath)}&v=${avatarVersion}`;
 
   const previous = await prisma.user.findUnique({
     where: { id: session.user.id },
