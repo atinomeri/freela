@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { Avatar } from "@/components/ui/avatar";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const profile = await prisma.profile.findFirst({
     where: { userId: id, user: { role: "FREELANCER" } },
-    include: { user: { select: { name: true } } }
+    include: { user: { select: { name: true, avatarUrl: true } } }
   });
   if (!profile) return {};
   return {
@@ -42,7 +43,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
   const [profile, reviewStats, completedJobs] = await Promise.all([
     prisma.profile.findFirst({
       where: { userId: id, user: { role: "FREELANCER" } },
-      include: { user: { select: { id: true, name: true } } }
+      include: { user: { select: { id: true, name: true, avatarUrl: true } } }
     }),
     prisma.review.aggregate({
       where: { freelancerId: id, isApproved: true },
@@ -68,8 +69,13 @@ export default async function FreelancerDetailPage({ params }: Props) {
           </Link>{" "}
           / <span className="text-foreground">{profile.user.name}</span>
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
-        <div className="text-sm text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
+        <div className="flex items-start gap-4 sm:items-center">
+          <Avatar src={profile.user.avatarUrl || undefined} name={profile.user.name} size="2xl" className="shrink-0" />
+          <div className="min-w-0">
+            <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
+            <div className="truncate text-sm text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           {profile.hourlyGEL ? <Badge>{t("rateValue", { rate: profile.hourlyGEL })}</Badge> : <Badge>{t("rateMissing")}</Badge>}
           {reviewsCount > 0 && avgRating ? (

@@ -23,7 +23,6 @@ function extractAvatarStoragePath(avatarUrl: string | null | undefined) {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
-  if (session.user.role !== "FREELANCER") return jsonError("FORBIDDEN", 403);
 
   const form = await req.formData().catch(() => null);
   if (!form) return jsonError("INVALID_FORM", 400);
@@ -69,7 +68,9 @@ export async function POST(req: Request) {
     }
   }
 
-  await invalidateFreelancerListingCache();
+  if (session.user.role === "FREELANCER") {
+    await invalidateFreelancerListingCache();
+  }
 
   return NextResponse.json({ ok: true, avatarUrl }, { status: 200 });
 }
