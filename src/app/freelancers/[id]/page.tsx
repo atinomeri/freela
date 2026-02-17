@@ -8,6 +8,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
