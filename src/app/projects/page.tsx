@@ -134,7 +134,7 @@ export default async function ProjectsPage({ searchParams }: Props) {
         <div className="mt-2 text-sm text-muted-foreground">{t("found", { count: total })}</div>
       </div>
 
-      <div className="mt-6 grid gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         {projects.length === 0 ? (
           <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="font-medium">{t("emptyTitle")}</div>
