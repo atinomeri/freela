@@ -79,9 +79,9 @@ export default async function FreelancerDetailPage({ params }: Props) {
             size="2xl"
             className="shrink-0"
           />
-          <div className="min-w-0">
-            <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
-            <div className="truncate text-sm text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
+          <div className="flex min-w-0 flex-col gap-3">
+            <h1 className="truncate text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{profile.user.name}</h1>
+            <div className="mt-1 truncate text-sm text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
