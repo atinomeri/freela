@@ -44,4 +44,9 @@
     X-XSS-Protection "1; mode=block"
     Cross-Origin-Embedder-Policy "require-corp"
     Cross-Origin-Resource-Policy "cross-origin"
+    Cross-Origin-Opener-Policy "same-origin"
+  }
+
+  reverse_proxy app:3000
+}
 
