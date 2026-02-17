@@ -16,6 +16,7 @@ import { Link } from "@/i18n/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
+import { ArrowRight, Clock3 } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -95,7 +96,15 @@ export default async function ProjectsPage({ searchParams }: Props) {
       orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: { id: true, title: true, category: true, createdAt: true, budgetGEL: true, description: true }
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        createdAt: true,
+        budgetGEL: true,
+        description: true,
+        employer: { select: { name: true } }
+      }
     })
   ]);
 
@@ -134,26 +143,45 @@ export default async function ProjectsPage({ searchParams }: Props) {
         ) : (
           projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.id}`} className="group">
-              <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="font-medium">{p.title}</div>
-                    {p.category ? (
-                      <div className="mt-2">
-                        <Badge className="border-primary/30 bg-primary/5 text-primary">
-                          {getFreelancerCategoryLabel(p.category, tCategories)}
-                        </Badge>
-                      </div>
-                    ) : null}
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">{t("added")}:</span> {formatLongDate(p.createdAt, locale)}
-                    </div>
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {p.description.length > 140 ? `${p.description.slice(0, 140)}…` : p.description}
-                    </div>
+              <Card className="rounded-2xl border border-gray-800 bg-card p-5 shadow-sm transition-all duration-250 hover:border-primary/50 hover:shadow-lg">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/12 text-base font-semibold text-primary">
+                    {(p.employer?.name?.trim()?.[0] ?? "U").toUpperCase()}
                   </div>
-                  <div className="text-sm font-medium">
-                    {p.budgetGEL ? `${p.budgetGEL} ₾` : t("budgetMissing")}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-sm text-muted-foreground">{p.employer?.name?.trim() || "—"}</div>
+                      <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Clock3 className="h-3.5 w-3.5" />
+                        <span>{formatLongDate(p.createdAt, locale)}</span>
+                      </div>
+                    </div>
+
+                    <h3 className="mt-3 text-xl font-semibold leading-tight text-foreground">{p.title}</h3>
+
+                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                      {p.description}
+                    </p>
+
+                    <div className="mt-4 flex items-end justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        {p.category ? (
+                          <Badge className="border-primary/30 bg-primary/10 text-primary">
+                            {getFreelancerCategoryLabel(p.category, tCategories)}
+                          </Badge>
+                        ) : null}
+                        <span className="text-xs text-muted-foreground">{t("added")}</span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5 text-lg font-bold text-primary">
+                          {p.budgetGEL ? `${p.budgetGEL} ₾` : t("budgetMissing")}
+                        </div>
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground/80 transition-colors group-hover:border-primary/40 group-hover:text-primary">
+                          <ArrowRight className="h-4 w-4" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
