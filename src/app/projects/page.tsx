@@ -16,7 +16,7 @@ import { Link } from "@/i18n/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
-import { ArrowRight, Clock3 } from "lucide-react";
+import { ArrowRight, Clock3, User } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -138,43 +138,42 @@ export default async function ProjectsPage({ searchParams }: Props) {
         {projects.length === 0 ? (
           <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="font-medium">{t("emptyTitle")}</div>
-            <div className="mt-2 text-sm text-muted-foreground">{t("emptyDescription")}</div>
-          </Card>
-        ) : (
-          projects.map((p) => (
-            <Link key={p.id} href={`/projects/${p.id}`} className="group">
-              <Card className="rounded-2xl border border-gray-800 bg-card p-5 shadow-sm transition-all duration-250 hover:border-primary/50 hover:shadow-lg">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/12 text-base font-semibold text-primary">
-                    {(p.employer?.name?.trim()?.[0] ?? "U").toUpperCase()}
+                <div className="min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="line-clamp-2 text-xl font-bold leading-tight text-foreground sm:text-2xl">{p.title}</h3>
+                    <div className="shrink-0 rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5 text-lg font-bold text-primary sm:text-xl">
+                      {p.budgetGEL ? `${p.budgetGEL} ₾` : t("budgetMissing")}
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="text-sm text-muted-foreground">{p.employer?.name?.trim() || "—"}</div>
-                      <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Clock3 className="h-3.5 w-3.5" />
-                        <span>{formatLongDate(p.createdAt, locale)}</span>
-                      </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5 font-medium text-foreground/85">
+                      <User className="h-3.5 w-3.5" />
+                      {p.employer?.name?.trim() || "—"}
+                    </span>
+                    <span aria-hidden="true">•</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock3 className="h-3.5 w-3.5" />
+                      {formatLongDate(p.createdAt, locale)}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                    {p.description}
+                  </p>
+
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      {p.category ? (
+                        <Badge className="border-primary/30 bg-primary/10 text-primary">
+                          {getFreelancerCategoryLabel(p.category, tCategories)}
+                        </Badge>
+                      ) : null}
                     </div>
 
-                    <h3 className="mt-3 text-xl font-semibold leading-tight text-foreground">{p.title}</h3>
-
-                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                      {p.description}
-                    </p>
-
-                    <div className="mt-4 flex items-end justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        {p.category ? (
-                          <Badge className="border-primary/30 bg-primary/10 text-primary">
-                            {getFreelancerCategoryLabel(p.category, tCategories)}
-                          </Badge>
-                        ) : null}
-                        <span className="text-xs text-muted-foreground">{t("added")}</span>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5 text-lg font-bold text-primary">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground/80 transition-colors group-hover:border-primary/40 group-hover:text-primary">
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
                           {p.budgetGEL ? `${p.budgetGEL} ₾` : t("budgetMissing")}
                         </div>
                         <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground/80 transition-colors group-hover:border-primary/40 group-hover:text-primary">
