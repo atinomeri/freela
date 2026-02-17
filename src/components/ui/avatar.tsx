@@ -76,12 +76,13 @@ export function Avatar({
   ...props
 }: AvatarProps) {
   const initials = name ? getInitials(name) : "?";
+  const fallbackContent = typeof fallback === "string" ? fallback.slice(0, 2).toUpperCase() : fallback;
   const bgColor = name ? getColorFromName(name) : "bg-muted";
 
   return (
     <div
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl",
         sizeClasses[size],
         className
       )}
@@ -97,7 +98,7 @@ export function Avatar({
         />
       ) : fallback ? (
         <div className={cn("flex h-full w-full items-center justify-center", bgColor, "text-white")}>
-          {fallback}
+          {fallbackContent}
         </div>
       ) : (
         <div className={cn("flex h-full w-full items-center justify-center font-medium", bgColor, "text-white")}>
@@ -125,7 +126,7 @@ export function AvatarGroup({ children, max = 4, size = "md", className }: Avata
       {visibleAvatars.map((child, index) => (
         <div
           key={index}
-          className="relative ring-2 ring-background rounded-full"
+          className="relative rounded-xl ring-2 ring-background"
           style={{ zIndex: visibleAvatars.length - index }}
         >
           {child}
@@ -134,7 +135,7 @@ export function AvatarGroup({ children, max = 4, size = "md", className }: Avata
       {remainingCount > 0 && (
         <div
           className={cn(
-            "relative flex items-center justify-center rounded-full bg-muted text-muted-foreground font-medium ring-2 ring-background",
+            "relative flex items-center justify-center rounded-xl bg-muted text-muted-foreground font-medium ring-2 ring-background",
             sizeClasses[size]
           )}
           style={{ zIndex: 0 }}
