@@ -138,6 +138,12 @@ export default async function ProjectsPage({ searchParams }: Props) {
         {projects.length === 0 ? (
           <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="font-medium">{t("emptyTitle")}</div>
+            <div className="mt-2 text-sm text-muted-foreground">{t("emptyDescription")}</div>
+          </Card>
+        ) : (
+          projects.map((p) => (
+            <Link key={p.id} href={`/projects/${p.id}`} className="group">
+              <Card className="rounded-2xl border border-gray-800 bg-card p-5 shadow-sm transition-all duration-250 hover:border-primary/50 hover:shadow-lg">
                 <div className="min-w-0">
                   <div className="flex items-start justify-between gap-4">
                     <h3 className="line-clamp-2 text-xl font-bold leading-tight text-foreground sm:text-2xl">{p.title}</h3>
@@ -158,9 +164,7 @@ export default async function ProjectsPage({ searchParams }: Props) {
                     </span>
                   </div>
 
-                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-                    {p.description}
-                  </p>
+                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>
 
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
@@ -174,13 +178,6 @@ export default async function ProjectsPage({ searchParams }: Props) {
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground/80 transition-colors group-hover:border-primary/40 group-hover:text-primary">
                       <ArrowRight className="h-4 w-4" />
                     </span>
-                          {p.budgetGEL ? `${p.budgetGEL} ₾` : t("budgetMissing")}
-                        </div>
-                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-foreground/80 transition-colors group-hover:border-primary/40 group-hover:text-primary">
-                          <ArrowRight className="h-4 w-4" />
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </Card>
