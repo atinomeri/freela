@@ -20,7 +20,14 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: { formats: ["image/avif", "image/webp"] },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    localPatterns: [
+      {
+        pathname: "/api/avatars"
+      }
+    ]
+  },
   poweredByHeader: false,
   async headers() {
     const isProd = process.env.NODE_ENV === "production";
