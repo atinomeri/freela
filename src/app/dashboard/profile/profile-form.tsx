@@ -56,7 +56,14 @@ export function ProfileForm({ initial }: Props) {
     router.refresh();
   };
 
-  const avatarSrc = avatarPreview || (avatarUrl ? `${avatarUrl}${avatarUrl.includes("?") ? "&" : "?"}v=${avatarKey}` : undefined);
+  const avatarSrc = avatarPreview || (avatarUrl
+    ? (() => {
+        const [basePath, queryString] = avatarUrl.split("?");
+        const params = new URLSearchParams(queryString ?? "");
+        params.set("v", String(avatarKey));
+        return `${basePath}?${params.toString()}`;
+      })()
+    : undefined);
 
   return (
     <Card className="mt-6 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">

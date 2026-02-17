@@ -37,15 +37,7 @@ export async function POST(req: Request) {
     const contentLengthRaw = req.headers.get("content-length");
     const contentLength = contentLengthRaw ? Number(contentLengthRaw) : 0;
     if (Number.isFinite(contentLength) && contentLength > NEXT_BODY_SOFT_LIMIT_BYTES) {
-      console.warn("Upload rejected: request body is larger than 4MB", { contentLength });
-      return NextResponse.json(
-        {
-          ok: false,
-          errorCode: "REQUEST_TOO_LARGE",
-          error: `Request body exceeds 4MB limit (${contentLength} bytes)`
-        },
-        { status: 413 }
-      );
+      console.warn("Upload request body is larger than 4MB", { contentLength });
     }
 
     const form = await req.formData().catch(() => null);
@@ -56,13 +48,17 @@ export async function POST(req: Request) {
 
     console.log("File received:", file.name, file.size, file.type);
 
-    if (file.size > NEXT_BODY_SOFT_LIMIT_BYTES) {
-      console.warn("Upload rejected: file is larger than 4MB", { fileSize: file.size });
+    if (file.size > AVATAR_LIMITS.maxFileBytes) {
+      console.warn("Upload rejected: file is larger than avatar limit", {
+        fileSize: file.size,
+        maxFileBytes: AVATAR_LIMITS.maxFileBytes
+      });
       return NextResponse.json(
         {
           ok: false,
-          errorCode: "FILE_TOO_LARGE_FOR_ROUTE",
-          error: `File exceeds 4MB route limit (${file.size} bytes)`
+          errorCode: "FILE_TOO_LARGE",
+          error: `File exceeds avatar limit (${file.size} bytes > ${AVATAR_LIMITS.maxFileBytes} bytes)`,
+          maxFileBytes: AVATAR_LIMITS.maxFileBytes
         },
         { status: 413 }
       );
