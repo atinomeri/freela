@@ -69,8 +69,14 @@ export default async function FreelancerDetailPage({ params }: Props) {
           </Link>{" "}
           / <span className="text-foreground">{profile.user.name}</span>
         </div>
-        <div className="flex items-start gap-4 sm:items-center">
-          <Avatar src={profile.user.avatarUrl || undefined} name={profile.user.name} size="2xl" className="shrink-0" />
+        <div className="flex items-start gap-6 sm:items-center">
+          <Avatar
+            src={profile.user.avatarUrl || undefined}
+            name={profile.user.name}
+            fallback={profile.user.name?.slice(0, 2).toUpperCase()}
+            size="2xl"
+            className="shrink-0"
+          />
           <div className="min-w-0">
             <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
             <div className="truncate text-sm text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
