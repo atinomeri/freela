@@ -959,6 +959,7 @@
     "backToFreelancers": "Back to freelancers",
     "browseProjects": "Browse projects",
     "defaultTitle": "Freelancer",
+    "rateLabel": "Rate",
     "rateMissing": "Rate not specified",
     "rateValue": "{rate} ₾/h",
     "ratingBadge": "Rating {rating}",

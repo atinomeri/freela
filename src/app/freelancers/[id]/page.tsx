@@ -73,106 +73,85 @@ export default async function FreelancerDetailPage({ params }: Props) {
         / <span className="text-foreground">{profile.user.name}</span>
       </div>
 
-      <Card className="mt-4 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-8">
-        <div className="grid gap-8 xl:grid-cols-[1fr_360px] xl:items-start">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <Avatar
-                src={profile.user.avatarUrl || undefined}
-                name={profile.user.name}
-                fallback={profile.user.name?.slice(0, 2).toUpperCase()}
-                size="2xl"
-                className="shrink-0"
-              />
-              <div className="min-w-0">
-                <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
-                <div className="mt-2 text-base text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <ButtonLink href="/freelancers" size="sm" className="rounded-xl" variant="secondary">
-                    {t("backToFreelancers")}
-                  </ButtonLink>
-                  <ButtonLink href="/projects" size="sm" className="rounded-xl">
-                    {t("browseProjects")}
-                  </ButtonLink>
-                </div>
-              </div>
+      <Card className="mt-4 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-5">
+            <Avatar
+              src={profile.user.avatarUrl || undefined}
+              name={profile.user.name}
+              fallback={profile.user.name?.slice(0, 2).toUpperCase()}
+              size="2xl"
+              className="shrink-0"
+            />
+            <div className="min-w-0">
+              <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
+              <div className="mt-2 text-base text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
             </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <ButtonLink href="/freelancers" size="sm" className="h-10 rounded-xl px-4" variant="secondary">
+              {t("backToFreelancers")}
+            </ButtonLink>
+            <ButtonLink href="/projects" size="sm" className="h-10 rounded-xl px-4">
+              {t("browseProjects")}
+            </ButtonLink>
+          </div>
+        </div>
+      </Card>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-3 lg:items-start">
+        <div className="lg:col-span-2">
+          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
+            <div className="text-base font-semibold">{t("bioTitle")}</div>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
 
             {skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 {skills.slice(0, 10).map((skill) => (
                   <Badge key={skill}>{skill}</Badge>
                 ))}
               </div>
             ) : null}
-          </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-            <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                <DollarSign className="h-4 w-4" />
-                {t("rateLabel")}
-              </div>
-              <div className="mt-2 text-lg font-semibold">
-                {profile.hourlyGEL ? t("rateValue", { rate: profile.hourlyGEL }) : t("rateMissing")}
-              </div>
+            <div className="mt-6 text-sm text-muted-foreground">{t("detailsBody")}</div>
+            <div className="mt-2 text-xs text-muted-foreground">{t("detailsFootnote")}</div>
+          </Card>
+        </div>
+
+        <div className="grid gap-3">
+          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <DollarSign className="h-4 w-4" />
+              {t("rateLabel")}
             </div>
-            <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                <Star className="h-4 w-4" />
-                {t("ratingLabel")}
-              </div>
-              <div className="mt-2 text-lg font-semibold">
-                {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
-              </div>
+            <div className="mt-2 text-lg font-semibold">
+              {profile.hourlyGEL ? t("rateValue", { rate: profile.hourlyGEL }) : t("rateMissing")}
             </div>
-            <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                <MessageSquare className="h-4 w-4" />
-                {t("reviewsLabel")}
-              </div>
-              <div className="mt-2 text-lg font-semibold">{t("reviewsValue", { count: reviewsCount })}</div>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <Star className="h-4 w-4" />
+              {t("ratingLabel")}
             </div>
+            <div className="mt-2 text-lg font-semibold">
+              {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <MessageSquare className="h-4 w-4" />
+              {t("reviewsLabel")}
+            </div>
+            <div className="mt-2 text-lg font-semibold">{t("reviewsValue", { count: reviewsCount })}</div>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <Briefcase className="h-4 w-4" />
+              {t("completedJobsLabel")}
+            </div>
+            <div className="mt-2 text-lg font-semibold">{t("completedJobsValue", { count: completedJobs })}</div>
           </div>
         </div>
-      </Card>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
-          <div className="text-base font-semibold">{t("bioTitle")}</div>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
-        </Card>
-
-        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
-          <div className="text-base font-semibold">{t("detailsTitle")}</div>
-          <dl className="mt-5 grid gap-3 text-sm">
-            <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 p-3">
-              <dt className="flex items-center gap-2 text-muted-foreground">
-                <Star className="h-4 w-4" />
-                {t("ratingLabel")}
-              </dt>
-              <dd className="font-semibold">
-                {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
-              </dd>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 p-3">
-              <dt className="flex items-center gap-2 text-muted-foreground">
-                <MessageSquare className="h-4 w-4" />
-                {t("reviewsLabel")}
-              </dt>
-              <dd className="font-semibold">{t("reviewsValue", { count: reviewsCount })}</dd>
-            </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 p-3">
-              <dt className="flex items-center gap-2 text-muted-foreground">
-                <Briefcase className="h-4 w-4" />
-                {t("completedJobsLabel")}
-              </dt>
-              <dd className="font-semibold">{t("completedJobsValue", { count: completedJobs })}</dd>
-            </div>
-          </dl>
-          <div className="mt-4 text-sm text-muted-foreground">{t("detailsBody")}</div>
-          <div className="mt-3 text-xs text-muted-foreground">{t("detailsFootnote")}</div>
-        </Card>
       </div>
     </Container>
   );

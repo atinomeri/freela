@@ -921,6 +921,7 @@
     "backToFreelancers": "Назад к фрилансерам",
     "browseProjects": "Смотреть проекты",
     "defaultTitle": "Фрилансер",
+    "rateLabel": "Ставка",
     "rateMissing": "Ставка не указана",
     "rateValue": "{rate} ₾/ч",
     "ratingBadge": "Рейтинг {rating}",

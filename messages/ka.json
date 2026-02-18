@@ -921,6 +921,7 @@
     "backToFreelancers": "ფრილანსერებში დაბრუნება",
     "browseProjects": "პროექტების ნახვა",
     "defaultTitle": "ფრილანსერი",
+    "rateLabel": "ტარიფი",
     "rateMissing": "ტარიფი არ არის მითითებული",
     "rateValue": "{rate} ₾/სთ",
     "ratingBadge": "რეიტინგი {rating}",
