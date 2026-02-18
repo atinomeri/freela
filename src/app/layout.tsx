@@ -10,7 +10,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { LazyChatbox } from "@/components/lazy-chatbox";
 import { site } from "@/lib/site";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
 
 export const runtime = "nodejs";
 
@@ -35,14 +35,17 @@ function ogLocale(locale: string) {
   return "ka_GE";
 }
 
+const defaultSeoTitle = "Freela.ge - ფრილანსერების პლატფორმა | პროექტები და შეკვეთები";
+const defaultSeoDescription =
+  "იპოვე პროექტები პროგრამირების, დიზაინისა და სხვა სფეროებში. განათავსე შეკვეთა და იპოვე საუკეთესო ფრილანსერი საქართველოში.";
+
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
-  const t = await getTranslations("site");
-  const description = t("metaDescription");
+  const description = defaultSeoDescription;
 
   return {
     metadataBase: new URL(site.url),
-    title: { default: site.name, template: `%s · ${site.name}` },
+    title: { default: defaultSeoTitle, template: `%s | Freela.ge` },
     description,
     alternates: { canonical: "/" },
     icons: {
@@ -67,10 +70,10 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: ogLocale(locale),
       url: site.url,
       siteName: site.name,
-      title: site.name,
+      title: defaultSeoTitle,
       description
     },
-    twitter: { card: "summary_large_image", title: site.name, description }
+    twitter: { card: "summary_large_image", title: defaultSeoTitle, description }
   };
 }
 

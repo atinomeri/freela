@@ -24,9 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true, description: true }
   });
   if (!project) return {};
+  const shortDescription = project.description.replace(/\s+/g, " ").trim();
   return {
     title: project.title,
-    description: project.description
+    description:
+      shortDescription.length > 170 ? `${shortDescription.slice(0, 167).trimEnd()}...` : shortDescription
   };
 }
 
