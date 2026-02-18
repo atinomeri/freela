@@ -181,10 +181,6 @@ export default async function FreelancersPage({ searchParams }: Props) {
                   <div className="mt-3 text-sm text-muted-foreground">
                     {f.bio ? (f.bio.length > 120 ? `${f.bio.slice(0, 120)}…` : f.bio) : t("bioMissing")}
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t("rateLabel")}</span>
-                    <span className="font-medium">{f.hourlyGEL ? t("rateValue", { rate: f.hourlyGEL }) : t("rateMissing")}</span>
-                  </div>
                   {skills.length > 0 ? (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {skills.slice(0, 6).map((t) => (
