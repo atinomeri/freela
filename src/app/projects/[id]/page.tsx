@@ -79,7 +79,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     "@type": "CreativeWork",
     name: project.title,
     description: project.description,
-    datePublished: project.createdAt.toISOString(),
+    datePublished: project.createdAt,
     author: {
       "@type": "Organization",
       name: "Freela.ge"
@@ -90,6 +90,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
+        id="json-ld-project"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <Container className="py-12 sm:py-16">
