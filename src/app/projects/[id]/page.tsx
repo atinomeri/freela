@@ -14,6 +14,8 @@ import { formatLongDate } from "@/lib/date";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
+import { site } from "@/lib/site";
+import { ShareButtons } from "@/app/projects/[id]/share-buttons";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -25,10 +27,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
   if (!project) return {};
   const shortDescription = project.description.replace(/\s+/g, " ").trim();
+  const description =
+    shortDescription.length > 160 ? `${shortDescription.slice(0, 157).trimEnd()}...` : shortDescription;
+  const projectUrl = `${site.url}/projects/${id}`;
   return {
     title: project.title,
-    description:
-      shortDescription.length > 170 ? `${shortDescription.slice(0, 167).trimEnd()}...` : shortDescription
+    description,
+    openGraph: {
+      title: project.title,
+      description,
+      url: projectUrl,
+      siteName: "Freela.ge",
+      locale: "ka_GE",
+      type: "article",
+      images: [
+        {
+          url: `${site.url}/icons/icon-512x512.png`,
+          width: 512,
+          height: 512,
+          alt: "Freela.ge"
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: project.title,
+      description,
+      images: [`${site.url}/icons/icon-512x512.png`]
+    }
   };
 }
 
@@ -44,6 +70,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   const canApply = user?.role === "FREELANCER";
 
   const { id } = await params;
+  const projectUrl = `${site.url}/projects/${id}`;
   const project = await prisma.project.findUnique({
     where: { id },
     select: {
@@ -151,6 +178,8 @@ export default async function ProjectDetailPage({ params }: Props) {
         </Card>
 
         <div className="grid gap-6">
+          <ShareButtons url={projectUrl} title={project.title} />
+
           <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
             <div className="text-sm font-medium text-muted-foreground">{t("employerTitle")}</div>
             <div className="mt-3 font-medium">{project.employer.name}</div>
