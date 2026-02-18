@@ -14,7 +14,6 @@ import { formatLongDate } from "@/lib/date";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
-import { site } from "@/lib/site";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -76,20 +75,24 @@ export default async function ProjectDetailPage({ params }: Props) {
   ]);
 
   const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Offer",
+    "@context": "https://schema.org/",
+    "@type": "CreativeWork",
     name: project.title,
     description: project.description,
     datePublished: project.createdAt.toISOString(),
-    url: `${site.url}/projects/${project.id}`
+    author: {
+      "@type": "Organization",
+      name: "Freela.ge"
+    }
   };
 
   return (
-    <Container className="py-12 sm:py-16">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+      <Container className="py-12 sm:py-16">
       <div className="text-sm text-muted-foreground">
         <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/projects">
           {t("breadcrumbProjects")}
@@ -175,6 +178,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           )}
         </div>
       </div>
-    </Container>
+      </Container>
+    </>
   );
 }
