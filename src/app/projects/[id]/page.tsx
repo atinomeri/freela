@@ -51,6 +51,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       title: true,
       category: true,
       description: true,
+      city: true,
       createdAt: true,
       budgetGEL: true,
       isOpen: true,
