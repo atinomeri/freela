@@ -956,6 +956,8 @@
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Freelancers",
+    "backToFreelancers": "Back to freelancers",
+    "browseProjects": "Browse projects",
     "defaultTitle": "Freelancer",
     "rateMissing": "Rate not specified",
     "rateValue": "{rate} ₾/h",

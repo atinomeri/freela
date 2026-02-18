@@ -918,6 +918,8 @@
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "ფრილანსერები",
+    "backToFreelancers": "ფრილანსერებში დაბრუნება",
+    "browseProjects": "პროექტების ნახვა",
     "defaultTitle": "ფრილანსერი",
     "rateMissing": "ტარიფი არ არის მითითებული",
     "rateValue": "{rate} ₾/სთ",

@@ -7,6 +7,8 @@ import { Container } from "@/components/ui/container";
 import { Avatar } from "@/components/ui/avatar";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { ButtonLink } from "@/components/ui/button";
+import { Briefcase, DollarSign, MessageSquare, Star } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -64,73 +66,112 @@ export default async function FreelancerDetailPage({ params }: Props) {
 
   return (
     <Container className="py-12 sm:py-16">
-      <div className="flex flex-col gap-3">
-        <div className="text-sm text-muted-foreground">
-          <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/freelancers">
-            {t("breadcrumbFreelancers")}
-          </Link>{" "}
-          / <span className="text-foreground">{profile.user.name}</span>
-        </div>
-        <div className="flex items-start gap-6 sm:items-center">
-          <Avatar
-            src={profile.user.avatarUrl || undefined}
-            name={profile.user.name}
-            fallback={profile.user.name?.slice(0, 2).toUpperCase()}
-            size="2xl"
-            className="shrink-0"
-          />
-          <div className="flex min-w-0 flex-col">
-            <h1 className="truncate py-1 text-3xl font-semibold leading-relaxed tracking-tight sm:text-4xl">{profile.user.name}</h1>
-            <div className="mt-2 truncate text-sm text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {profile.hourlyGEL ? <Badge>{t("rateValue", { rate: profile.hourlyGEL })}</Badge> : <Badge>{t("rateMissing")}</Badge>}
-          {reviewsCount > 0 && avgRating ? (
-            <Badge className="border-primary/30 bg-primary/5 text-primary">
-              {t("ratingBadge", { rating: avgRating.toFixed(1) })}
-            </Badge>
-          ) : (
-            <Badge>{t("ratingNone")}</Badge>
-          )}
-          {skills.slice(0, 8).map((t) => (
-            <Badge key={t}>{t}</Badge>
-          ))}
-        </div>
+      <div className="text-sm text-muted-foreground">
+        <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/freelancers">
+          {t("breadcrumbFreelancers")}
+        </Link>{" "}
+        / <span className="text-foreground">{profile.user.name}</span>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
-        <div className="grid gap-6">
-          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
-            <div className="text-sm font-medium text-muted-foreground">{t("bioTitle")}</div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {profile.bio ?? t("bioMissing")}
-            </p>
-          </Card>
-        </div>
+      <Card className="mt-4 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-8">
+        <div className="grid gap-8 xl:grid-cols-[1fr_360px] xl:items-start">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <Avatar
+                src={profile.user.avatarUrl || undefined}
+                name={profile.user.name}
+                fallback={profile.user.name?.slice(0, 2).toUpperCase()}
+                size="2xl"
+                className="shrink-0"
+              />
+              <div className="min-w-0">
+                <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
+                <div className="mt-2 text-base text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <ButtonLink href="/freelancers" size="sm" className="rounded-xl" variant="secondary">
+                    {t("backToFreelancers")}
+                  </ButtonLink>
+                  <ButtonLink href="/projects" size="sm" className="rounded-xl">
+                    {t("browseProjects")}
+                  </ButtonLink>
+                </div>
+              </div>
+            </div>
 
-        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm">
-          <div className="text-sm font-medium text-muted-foreground">{t("detailsTitle")}</div>
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-xl border border-border/70 bg-background/70 p-3">
-              <dt className="text-xs text-muted-foreground">{t("ratingLabel")}</dt>
-              <dd className="mt-1 font-medium">
+            {skills.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {skills.slice(0, 10).map((skill) => (
+                  <Badge key={skill}>{skill}</Badge>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <DollarSign className="h-4 w-4" />
+                {t("rateLabel")}
+              </div>
+              <div className="mt-2 text-lg font-semibold">
+                {profile.hourlyGEL ? t("rateValue", { rate: profile.hourlyGEL }) : t("rateMissing")}
+              </div>
+            </div>
+            <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <Star className="h-4 w-4" />
+                {t("ratingLabel")}
+              </div>
+              <div className="mt-2 text-lg font-semibold">
+                {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
+              </div>
+            </div>
+            <div className="rounded-xl border border-border/70 bg-background/70 p-4">
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <MessageSquare className="h-4 w-4" />
+                {t("reviewsLabel")}
+              </div>
+              <div className="mt-2 text-lg font-semibold">{t("reviewsValue", { count: reviewsCount })}</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
+          <div className="text-base font-semibold">{t("bioTitle")}</div>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
+        </Card>
+
+        <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
+          <div className="text-base font-semibold">{t("detailsTitle")}</div>
+          <dl className="mt-5 grid gap-3 text-sm">
+            <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 p-3">
+              <dt className="flex items-center gap-2 text-muted-foreground">
+                <Star className="h-4 w-4" />
+                {t("ratingLabel")}
+              </dt>
+              <dd className="font-semibold">
                 {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
               </dd>
             </div>
-            <div className="rounded-xl border border-border/70 bg-background/70 p-3">
-              <dt className="text-xs text-muted-foreground">{t("reviewsLabel")}</dt>
-              <dd className="mt-1 font-medium">{t("reviewsValue", { count: reviewsCount })}</dd>
+            <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 p-3">
+              <dt className="flex items-center gap-2 text-muted-foreground">
+                <MessageSquare className="h-4 w-4" />
+                {t("reviewsLabel")}
+              </dt>
+              <dd className="font-semibold">{t("reviewsValue", { count: reviewsCount })}</dd>
             </div>
-            <div className="col-span-2 rounded-xl border border-border/70 bg-background/70 p-3">
-              <dt className="text-xs text-muted-foreground">{t("completedJobsLabel")}</dt>
-              <dd className="mt-1 font-medium">{t("completedJobsValue", { count: completedJobs })}</dd>
+            <div className="flex items-center justify-between rounded-xl border border-border/70 bg-background/70 p-3">
+              <dt className="flex items-center gap-2 text-muted-foreground">
+                <Briefcase className="h-4 w-4" />
+                {t("completedJobsLabel")}
+              </dt>
+              <dd className="font-semibold">{t("completedJobsValue", { count: completedJobs })}</dd>
             </div>
           </dl>
           <div className="mt-4 text-sm text-muted-foreground">{t("detailsBody")}</div>
-          <div className="mt-4 text-xs text-muted-foreground">
-            {t("detailsFootnote")}
-          </div>
+          <div className="mt-3 text-xs text-muted-foreground">{t("detailsFootnote")}</div>
         </Card>
       </div>
     </Container>

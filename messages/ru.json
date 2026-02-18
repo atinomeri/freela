@@ -918,6 +918,8 @@
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Фрилансеры",
+    "backToFreelancers": "Назад к фрилансерам",
+    "browseProjects": "Смотреть проекты",
     "defaultTitle": "Фрилансер",
     "rateMissing": "Ставка не указана",
     "rateValue": "{rate} ₾/ч",
