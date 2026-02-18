@@ -74,6 +74,9 @@ export default async function ProjectDetailPage({ params }: Props) {
     prisma.proposal.count({ where: { status: "ACCEPTED", project: { employerId: project.employerId } } })
   ]);
 
+  const validThrough = new Date(project.createdAt);
+  validThrough.setDate(validThrough.getDate() + 30);
+
   const structuredData = {
     "@context": "https://schema.org/",
     "@type": "CreativeWork",
@@ -86,12 +89,38 @@ export default async function ProjectDetailPage({ params }: Props) {
     }
   };
 
+  const jobPostingStructuredData = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    title: project.title,
+    description: project.description,
+    datePosted: project.createdAt.toISOString(),
+    validThrough: validThrough.toISOString(),
+    employmentType: "CONTRACTOR",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: "Freela.ge"
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: project.city?.trim() || "საქართველო",
+        addressCountry: "GE"
+      }
+    },
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "Georgia"
+    }
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         id="json-ld-project"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([structuredData, jobPostingStructuredData]) }}
       />
       <Container className="py-12 sm:py-16">
       <div className="text-sm text-muted-foreground">
