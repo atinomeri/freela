@@ -1,8 +1,11 @@
 import {
   ArrowRight,
   BadgeCheck,
+  BarChart3,
   BriefcaseBusiness,
   Brush,
+  Building2,
+  Calculator,
   ClipboardList,
   Code2,
   Handshake,
@@ -10,10 +13,13 @@ import {
   MessageSquare,
   PenTool,
   Rocket,
+  Scale,
   Search,
   ShoppingBag,
   Sparkles,
   TrendingUp,
+  Truck,
+  UserCheck,
   Users,
   Video,
   Zap
@@ -59,13 +65,20 @@ export default async function HomePage() {
     { value: t("stats.availabilityValue"), label: t("stats.availabilityLabel"), kind: "default" as const }
   ] as const;
 
-  const categories = [
-    { title: t("categories.items.webApps.title"), description: t("categories.items.webApps.description"), icon: Code2 },
-    { title: t("categories.items.design.title"), description: t("categories.items.design.description"), icon: Brush },
-    { title: t("categories.items.content.title"), description: t("categories.items.content.description"), icon: PenTool },
-    { title: t("categories.items.marketing.title"), description: t("categories.items.marketing.description"), icon: Megaphone },
-    { title: t("categories.items.video.title"), description: t("categories.items.video.description"), icon: Video },
-    { title: t("categories.items.ecommerce.title"), description: t("categories.items.ecommerce.description"), icon: ShoppingBag }
+  const tickerItems = [
+    { label: t("categories.items.webApps.title"), icon: Code2 },
+    { label: t("categories.items.design.title"), icon: Brush },
+    { label: t("categories.items.content.title"), icon: PenTool },
+    { label: t("categories.items.marketing.title"), icon: Megaphone },
+    { label: t("categories.items.video.title"), icon: Video },
+    { label: t("categories.items.ecommerce.title"), icon: ShoppingBag },
+    { label: "ფინანსები", icon: BarChart3 },
+    { label: "ლოგისტიკა", icon: Truck },
+    { label: "აუდიტი", icon: Calculator },
+    { label: "ბუღალტერია", icon: Building2 },
+    { label: "HR", icon: UserCheck },
+    { label: "ბიზნეს კონსულტაცია", icon: BriefcaseBusiness },
+    { label: "იურიდიული მომსახურება", icon: Scale }
   ] as const;
 
   const fallbackTestimonials = [
@@ -195,34 +208,33 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <section className="border-b">
-        <Container className="py-16 sm:py-20">
+      <section className="overflow-hidden border-b">
+        <Container className="pt-16 sm:pt-20">
           <div className="flex items-end justify-between gap-6">
             <div>
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{t("categories.title")}</h2>
               <p className="mt-2 text-muted-foreground">{t("categories.subtitle")}</p>
             </div>
-            <ButtonLink href="/freelancers" variant="ghost" className="group">
+            <ButtonLink href="/freelancers" variant="ghost" className="group shrink-0">
               {t("categories.viewAll")} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </ButtonLink>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((c, i) => (
-              <Card key={c.title} className="group relative overflow-hidden p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-primary/5 blur-2xl transition-all group-hover:bg-primary/15" />
-                <div className="relative flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <c.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">{c.title}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{c.description}</div>
-                  </div>
-                </div>
-              </Card>
+        </Container>
+        <div className="relative mt-8 overflow-hidden pb-16 sm:pb-20">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent" />
+          <div className="animate-marquee flex w-max gap-3 pl-3">
+            {[...tickerItems, ...tickerItems].map((item, i) => (
+              <div
+                key={i}
+                className="flex cursor-default items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-[#161b22] px-5 py-2.5 text-sm text-gray-300 transition-all duration-200 hover:border-blue-500/60 hover:bg-blue-600/10 hover:text-blue-300"
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span>{item.label}</span>
+              </div>
             ))}
           </div>
-        </Container>
+        </div>
       </section>
 
       {/* How It Works - Two Column Guide */}
