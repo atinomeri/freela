@@ -9,6 +9,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
 import { Briefcase, MessageSquare, Star } from "lucide-react";
+import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 
 export const dynamic = "force-dynamic";
 
@@ -84,7 +85,14 @@ export default async function FreelancerDetailPage({ params }: Props) {
               className="shrink-0"
             />
             <div className="min-w-0 flex-1">
-              <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{profile.user.name}</h1>
+              <h1 className="flex items-center gap-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+                {profile.user.name}
+                {profile.isPremium && (
+                  <span title={t("premiumTooltip")}>
+                    <CheckBadgeIcon className="h-7 w-7 text-sky-500" />
+                  </span>
+                )}
+              </h1>
               <div className="mt-3 text-base leading-6 text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <ButtonLink href="/freelancers" size="sm" className="h-10 rounded-xl px-4" variant="secondary">

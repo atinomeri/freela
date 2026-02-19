@@ -975,7 +975,8 @@
     "bioMissing": "Bio not provided.",
     "detailsTitle": "Details",
     "detailsBody": "Full profile details will appear here.",
-    "detailsFootnote": "Contact information is hidden for privacy."
+    "detailsFootnote": "Contact information is hidden for privacy.",
+    "premiumTooltip": "Premium freelancer"
   },
   "chatbox": {
     "title": "Chat",

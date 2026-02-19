@@ -14,6 +14,7 @@ import { Link as I18nLink } from "@/i18n/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
+import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -83,7 +84,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
       ? [{ hourlyGEL: "asc" }, { updatedAt: "desc" }]
       : sort === "rate_desc"
         ? [{ hourlyGEL: "desc" }, { updatedAt: "desc" }]
-        : [{ updatedAt: "desc" }];
+        : [{ isPremium: "desc" }, { updatedAt: "desc" }];
 
   let total = 0;
   let freelancers = [];
@@ -170,7 +171,10 @@ export default async function FreelancersPage({ searchParams }: Props) {
                 <Card className="h-full rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">
                   <div className="flex items-center gap-3">
                     <Avatar src={f.user.avatarUrl || undefined} name={f.user.name} size="lg" />
-                    <div className="font-medium">{f.user.name}</div>
+                    <div className="flex items-center gap-2 font-medium">
+                      {f.user.name}
+                      {f.isPremium && <CheckBadgeIcon className="h-5 w-5 text-sky-500" />}
+                    </div>
                   </div>
                   <div className="text-sm text-muted-foreground">{f.title ?? t("defaultTitle")}</div>
                   {categoryLabel ? (
