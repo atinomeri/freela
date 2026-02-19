@@ -223,16 +223,18 @@ export default async function HomePage() {
         <div className="relative mt-8 overflow-hidden pb-16 sm:pb-20">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background to-transparent" />
-          <div className="animate-marquee flex w-max gap-3 pl-3">
-            {[...tickerItems, ...tickerItems].map((item, i) => (
-              <div
-                key={i}
-                className="flex cursor-default items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-[#161b22] px-5 py-2.5 text-sm text-gray-300 transition-all duration-200 hover:border-blue-500/60 hover:bg-blue-600/10 hover:text-blue-300"
-              >
-                <item.icon className="h-4 w-4 shrink-0" />
-                <span>{item.label}</span>
-              </div>
-            ))}
+          <div className="marquee-wrap">
+            <div className="animate-marquee flex w-max gap-3">
+              {[...tickerItems, ...tickerItems].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex cursor-default items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-[#161b22] px-5 py-2.5 text-sm text-gray-300 transition-colors duration-200 hover:border-blue-500/60 hover:bg-blue-600/10 hover:text-blue-300"
+                >
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
