@@ -99,11 +99,11 @@ export default async function FreelancerDetailPage({ params }: Props) {
         </div>
       </Card>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:items-start">
+      <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:items-start lg:gap-12">
         <div className="lg:col-span-2">
           <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
             <div className="text-base font-semibold">{t("bioTitle")}</div>
-            <p className="mt-4 max-w-[700px] text-left text-sm leading-[1.6] text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
+            <p className="mt-4 max-w-[560px] text-left text-sm leading-[1.6] text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
 
             {skills.length > 0 ? (
               <div className="mt-6 flex flex-wrap gap-2">
