@@ -108,6 +108,11 @@
     "badge": "Freelance platform for Georgia",
     "title": "Find a freelancer — or find an order — fast and safely",
     "subtitle": "{siteName} connects clients and professionals in Georgia: profiles with portfolios, order listings, and budgets in GEL.",
+    "solutionCards": [
+      { "title": "Automation", "description": "Save time by automating routine tasks" },
+      { "title": "Optimisation", "description": "Improve workflows and increase efficiency" },
+      { "title": "Consultation", "description": "Get professional advice from experienced specialists" }
+    ],
     "cta": {
       "findProject": "Find an order",
       "findFreelancer": "Find a freelancer"

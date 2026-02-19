@@ -13,7 +13,10 @@ import {
   Search,
   ShoppingBag,
   Sparkles,
-  Video
+  TrendingUp,
+  Users,
+  Video,
+  Zap
 } from "lucide-react";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
@@ -163,6 +166,31 @@ export default async function HomePage() {
                 </Card>
               ))}
             </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-b">
+        <Container className="py-14 sm:py-16">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[
+              { icon: Zap, title: t("solutionCards.0.title"), description: t("solutionCards.0.description") },
+              { icon: TrendingUp, title: t("solutionCards.1.title"), description: t("solutionCards.1.description") },
+              { icon: Users, title: t("solutionCards.2.title"), description: t("solutionCards.2.description") }
+            ].map((card) => (
+              <div
+                key={card.title}
+                className="group flex flex-col gap-4 rounded-xl border border-gray-800 bg-[#161b22] p-6 transition-all duration-300 hover:border-blue-600/60 hover:shadow-[0_0_24px_0_rgba(59,130,246,0.15)]"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/15 text-blue-400 transition-colors duration-300 group-hover:bg-blue-600/25">
+                  <card.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">{card.title}</h3>
+                  <p className="mt-1 text-sm text-gray-400">{card.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </Container>
       </section>
