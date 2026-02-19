@@ -171,8 +171,8 @@ export default async function HomePage() {
       </section>
 
       <section className="border-b">
-        <Container className="py-14 sm:py-16">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Container className="py-16 sm:py-20 lg:py-24">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {[
               { icon: Zap, title: t("solutionCards.0.title"), description: t("solutionCards.0.description") },
               { icon: TrendingUp, title: t("solutionCards.1.title"), description: t("solutionCards.1.description") },
@@ -180,14 +180,14 @@ export default async function HomePage() {
             ].map((card) => (
               <div
                 key={card.title}
-                className="group flex flex-col gap-4 rounded-xl border border-gray-800 bg-[#161b22] p-6 transition-all duration-300 hover:border-blue-600/60 hover:shadow-[0_0_24px_0_rgba(59,130,246,0.15)]"
+                className="group flex h-full flex-col items-center gap-5 rounded-xl border border-gray-800 bg-[#161b22] p-8 text-center transition-all duration-300 hover:border-blue-600/60 hover:shadow-[0_0_28px_0_rgba(59,130,246,0.18)]"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600/15 text-blue-400 transition-colors duration-300 group-hover:bg-blue-600/25">
-                  <card.icon className="h-5 w-5" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600/15 text-blue-400 transition-colors duration-300 group-hover:bg-blue-600/30">
+                  <card.icon className="h-7 w-7" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-white">{card.title}</h3>
-                  <p className="mt-1 text-sm text-gray-400">{card.description}</p>
+                <div className="flex flex-col items-center gap-2">
+                  <h3 className="text-base font-semibold text-white">{card.title}</h3>
+                  <p className="text-sm text-gray-400" style={{ lineHeight: "1.6" }}>{card.description}</p>
                 </div>
               </div>
             ))}
