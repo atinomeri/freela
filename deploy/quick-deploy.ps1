@@ -43,7 +43,7 @@ function Test-Command {
     return $?
 }
 
-function Check-Prerequisites {
+function Test-Prerequisites {
     Write-Host "`n=== Checking Prerequisites ===" -ForegroundColor Cyan
     
     $required = @("git", "node")
@@ -57,7 +57,7 @@ function Check-Prerequisites {
     }
 }
 
-function Check-GitStatus {
+function Get-GitStatus {
     Write-Host "`n=== Checking Git Status ===" -ForegroundColor Cyan
     
     $status = git status --porcelain
@@ -71,7 +71,7 @@ function Check-GitStatus {
     }
 }
 
-function Run-Build {
+function Invoke-Build {
     Write-Host "`n=== Building Application ===" -ForegroundColor Cyan
     
     Write-Step "Running build..." "pending"
@@ -87,7 +87,7 @@ function Run-Build {
     }
 }
 
-function Run-Tests {
+function Invoke-Tests {
     if ($SkipTests) {
         Write-Step "Tests skipped (--SkipTests flag)" "info"
         return $true
@@ -100,9 +100,9 @@ function Run-Tests {
     
     if ($LASTEXITCODE -eq 0) {
         # Extract test count
-        $matches = $testOutput | Select-String "Tests\s+(\d+)\s+passed"
-        if ($matches) {
-            Write-Step "All tests passed: $($matches.Matches[0].Groups[1].Value) tests" "success"
+        $testMatches = $testOutput | Select-String "Tests\s+(\d+)\s+passed"
+        if ($testMatches) {
+            Write-Step "All tests passed: $($testMatches.Matches[0].Groups[1].Value) tests" "success"
         } else {
             Write-Step "Tests passed" "success"
         }
@@ -114,7 +114,7 @@ function Run-Tests {
     }
 }
 
-function Commit-Changes {
+function Save-Changes {
     param([string]$Message)
     
     Write-Host "`n=== Committing Changes ===" -ForegroundColor Cyan
@@ -140,7 +140,7 @@ function Commit-Changes {
     }
 }
 
-function Push-Changes {
+function Publish-Changes {
     Write-Host "`n=== Pushing to Remote ===" -ForegroundColor Cyan
     
     Write-Step "Pushing to origin/$GitBranch..." "pending"
@@ -156,7 +156,7 @@ function Push-Changes {
     }
 }
 
-function Check-ServerHealth {
+function Test-ServerHealth {
     Write-Host "`n=== Checking Server Health ===" -ForegroundColor Cyan
     
     Write-Step "Querying https://freela.ge/api/health..." "pending"
@@ -196,31 +196,31 @@ Write-Host "`n====================================" -ForegroundColor Cyan
 Write-Host "     FREELA DEPLOYMENT PIPELINE     " -ForegroundColor Cyan
 Write-Host "====================================`n" -ForegroundColor Cyan
 
-Check-Prerequisites
+Test-Prerequisites
 
-$hasChanges = Check-GitStatus
+$hasChanges = Get-GitStatus
 if (-not $hasChanges) {
     Write-Step "Nothing to deploy. No changes found." "info"
     exit 0
 }
 
-if (-not (Run-Build)) {
+if (-not (Invoke-Build)) {
     exit 1
 }
 
-if (-not (Run-Tests)) {
+if (-not (Invoke-Tests)) {
     exit 1
 }
 
-if (-not (Commit-Changes $CommitMessage)) {
+if (-not (Save-Changes $CommitMessage)) {
     exit 1
 }
 
-if (-not (Push-Changes)) {
+if (-not (Publish-Changes)) {
     exit 1
 }
 
 Start-Sleep -Seconds 2
-Check-ServerHealth
+Test-ServerHealth
 
 Show-Summary

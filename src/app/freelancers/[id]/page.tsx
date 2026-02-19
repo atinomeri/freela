@@ -218,7 +218,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
             </Card>
 
             {/* Contact / CTA Placeholder - Could be actual actions */}
-             <Card className="border-border/70 shadow-sm p-6 bg-primary/5 border-primary/20" hover={false}>
+             <Card className="shadow-sm p-6 bg-primary/5 border-primary/20" hover={false}>
                 <div className="font-semibold mb-2">Interested in working with {profile.user.name}?</div>
                 <p className="text-sm text-muted-foreground mb-4">
                   Check out their projects or post a job to invite them.
