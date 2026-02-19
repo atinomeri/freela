@@ -14,7 +14,7 @@ import { Link as I18nLink } from "@/i18n/navigation";
 import { isPageEnabled } from "@/lib/site-pages";
 import { getSiteContentMap } from "@/lib/site-content";
 import { withOverrides } from "@/lib/i18n-overrides";
-import { CheckBadgeIcon } from "@heroicons/react/24/solid";
+import { BadgeCheck } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -173,7 +173,7 @@ export default async function FreelancersPage({ searchParams }: Props) {
                     <Avatar src={f.user.avatarUrl || undefined} name={f.user.name} size="lg" />
                     <div className="flex items-center gap-2 font-medium">
                       {f.user.name}
-                      {f.isPremium && <CheckBadgeIcon className="h-5 w-5 text-sky-500" />}
+                        {f.isPremium && <BadgeCheck className="h-5 w-5 fill-sky-500 text-white" />}
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground">{f.title ?? t("defaultTitle")}</div>

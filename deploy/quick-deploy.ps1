@@ -29,10 +29,10 @@ function Write-Step {
         "info" = "Cyan"
     }
     $symbol = @{
-        "pending" = "⏳"
-        "success" = "✅"
-        "error" = "❌"
-        "info" = "ℹ️"
+        "pending" = "[WAIT]"
+        "success" = "[OK]"
+        "error" = "[FAIL]"
+        "info" = "[INFO]"
     }
     Write-Host "$($symbol[$Status]) $Message" -ForegroundColor $colors[$Status]
 }
@@ -192,9 +192,9 @@ Live site: https://freela.ge/api/health
 }
 
 # Main execution
-Write-Host "`n╔════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║     FREELA DEPLOYMENT PIPELINE     ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════╝`n" -ForegroundColor Cyan
+Write-Host "`n====================================" -ForegroundColor Cyan
+Write-Host "     FREELA DEPLOYMENT PIPELINE     " -ForegroundColor Cyan
+Write-Host "====================================`n" -ForegroundColor Cyan
 
 Check-Prerequisites
 

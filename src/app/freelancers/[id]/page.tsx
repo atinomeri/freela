@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Avatar } from "@/components/ui/avatar";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
-import { Briefcase, MessageSquare, Star } from "lucide-react";
-import { CheckBadgeIcon } from "@heroicons/react/24/solid";
+import { Briefcase, MessageSquare, Star, Calendar, BadgeCheck } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +47,17 @@ export default async function FreelancerDetailPage({ params }: Props) {
   const [profile, reviewStats, completedJobs] = await Promise.all([
     prisma.profile.findFirst({
       where: { userId: id, user: { role: "FREELANCER" } },
-      include: { user: { select: { id: true, name: true, avatarUrl: true } } }
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            createdAt: true,
+            email: true
+          }
+        }
+      }
     }),
     prisma.review.aggregate({
       where: { freelancerId: id, isApproved: true },
@@ -62,93 +71,163 @@ export default async function FreelancerDetailPage({ params }: Props) {
   if (!profile) notFound();
 
   const skills = normalizeSkills(profile.skills);
-  const avgRating = reviewStats._avg.rating;
+  const avgRating = reviewStats._avg.rating || 0;
   const reviewsCount = reviewStats._count._all;
 
+  // Use a fallback date if createdAt is missing or invalid (though schema says it's required)
+  const joinDate = profile.user.createdAt ? new Date(profile.user.createdAt).toLocaleDateString() : "";
+
   return (
-    <Container className="py-12 sm:py-16">
-      <div className="text-sm text-muted-foreground">
-        <Link className="inline-flex h-9 items-center rounded-lg border border-border/70 bg-background/70 px-3 text-xs font-medium text-foreground/80 transition-colors hover:bg-background hover:text-foreground" href="/freelancers">
-          {t("breadcrumbFreelancers")}
-        </Link>{" "}
-        / <span className="text-foreground">{profile.user.name}</span>
-      </div>
+    <div className="min-h-screen bg-muted/30">
+      <Container className="py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6 flex items-center text-sm text-muted-foreground">
+          <Link 
+            href="/freelancers" 
+            className="hover:text-foreground transition-colors"
+          >
+            {t("breadcrumbFreelancers")}
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="text-foreground font-medium">{profile.user.name}</span>
+        </div>
 
-      <Card className="mt-4 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
-        <div className="flex flex-col gap-5">
-          <div className="flex min-w-0 items-start gap-5">
-            <Avatar
-              src={profile.user.avatarUrl || undefined}
-              name={profile.user.name}
-              fallback={profile.user.name?.slice(0, 2).toUpperCase()}
-              size="2xl"
-              className="shrink-0"
-            />
-            <div className="min-w-0 flex-1">
-              <h1 className="flex items-center gap-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-                {profile.user.name}
-                {profile.isPremium && (
-                  <span title={t("premiumTooltip")}>
-                    <CheckBadgeIcon className="h-7 w-7 text-sky-500" />
+        <div className="grid gap-6 lg:grid-cols-12">
+          {/* Main Info Column */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            {/* Profile Header Card */}
+            <Card className="overflow-visible border-border/70 shadow-sm" hover={false}>
+              <div className="h-32 w-full rounded-t-2xl bg-gradient-to-r from-primary/10 to-transparent"></div>
+              <div className="px-6 pb-6 relative">
+                <div className="-mt-12 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                  <div className="relative">
+                    <Avatar 
+                      src={profile.user.avatarUrl || undefined} 
+                      name={profile.user.name} 
+                      size="2xl"
+                      className="h-24 w-24 border-4 border-background shadow-md bg-background"
+                    />
+                    {profile.isPremium && (
+                      <div className="absolute bottom-0 right-0 bg-background rounded-full p-0.5" title={t("premiumTooltip")}>
+                        <BadgeCheck className="h-6 w-6 fill-sky-500 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <ButtonLink variant="outline" href="/freelancers" className="flex-1 sm:flex-none justify-center">
+                      {t("backToFreelancers")}
+                    </ButtonLink>
+                    <ButtonLink variant="primary" href="/projects" className="flex-1 sm:flex-none justify-center">
+                      {t("browseProjects")}
+                    </ButtonLink>
+                  </div>
+                </div>
+
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight sm:text-3xl flex items-center gap-2">
+                    {profile.user.name}
+                  </h1>
+                  <p className="mt-1 text-lg text-muted-foreground font-medium">
+                    {profile.title ?? t("defaultTitle")}
+                  </p>
+                  
+                  <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4" />
+                      <span>Has been with us since {joinDate}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Bio Section */}
+            <Card className="border-border/70 shadow-sm" hover={false}>
+              <CardHeader>
+                <div className="text-lg font-semibold">{t("bioTitle")}</div>
+              </CardHeader>
+              <CardContent>
+                <div className="prose prose-sm max-w-none text-muted-foreground">
+                  <p className="whitespace-pre-line leading-relaxed">
+                    {profile.bio ?? t("bioMissing")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Skills Section */}
+            {skills.length > 0 && (
+              <Card className="border-border/70 shadow-sm" hover={false}>
+                <CardHeader>
+                  <div className="text-lg font-semibold">Skills & Expertise</div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {skills.map((skill) => (
+                      <Badge key={skill} variant="secondary" className="px-3 py-1 text-sm bg-muted text-foreground hover:bg-muted/80">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Sidebar Column */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {/* Stats Card */}
+            <Card className="border-border/70 shadow-sm" hover={false}>
+              <CardHeader className="pb-3 border-b border-border/50">
+                <div className="font-semibold">Performance Overview</div>
+              </CardHeader>
+              {/* Manual padding for content to ensure spacing */}
+              <div className="p-6 pt-6 grid gap-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-400">
+                      <Star className="h-5 w-5 fill-current" />
+                    </div>
+                    <span className="font-medium text-sm text-muted-foreground">{t("ratingLabel")}</span>
+                  </div>
+                  <span className="font-bold text-lg">
+                    {reviewsCount > 0 ? avgRating.toFixed(1) : "N/A"}
                   </span>
-                )}
-              </h1>
-              <div className="mt-3 text-base leading-6 text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <ButtonLink href="/freelancers" size="sm" className="h-10 rounded-xl px-4" variant="secondary">
-                  {t("backToFreelancers")}
-                </ButtonLink>
-                <ButtonLink href="/projects" size="sm" className="h-10 rounded-xl px-4">
-                  {t("browseProjects")}
-                </ButtonLink>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                      <MessageSquare className="h-5 w-5" />
+                    </div>
+                    <span className="font-medium text-sm text-muted-foreground">{t("reviewsLabel")}</span>
+                  </div>
+                  <span className="font-bold text-lg">{reviewsCount}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
+                      <Briefcase className="h-5 w-5" />
+                    </div>
+                    <span className="font-medium text-sm text-muted-foreground">{t("completedJobsLabel")}</span>
+                  </div>
+                  <span className="font-bold text-lg">{completedJobs}</span>
+                </div>
               </div>
-            </div>
+            </Card>
+
+            {/* Contact / CTA Placeholder - Could be actual actions */}
+             <Card className="border-border/70 shadow-sm p-6 bg-primary/5 border-primary/20" hover={false}>
+                <div className="font-semibold mb-2">Interested in working with {profile.user.name}?</div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Check out their projects or post a job to invite them.
+                </p>
+                <ButtonLink className="w-full" href="/projects/create">Post a Job</ButtonLink>
+            </Card>
           </div>
         </div>
-      </Card>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:items-start lg:gap-12">
-        <div className="lg:col-span-2">
-          <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
-            <div className="text-base font-semibold">{t("bioTitle")}</div>
-            <p className="mt-4 max-w-[560px] text-left text-sm leading-[1.6] text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
-
-            {skills.length > 0 ? (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {skills.slice(0, 10).map((skill) => (
-                  <Badge key={skill}>{skill}</Badge>
-                ))}
-              </div>
-            ) : null}
-          </Card>
-        </div>
-
-        <div className="grid gap-3">
-          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <Star className="h-4 w-4" />
-              {t("ratingLabel")}
-            </div>
-            <div className="mt-2 text-lg font-semibold">
-              {reviewsCount > 0 && avgRating ? t("ratingValue", { rating: avgRating.toFixed(1) }) : t("ratingNoneValue")}
-            </div>
-          </div>
-          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <MessageSquare className="h-4 w-4" />
-              {t("reviewsLabel")}
-            </div>
-            <div className="mt-2 text-lg font-semibold">{t("reviewsValue", { count: reviewsCount })}</div>
-          </div>
-          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <Briefcase className="h-4 w-4" />
-              {t("completedJobsLabel")}
-            </div>
-            <div className="mt-2 text-lg font-semibold">{t("completedJobsValue", { count: completedJobs })}</div>
-          </div>
-        </div>
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 }
