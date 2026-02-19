@@ -44,7 +44,7 @@ function Test-Command {
 }
 
 function Test-Prerequisites {
-    Write-Host "`n=== Checking Prerequisites ===" -ForegroundColor Cyan
+    Write-Host "`n=== Testing Prerequisites ===" -ForegroundColor Cyan
     
     $required = @("git", "node")
     foreach ($cmd in $required) {
@@ -180,11 +180,11 @@ function Test-ServerHealth {
 function Show-Summary {
     Write-Host "`n=== Deployment Summary ===" -ForegroundColor Cyan
     Write-Host "
-✅ Build completed
-✅ Tests passed  
-✅ Changes committed
-✅ Changes pushed to GitHub
-⏳ GitHub Actions will auto-deploy
+[OK] Build completed
+[OK] Tests passed  
+[OK] Changes committed
+[OK] Changes pushed to GitHub
+[WAIT] GitHub Actions will auto-deploy
 
 Monitor deployment at: https://github.com/atinomeri/freela/actions
 Live site: https://freela.ge/api/health

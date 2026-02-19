@@ -178,9 +178,6 @@ export default async function FreelancerDetailPage({ params }: Props) {
           <div className="lg:col-span-4 flex flex-col gap-6">
             {/* Stats Card */}
             <Card className="border-border/70 shadow-sm" hover={false}>
-              <CardHeader className="pb-3 border-b border-border/50">
-                <div className="font-semibold">Performance Overview</div>
-              </CardHeader>
               {/* Manual padding for content to ensure spacing */}
               <div className="p-6 pt-6 grid gap-6">
                 <div className="flex items-center justify-between">
@@ -218,13 +215,13 @@ export default async function FreelancerDetailPage({ params }: Props) {
             </Card>
 
             {/* Contact / CTA Placeholder - Could be actual actions */}
-             <Card className="shadow-sm p-6 bg-primary/5 border-primary/20" hover={false}>
+             {/* <Card className="shadow-sm p-6 bg-primary/5 border-primary/20" hover={false}>
                 <div className="font-semibold mb-2">Interested in working with {profile.user.name}?</div>
                 <p className="text-sm text-muted-foreground mb-4">
                   Check out their projects or post a job to invite them.
                 </p>
                 <ButtonLink className="w-full" href="/projects/create">Post a Job</ButtonLink>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </Container>
