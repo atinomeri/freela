@@ -8,7 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
-import { Briefcase, DollarSign, MessageSquare, Star } from "lucide-react";
+import { Briefcase, MessageSquare, Star } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -74,8 +74,8 @@ export default async function FreelancerDetailPage({ params }: Props) {
       </div>
 
       <Card className="mt-4 rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 items-center gap-5">
+        <div className="flex flex-col gap-5">
+          <div className="flex min-w-0 items-start gap-5">
             <Avatar
               src={profile.user.avatarUrl || undefined}
               name={profile.user.name}
@@ -83,18 +83,18 @@ export default async function FreelancerDetailPage({ params }: Props) {
               size="2xl"
               className="shrink-0"
             />
-            <div className="min-w-0">
-              <h1 className="truncate text-3xl font-semibold tracking-tight sm:text-4xl">{profile.user.name}</h1>
-              <div className="mt-2 text-base text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{profile.user.name}</h1>
+              <div className="mt-3 text-base leading-6 text-muted-foreground">{profile.title ?? t("defaultTitle")}</div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <ButtonLink href="/freelancers" size="sm" className="h-10 rounded-xl px-4" variant="secondary">
+                  {t("backToFreelancers")}
+                </ButtonLink>
+                <ButtonLink href="/projects" size="sm" className="h-10 rounded-xl px-4">
+                  {t("browseProjects")}
+                </ButtonLink>
+              </div>
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <ButtonLink href="/freelancers" size="sm" className="h-10 rounded-xl px-4" variant="secondary">
-              {t("backToFreelancers")}
-            </ButtonLink>
-            <ButtonLink href="/projects" size="sm" className="h-10 rounded-xl px-4">
-              {t("browseProjects")}
-            </ButtonLink>
           </div>
         </div>
       </Card>
@@ -103,7 +103,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
         <div className="lg:col-span-2">
           <Card className="rounded-2xl border-border/70 bg-background/70 p-6 shadow-sm backdrop-blur-sm sm:p-7">
             <div className="text-base font-semibold">{t("bioTitle")}</div>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
+            <p className="mt-4 max-w-[800px] text-sm leading-relaxed text-muted-foreground">{profile.bio ?? t("bioMissing")}</p>
 
             {skills.length > 0 ? (
               <div className="mt-6 flex flex-wrap gap-2">
@@ -112,22 +112,10 @@ export default async function FreelancerDetailPage({ params }: Props) {
                 ))}
               </div>
             ) : null}
-
-            <div className="mt-6 text-sm text-muted-foreground">{t("detailsBody")}</div>
-            <div className="mt-2 text-xs text-muted-foreground">{t("detailsFootnote")}</div>
           </Card>
         </div>
 
         <div className="grid gap-3">
-          <div className="rounded-xl border border-border/70 bg-background/70 p-4">
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <DollarSign className="h-4 w-4" />
-              {t("rateLabel")}
-            </div>
-            <div className="mt-2 text-lg font-semibold">
-              {profile.hourlyGEL ? t("rateValue", { rate: profile.hourlyGEL }) : t("rateMissing")}
-            </div>
-          </div>
           <div className="rounded-xl border border-border/70 bg-background/70 p-4">
             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               <Star className="h-4 w-4" />

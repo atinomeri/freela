@@ -12,7 +12,6 @@ type Props = {
     title: string;
     bio: string;
     skills: string;
-    hourlyGEL: string;
     avatarUrl: string;
   };
 };
@@ -24,7 +23,6 @@ export function ProfileForm({ initial }: Props) {
   const [title, setTitle] = useState(initial.title);
   const [bio, setBio] = useState(initial.bio);
   const [skills, setSkills] = useState(initial.skills);
-  const [hourlyGEL, setHourlyGEL] = useState(initial.hourlyGEL);
   const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl);
   const [avatarKey, setAvatarKey] = useState<number>(() => Date.now());
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -46,7 +44,6 @@ export function ProfileForm({ initial }: Props) {
     if (title.trim().length < 2) return t("errors.titleMin");
     if (bio.trim().length < 20) return t("errors.bioMin");
     if (bio.trim().length > 1000) return t("errors.bioMax");
-    if (hourlyGEL.trim() !== "" && !/^\d+$/.test(hourlyGEL.trim())) return t("errors.rateNumeric");
     return "";
   };
 
@@ -117,8 +114,7 @@ export function ProfileForm({ initial }: Props) {
               body: JSON.stringify({
                 title,
                 bio,
-                skills,
-                hourlyGEL
+                skills
               })
             });
             const json = (await res.json().catch(() => null)) as { ok?: boolean; error?: string; errorCode?: string } | null;
@@ -208,17 +204,6 @@ export function ProfileForm({ initial }: Props) {
             onChange={(e) => setSkills(e.target.value)}
             className="h-10 rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
             placeholder={t("skillsPlaceholder")}
-          />
-        </label>
-
-        <label className="grid gap-1 text-sm">
-          {t("rate")}
-          <input
-            value={hourlyGEL}
-            onChange={(e) => setHourlyGEL(e.target.value)}
-            className="h-10 rounded-xl border border-border/80 bg-background/70 px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
-            placeholder={t("ratePlaceholder")}
-            inputMode="numeric"
           />
         </label>
 

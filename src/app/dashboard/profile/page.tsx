@@ -21,7 +21,7 @@ export default async function ProfilePage() {
 
   const profile = await prisma.profile.findUnique({
     where: { userId: session.user.id },
-    select: { title: true, bio: true, skills: true, hourlyGEL: true }
+    select: { title: true, bio: true, skills: true }
   });
 
   const user = await prisma.user.findUnique({
@@ -46,7 +46,6 @@ export default async function ProfilePage() {
             title: profile?.title ?? "",
             bio: profile?.bio ?? "",
             skills: skillsText ?? "",
-            hourlyGEL: profile?.hourlyGEL ? String(profile?.hourlyGEL) : "",
             avatarUrl: user?.avatarUrl ?? ""
           }}
         />
