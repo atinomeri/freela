@@ -86,8 +86,11 @@ jobs:
             exit 1
           fi
           cd deploy
-          echo "==> Starting docker compose build & up..."
-          docker compose -f docker-compose.prod.yml up -d --build
+          echo "==> Building new image (old container keeps serving)..."
+          docker compose -f docker-compose.prod.yml build app
+
+          echo "==> Rolling update: start new container & wait for healthy..."
+          docker compose -f docker-compose.prod.yml up -d --no-deps --wait --wait-timeout 200 app
 
           # Wait for the app container to become healthy
           # (entrypoint runs migrations automatically before starting the server)

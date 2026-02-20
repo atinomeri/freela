@@ -30,7 +30,7 @@ const baseLogger: Logger = pino({
     : {}),
 });
 
-type LogContext = Record<string, unknown>;
+export type LogContext = Record<string, unknown>;
 
 /**
  * Create a child logger with additional context

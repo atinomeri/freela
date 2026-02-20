@@ -5,6 +5,7 @@
 
 import "server-only";
 import { cacheGetOrSet, cacheDelete } from "./cache";
+import { logInfo, type LogContext } from "./logger";
 
 // ============================================
 // Feature Flag Types
@@ -228,7 +229,7 @@ export async function updateFeatureFlag(
   await cacheDelete("feature-flags:all");
 
   // Log the change
-  console.log(`[Feature Flag] Updated "${key}":`, updates);
+  logInfo(`[Feature Flag] Updated "${key}"`, updates as LogContext);
 }
 
 /**

@@ -7,6 +7,7 @@
  * Or use the barrel:
  *   import { projectService, proposalService } from "@/lib/services";
  */
+export * as authService from "./auth-service";
 export * as notificationService from "./notification-service";
 export * as proposalService from "./proposal-service";
 export * as projectService from "./project-service";

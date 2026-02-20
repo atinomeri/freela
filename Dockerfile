@@ -48,4 +48,5 @@ RUN npm prune --omit=dev && npm cache clean --force
 RUN chmod +x /app/scripts/docker-entrypoint.sh
 
 EXPOSE 3000
+STOPSIGNAL SIGTERM
 CMD ["/app/scripts/docker-entrypoint.sh"]

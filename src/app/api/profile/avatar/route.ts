@@ -6,6 +6,7 @@ import { AVATAR_LIMITS, getAttachmentAbsolutePath, saveAvatarFile } from "@/lib/
 import { invalidateFreelancerListingCache } from "@/lib/cache";
 import fs from "node:fs";
 import path from "node:path";
+import { logDebug, logWarn, reportError } from "@/lib/logger";
 
 export const runtime = "nodejs";
 const NEXT_BODY_SOFT_LIMIT_BYTES = 4 * 1024 * 1024;
@@ -29,7 +30,7 @@ function extractAvatarStoragePath(avatarUrl: string | null | undefined) {
 
 export async function POST(req: Request) {
   try {
-    console.log("Upload started...");
+    logDebug("Upload started");
 
     const session = await getServerSession(authOptions);
     if (!session?.user) return jsonError("UNAUTHORIZED", 401);
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
     const contentLengthRaw = req.headers.get("content-length");
     const contentLength = contentLengthRaw ? Number(contentLengthRaw) : 0;
     if (Number.isFinite(contentLength) && contentLength > NEXT_BODY_SOFT_LIMIT_BYTES) {
-      console.warn("Upload request body is larger than 4MB", { contentLength });
+      logWarn("Upload request body is larger than 4MB", { contentLength });
     }
 
     const form = await req.formData().catch(() => null);
@@ -46,10 +47,10 @@ export async function POST(req: Request) {
     const file = form.get("avatar");
     if (!(file instanceof File)) return jsonError("INVALID_FORM", 400);
 
-    console.log("File received:", file.name, file.size, file.type);
+    logDebug("File received", { name: file.name, size: file.size, type: file.type });
 
     if (file.size > AVATAR_LIMITS.maxFileBytes) {
-      console.warn("Upload rejected: file is larger than avatar limit", {
+      logWarn("Upload rejected: file is larger than avatar limit", {
         fileSize: file.size,
         maxFileBytes: AVATAR_LIMITS.maxFileBytes
       });
@@ -67,7 +68,7 @@ export async function POST(req: Request) {
     const uploadsRoot = (process.env.UPLOADS_DIR?.trim() || path.join(process.cwd(), "data", "uploads")).trim();
     const avatarDir = path.join(uploadsRoot, "avatars", session.user.id);
     await fs.promises.mkdir(avatarDir, { recursive: true });
-    console.log("Upload directory ready:", avatarDir);
+    logDebug("Upload directory ready", { avatarDir });
 
     let saved: { storagePath: string } | null = null;
     try {
@@ -114,7 +115,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, avatarUrl }, { status: 200 });
   } catch (error) {
-    console.error("UPLOAD ERROR:", error);
+    reportError("Avatar upload failed", error);
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {

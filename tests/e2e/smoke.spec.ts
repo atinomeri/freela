@@ -479,3 +479,98 @@ test("message thread supports file attachments", async ({ page, baseURL, browser
 
   await expect(page.getByRole("link", { name: new RegExp(fileName) }).first()).toBeVisible({ timeout: 30_000 });
 });
+
+test("full flow: register → create project → apply → accept → message", async ({ page, baseURL, browser }) => {
+  if (!baseURL) throw new Error("Missing baseURL");
+  test.setTimeout(180_000);
+
+  const suffix = randSuffix();
+  const employerEmail = `e2e_flow_emp_${suffix}@example.com`;
+  const freelancerEmail = `e2e_flow_fl_${suffix}@example.com`;
+
+  // 1. Register both users
+  expect((await registerEmployer(baseURL, { email: employerEmail, password: TEST_PASSWORD, name: `Flow Emp ${suffix}` })).status).toBe(200);
+  expect((await registerFreelancer(baseURL, { email: freelancerEmail, password: TEST_PASSWORD, category: "IT_DEVELOPMENT", name: `Flow FL ${suffix}` })).status).toBe(200);
+
+  // 2. Employer creates a project
+  await loginViaUi(page, baseURL, employerEmail, TEST_PASSWORD);
+  const empCookie = await getCookieHeader(page, baseURL);
+  const projectTitle = `Full Flow Project ${suffix}`;
+
+  const createRes = await fetch(`${baseURL}/api/projects`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: empCookie },
+    body: JSON.stringify({
+      category: "IT_DEVELOPMENT",
+      title: projectTitle,
+      description: "End-to-end full-flow test project with enough text for validation to pass.",
+      budgetGEL: ""
+    })
+  });
+  const createText = await createRes.text();
+  expect(createRes.status, createText).toBe(200);
+  const createJson = JSON.parse(createText) as { project?: { id?: string } };
+  const projectId = createJson?.project?.id;
+  expect(projectId).toBeTruthy();
+
+  // 3. Freelancer applies
+  const flPage = await browser.newPage();
+  await loginViaUi(flPage, baseURL, freelancerEmail, TEST_PASSWORD);
+  const flCookie = await getCookieHeader(flPage, baseURL);
+
+  const applyRes = await fetch(`${baseURL}/api/projects/${projectId}/apply`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: flCookie },
+    body: JSON.stringify({
+      message: "I would love to work on this project. I have extensive experience in this area.",
+      priceGEL: ""
+    })
+  });
+  const applyText = await applyRes.text();
+  expect(applyRes.status, applyText).toBe(200);
+  const applyJson = JSON.parse(applyText) as { proposal?: { id?: string; freelancerId?: string } };
+  const proposalId = applyJson?.proposal?.id;
+  const freelancerId = applyJson?.proposal?.freelancerId;
+  expect(proposalId).toBeTruthy();
+  expect(freelancerId).toBeTruthy();
+  await flPage.close();
+
+  // 4. Employer accepts the proposal
+  const acceptRes = await fetch(`${baseURL}/api/proposals/${proposalId}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json", cookie: empCookie },
+    body: JSON.stringify({ status: "ACCEPTED" })
+  });
+  expect(acceptRes.status, await acceptRes.text()).toBe(200);
+
+  // 5. Employer sends a message in the thread
+  const bootstrapRes = await fetch(`${baseURL}/api/threads/bootstrap/messages`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: empCookie },
+    body: JSON.stringify({
+      body: "Hello! I just accepted your proposal. Let's get started.",
+      projectId,
+      freelancerId
+    })
+  });
+  const bootstrapText = await bootstrapRes.text();
+  expect(bootstrapRes.status, bootstrapText).toBe(200);
+  const bsJson = JSON.parse(bootstrapText) as { threadId?: string };
+  const threadId = bsJson?.threadId;
+  expect(threadId).toBeTruthy();
+
+  // 6. Verify message appears in thread page
+  await page.goto(`/dashboard/messages/${threadId}`);
+  await expect(page.getByText("Let's get started").first()).toBeVisible({ timeout: 30_000 });
+
+  // 7. Verify project appears in employer dashboard as in-progress
+  await page.goto("/dashboard/projects");
+  await expect(page.getByText(projectTitle).first()).toBeVisible({ timeout: 15_000 });
+
+  // 8. Verify proposal is recorded in DB
+  const dbProposal = await prisma.proposal.findUnique({
+    where: { id: proposalId as string },
+    select: { status: true }
+  });
+  expect(dbProposal?.status).toBe("ACCEPTED");
+});
