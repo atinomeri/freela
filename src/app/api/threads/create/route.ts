@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { Prisma } from "@prisma/client";
+import * as threadService from "@/lib/services/thread-service";
+import { ServiceError } from "@/lib/services/errors";
 
-function jsonError(errorCode: string, status: number) {
-  return NextResponse.json({ ok: false, errorCode }, { status });
+function jsonError(errorCode: string, status: number, extra?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, errorCode, ...extra }, { status });
 }
 
 export async function POST(req: Request) {
@@ -20,54 +20,16 @@ export async function POST(req: Request) {
   const freelancerIdRaw = String(body?.freelancerId ?? "").trim();
   if (!projectId) return jsonError("INVALID_REQUEST", 400);
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    select: { id: true, employerId: true }
-  });
-  if (!project) return jsonError("NOT_FOUND", 404);
-
-  let freelancerId = "";
-  if (session.user.role === "FREELANCER") {
-    freelancerId = session.user.id;
-  } else if (session.user.role === "EMPLOYER") {
-    freelancerId = freelancerIdRaw;
-  } else {
-    return jsonError("FORBIDDEN", 403);
-  }
-  if (!freelancerId) return jsonError("INVALID_REQUEST", 400);
-
-  const isEmployer = session.user.id === project.employerId;
-  const isFreelancer = session.user.id === freelancerId;
-  if (!isEmployer && !isFreelancer) {
-    return jsonError("FORBIDDEN", 403);
-  }
-
-  const proposal = await prisma.proposal.findFirst({
-    where: { projectId, freelancerId },
-    select: { id: true }
-  });
-  if (!proposal) {
-    return jsonError("FORBIDDEN", 403);
-  }
-
   try {
-    const thread = await prisma.thread.create({
-      data: {
-        projectId: project.id,
-        employerId: project.employerId,
-        freelancerId
-      },
-      select: { id: true }
+    const thread = await threadService.findOrCreateThread({
+      projectId,
+      freelancerId: freelancerIdRaw,
+      userId: session.user.id,
+      userRole: session.user.role,
     });
     return NextResponse.json({ ok: true, threadId: thread.id }, { status: 200 });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      const existing = await prisma.thread.findUnique({
-        where: { projectId_freelancerId: { projectId, freelancerId } },
-        select: { id: true }
-      });
-      if (existing) return NextResponse.json({ ok: true, threadId: existing.id }, { status: 200 });
-    }
+  } catch (e) {
+    if (e instanceof ServiceError) return jsonError(e.code, e.statusHint, e.extra);
     return jsonError("REQUEST_FAILED", 500);
   }
 }

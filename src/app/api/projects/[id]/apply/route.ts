@@ -1,13 +1,13 @@
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { publish } from "@/lib/realtime-bus";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import * as proposalService from "@/lib/services/proposal-service";
+import { ServiceError } from "@/lib/services/errors";
 
-function jsonError(errorCode: string, status: number) {
-  return NextResponse.json({ ok: false, errorCode }, { status });
+function jsonError(errorCode: string, status: number, extra?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, errorCode, ...extra }, { status });
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -22,8 +22,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const message = String(body?.message ?? "").trim();
   const priceRaw = body?.priceGEL;
 
-  if (message.length < 20) return jsonError("MESSAGE_MIN", 400);
-
   let priceGEL: number | null = null;
   if (priceRaw !== undefined && priceRaw !== null && String(priceRaw).trim() !== "") {
     const parsed = Number.parseInt(String(priceRaw), 10);
@@ -32,56 +30,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   try {
-    // If DB was reset, the session token may still exist but the user row is gone.
-    const dbUser = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true } });
-    if (!dbUser) return jsonError("SESSION_STALE", 401);
-
-    const project = await prisma.project.findUnique({
-      where: { id },
-      select: { id: true, title: true, employerId: true, isOpen: true }
+    const proposal = await proposalService.apply({
+      projectId: id,
+      freelancerId: session.user.id,
+      message,
+      priceGEL,
     });
-    if (!project) return jsonError("PROJECT_NOT_FOUND", 404);
-    if (!project.isOpen) return jsonError("PROJECT_CLOSED", 409);
-
-    const proposal = await prisma.proposal.create({
-      data: {
-        projectId: id,
-        freelancerId: session.user.id,
-        message,
-        priceGEL
-      },
-      select: { id: true, projectId: true, freelancerId: true, createdAt: true }
-    });
-
-    const notification = await prisma.notification.create({
-      data: {
-        userId: project.employerId,
-        type: "NEW_PROPOSAL",
-        title: "NEW_PROPOSAL",
-        body: project.title,
-        href: `/dashboard/projects/${project.id}`
-      },
-      select: { id: true, type: true, title: true, body: true, href: true, createdAt: true }
-    });
-
-    // Realtime is best-effort: proposal creation must succeed even if Redis/SSE is down.
-    try {
-      await publish("events", {
-        type: "new_proposal",
-        toUserIds: [project.employerId],
-        data: { proposalId: proposal.id, projectId: project.id }
-      });
-      await publish("events", {
-        type: "notification",
-        toUserIds: [project.employerId],
-        data: { notification }
-      });
-    } catch (err) {
-      if (process.env.NODE_ENV !== "production") console.error("[apply] publish failed", err);
-    }
-
     return NextResponse.json({ ok: true, proposal }, { status: 200 });
   } catch (err: unknown) {
+    if (err instanceof ServiceError) return jsonError(err.code, err.statusHint, err.extra);
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return jsonError("DUPLICATE_PROPOSAL", 409);
     }

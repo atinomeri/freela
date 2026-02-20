@@ -19,7 +19,7 @@ export function RealtimeNotificationLink({ initialCount }: { initialCount: numbe
       setCount((c) => c + 1);
     };
     es.addEventListener("notification", onNotification as EventListener);
-    es.onerror = () => es.close();
+    // Let EventSource auto-reconnect on transient errors (with Last-Event-ID)
     return () => {
       es.removeEventListener("notification", onNotification as EventListener);
       es.close();

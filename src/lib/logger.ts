@@ -126,4 +126,11 @@ export function logApiCall(
   );
 }
 
+/**
+ * Report an error to Sentry + console (backward-compatible with old log.ts)
+ */
+export function reportError(message: string, err?: unknown, extra?: LogContext) {
+  logError(message, err, extra);
+}
+
 export { baseLogger as logger };

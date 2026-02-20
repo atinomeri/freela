@@ -3,6 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
+
+/** ISR: revalidate every 60s for fresh freelancer listings */
+export const revalidate = 60;
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";

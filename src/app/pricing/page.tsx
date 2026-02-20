@@ -3,6 +3,9 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { getLocale, getTranslations } from "next-intl/server";
+
+/** ISR: revalidate every 5 min — mostly static content */
+export const revalidate = 300;
 import { getSiteContentMap } from "@/lib/site-content";
 import { notFound } from "next/navigation";
 import { isPageEnabled } from "@/lib/site-pages";

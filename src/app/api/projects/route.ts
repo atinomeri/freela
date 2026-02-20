@@ -1,15 +1,12 @@
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { isFreelancerCategory } from "@/lib/categories";
-import { cacheProjectListing, invalidateProjectListingCache } from "@/lib/cache";
-import { sendEmail, isEmailConfigured } from "@/lib/email";
-import { newProjectTemplate } from "@/lib/email-templates/new-project";
+import * as projectService from "@/lib/services/project-service";
+import { ServiceError } from "@/lib/services/errors";
 
-function jsonError(errorCode: string, status: number) {
-  return NextResponse.json({ ok: false, errorCode }, { status });
+function jsonError(errorCode: string, status: number, extra?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, errorCode, ...extra }, { status });
 }
 
 export async function GET(req: Request) {
@@ -34,84 +31,22 @@ export async function GET(req: Request) {
 
   const minBudget = minBudgetRaw ? Number.parseInt(minBudgetRaw, 10) : null;
   const maxBudget = maxBudgetRaw ? Number.parseInt(maxBudgetRaw, 10) : null;
-  if ((minBudgetRaw && !Number.isFinite(minBudget)) || (maxBudgetRaw && !Number.isFinite(maxBudget))) {
-    return jsonError("FILTER_INVALID", 400);
+
+  try {
+    const result = await projectService.listProjects({
+      q,
+      category,
+      minBudget: (minBudgetRaw && Number.isFinite(minBudget)) ? minBudget : null,
+      maxBudget: (maxBudgetRaw && Number.isFinite(maxBudget)) ? maxBudget : null,
+      sort: sort as "new" | "budget_asc" | "budget_desc",
+      page,
+      pageSize,
+    });
+    return NextResponse.json(result);
+  } catch (e) {
+    if (e instanceof ServiceError) return jsonError(e.code, e.statusHint, e.extra);
+    return jsonError("REQUEST_FAILED", 500);
   }
-  if (minBudget !== null && maxBudget !== null && minBudget > maxBudget) {
-    return jsonError("FILTER_INVALID", 400);
-  }
-
-  const where: Prisma.ProjectWhereInput = { isOpen: true };
-  if (category) where.category = category;
-  if (q) {
-    where.OR = [
-      { title: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } }
-    ];
-  }
-  if (minBudget !== null || maxBudget !== null) {
-    where.budgetGEL = {};
-    if (minBudget !== null && Number.isFinite(minBudget)) where.budgetGEL.gte = minBudget;
-    if (maxBudget !== null && Number.isFinite(maxBudget)) where.budgetGEL.lte = maxBudget;
-  }
-
-  const orderBy: Prisma.ProjectOrderByWithRelationInput[] =
-    sort === "budget_asc"
-      ? [{ budgetGEL: "asc" }, { createdAt: "desc" }]
-      : sort === "budget_desc"
-        ? [{ budgetGEL: "desc" }, { createdAt: "desc" }]
-        : [{ createdAt: "desc" }];
-
-  type ProjectListResponse = {
-    ok: true;
-    items: Array<{
-      id: string;
-      title: string;
-      category: string | null;
-      budgetGEL: number | null;
-      createdAt: Date;
-      description: string;
-    }>;
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-
-  const cacheKey = { q, category, minBudget, maxBudget, sort, page, pageSize };
-  const cached = await cacheProjectListing<ProjectListResponse>(cacheKey);
-  if (cached) return NextResponse.json(cached);
-
-  const [total, items] = await Promise.all([
-    prisma.project.count({ where }),
-    prisma.project.findMany({
-      where,
-      orderBy,
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      select: { id: true, title: true, category: true, budgetGEL: true, createdAt: true, description: true }
-    })
-  ]);
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const response = {
-    ok: true,
-    items: items.map((p) => ({
-      id: p.id,
-      title: p.title,
-      category: p.category,
-      budgetGEL: p.budgetGEL,
-      createdAt: p.createdAt,
-      description: p.description.length > 140 ? `${p.description.slice(0, 140)}…` : p.description
-    })),
-    page,
-    pageSize,
-    total,
-    totalPages
-  };
-
-  await cacheProjectListing(cacheKey, response);
-  return NextResponse.json(response);
 }
 
 export async function POST(req: Request) {
@@ -131,13 +66,6 @@ export async function POST(req: Request) {
   const budgetRaw = body?.budgetGEL;
   const categoryRaw = typeof body?.category === "string" ? body.category.trim() : "";
 
-  if (!categoryRaw) return jsonError("CATEGORY_REQUIRED", 400);
-  if (!isFreelancerCategory(categoryRaw)) return jsonError("CATEGORY_INVALID", 400);
-
-  if (title.length < 5) return jsonError("TITLE_MIN", 400);
-  if (description.length < 20)
-    return jsonError("DESCRIPTION_MIN", 400);
-
   let budgetGEL: number | null = null;
   if (budgetRaw !== undefined && budgetRaw !== null && String(budgetRaw).trim() !== "") {
     const parsed = Number.parseInt(String(budgetRaw), 10);
@@ -148,58 +76,17 @@ export async function POST(req: Request) {
   }
 
   try {
-    const project = await prisma.project.create({
-      data: {
-        employerId: session.user.id,
-        category: categoryRaw,
-        title,
-        description,
-        budgetGEL,
-        city: ""
-      },
-      select: { id: true, title: true, category: true, createdAt: true }
+    const project = await projectService.createProject({
+      employerId: session.user.id,
+      title,
+      description,
+      budgetGEL,
+      category: categoryRaw,
     });
-
-    await invalidateProjectListingCache();
-
-    // Send email notifications to subscribed freelancers (async, non-blocking)
-    if (isEmailConfigured()) {
-      const baseUrl = process.env.NEXTAUTH_URL || "https://freela.ge";
-      const projectUrl = `${baseUrl}/projects/${project.id}`;
-
-      prisma.user
-        .findMany({
-          where: {
-            role: "FREELANCER",
-            projectEmailSubscribed: true,
-            isDisabled: false,
-            emailVerifiedAt: { not: null }
-          },
-          select: { email: true }
-        })
-        .then((subscribers) => {
-          for (const sub of subscribers) {
-            const { subject, text, html } = newProjectTemplate({
-              projectTitle: project.title,
-              projectUrl
-            });
-            sendEmail({ to: sub.email, subject, text, html }).catch((err) => {
-              if (process.env.NODE_ENV !== "production") {
-                console.error("[projects] failed to send subscription email", err);
-              }
-            });
-          }
-        })
-        .catch((err) => {
-          if (process.env.NODE_ENV !== "production") {
-            console.error("[projects] failed to fetch subscribers", err);
-          }
-        });
-    }
-
     return NextResponse.json({ ok: true, project }, { status: 200 });
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") console.error("[projects] create failed", err);
+  } catch (e) {
+    if (e instanceof ServiceError) return jsonError(e.code, e.statusHint, e.extra);
+    if (process.env.NODE_ENV !== "production") console.error("[projects] create failed", e);
     return jsonError("PROJECT_CREATE_FAILED", 500);
   }
 }

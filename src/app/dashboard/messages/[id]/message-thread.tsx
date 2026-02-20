@@ -150,9 +150,7 @@ export function MessageThread({
 
     es.addEventListener("message", onMessage as EventListener);
     es.addEventListener("message_status", onStatus as EventListener);
-    es.onerror = () => {
-      es.close();
-    };
+    // Let EventSource auto-reconnect on transient errors (with Last-Event-ID)
 
     return () => {
       es.removeEventListener("message", onMessage as EventListener);
