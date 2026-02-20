@@ -83,7 +83,32 @@ jobs:
           fi
           cd deploy
           docker compose -f docker-compose.prod.yml up -d --build
-          docker compose -f docker-compose.prod.yml exec -T app npm run prisma:migrate:deploy
+
+          # Wait for the app container to become healthy
+          # (entrypoint runs migrations automatically before starting the server)
+          echo "Waiting for app container to become healthy..."
+          ATTEMPTS=0
+          MAX_ATTEMPTS=40
+          while [ "$ATTEMPTS" -lt "$MAX_ATTEMPTS" ]; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' freela-app 2>/dev/null || echo "missing")
+            echo "  attempt $((ATTEMPTS+1))/$MAX_ATTEMPTS — status: $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "App container is healthy!"
+              break
+            fi
+            if [ "$STATUS" = "unhealthy" ]; then
+              echo "::error::App container is unhealthy"
+              docker compose -f docker-compose.prod.yml logs --tail=40 app
+              exit 1
+            fi
+            ATTEMPTS=$((ATTEMPTS+1))
+            sleep 5
+          done
+          if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
+            echo "::error::Timed out waiting for app container health"
+            docker compose -f docker-compose.prod.yml logs --tail=40 app
+            exit 1
+          fi
           EOF
 
       - name: Health check
