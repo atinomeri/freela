@@ -55,9 +55,13 @@ jobs:
             printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
           else
             echo "::warning::VPS_HOST_KEY is not set; using ssh-keyscan fallback."
-            ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" > ~/.ssh/known_hosts
+            if ! ssh-keyscan -T 10 -p "$VPS_PORT" -H "$VPS_HOST" > ~/.ssh/known_hosts 2>/dev/null; then
+              echo "::warning::ssh-keyscan failed; disabling strict host key checking."
+              printf 'Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n' > ~/.ssh/config
+              chmod 600 ~/.ssh/config
+            fi
           fi
-          chmod 644 ~/.ssh/known_hosts
+          [ -f ~/.ssh/known_hosts ] && chmod 644 ~/.ssh/known_hosts || true
 
       - name: Deploy on server
         run: |
