@@ -1,6 +1,28 @@
 {$DOMAIN} {
   encode gzip zstd
+
+  # Security headers
   header -Server
-  reverse_proxy app:3000
+  header X-Content-Type-Options "nosniff"
+  header X-Frame-Options "SAMEORIGIN"
+  header Referrer-Policy "strict-origin-when-cross-origin"
+
+  reverse_proxy app:3000 {
+    # Active health checks — Caddy polls /api/health every 15s.
+    # If the container is unhealthy Caddy stops sending traffic
+    # until it recovers ("fail_duration 30s" = 2 consecutive failures).
+    health_uri      /api/health
+    health_interval 15s
+    health_timeout  5s
+    health_status   200
+    fail_duration   30s
+
+    # Passive health checks — mark unhealthy on real-traffic errors
+    lb_try_duration  5s
+    lb_try_interval  250ms
+
+    # Give Next.js time to finish in-flight requests on shutdown
+    flush_interval -1
+  }
 }
 
