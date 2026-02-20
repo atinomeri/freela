@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { reportError } from "@/lib/logger";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return jsonError("DUPLICATE_REVIEW", 409);
     }
-    if (process.env.NODE_ENV !== "production") console.error("[reviews] create error", err);
+    reportError("[reviews] create error", err);
     return jsonError("REVIEW_CREATE_FAILED", 500);
   }
 }

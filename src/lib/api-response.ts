@@ -5,6 +5,7 @@
 
 import { NextResponse } from "next/server";
 import type { ZodIssue } from "zod";
+import { reportError } from "./logger";
 
 // ============================================
 // Response Types
@@ -151,7 +152,7 @@ export function withErrorHandler<T>(handler: ApiHandler<T>): ApiHandler<T> {
       return response;
     } catch (err) {
       const duration = Date.now() - start;
-      console.error(`[API Error] ${req.method} ${new URL(req.url).pathname} (${duration}ms)`, err);
+      reportError(`[API Error] ${req.method} ${new URL(req.url).pathname} (${duration}ms)`, err);
 
       if (err instanceof Error) {
         // Don't expose internal error messages in production

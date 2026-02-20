@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { reportError } from "@/lib/logger";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[API] Push unsubscribe error:", error);
+    reportError("[API] Push unsubscribe error", error);
     return jsonError("UNSUBSCRIBE_FAILED", 500);
   }
 }

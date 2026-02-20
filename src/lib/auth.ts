@@ -6,6 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
+import { reportError } from "@/lib/logger";
 
 function requireEnv(name: "NEXTAUTH_URL" | "NEXTAUTH_SECRET") {
   const value = process.env[name];
@@ -86,9 +87,7 @@ export const authOptions: NextAuthOptions = {
             select: { id: true, name: true, email: true, role: true, passwordHash: true, emailVerifiedAt: true, isDisabled: true }
           });
         } catch (err) {
-          if (process.env.NODE_ENV !== "production") {
-            console.error("[auth] prisma.user.findUnique failed", { email, err });
-          }
+          reportError("[auth] prisma.user.findUnique failed", err, { email });
           return null;
         }
 

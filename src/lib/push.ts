@@ -5,6 +5,7 @@
 
 import webpush from "web-push";
 import { prisma } from "./prisma";
+import { reportError } from "./logger";
 
 // VAPID keys configuration
 // Generate with: npx web-push generate-vapid-keys
@@ -86,7 +87,7 @@ export async function sendPushNotification(
       return { success: false, error: "subscription_expired" };
     }
 
-    console.error("[Push] Failed to send notification:", message);
+    reportError("[Push] Failed to send notification", error, { message });
     return { success: false, error: message };
   }
 }

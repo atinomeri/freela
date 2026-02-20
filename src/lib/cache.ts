@@ -121,10 +121,15 @@ export async function cacheDeletePattern(pattern: string, options?: CacheOptions
 
   try {
     const fullPattern = buildKey(pattern, options?.prefix);
-    const keys = await redis.keys(fullPattern);
-    if (keys.length === 0) return 0;
-
-    const deleted = await redis.del(keys);
+    let deleted = 0;
+    let cursor = "0";
+    do {
+      const result = await redis.scan(cursor, { MATCH: fullPattern, COUNT: 100 });
+      cursor = String(result.cursor);
+      if (result.keys.length > 0) {
+        deleted += await redis.del(result.keys);
+      }
+    } while (cursor !== "0");
     logDebug("Cache delete pattern", { pattern: fullPattern, deleted });
     return deleted;
   } catch (err) {

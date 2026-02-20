@@ -60,7 +60,7 @@ export function trackRateLimitBreach(alert: RateLimitBreachAlert): void {
   // Auto-block after multiple breaches (optional)
   if (isSuspicious && alert.severity === "critical") {
     // Could integrate with your admin notification system
-    console.warn(`[SECURITY] Potential attack detected from ${alert.key}: ${count} breaches`);
+    logError(`[SECURITY] Potential attack detected from ${alert.key}: ${count} breaches`);
   }
 }
 
@@ -84,7 +84,7 @@ Time: ${alert.timestamp.toISOString()}
   if (typeof process !== "undefined" && process.env.SENTRY_DSN) {
     try {
       // Placeholder for Sentry integration
-      console.warn("[ALERT] Rate limit breach (would send to Sentry):", message);
+      logError(`[ALERT] Rate limit breach: ${message}`);
     } catch {
       // Ignore Sentry errors
     }

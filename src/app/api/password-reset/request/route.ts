@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import { isEmailConfigured, sendEmail } from "@/lib/email";
 import { passwordResetEmailTemplate } from "@/lib/email-templates/password-reset";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { reportError } from "@/lib/log";
+import { reportError, logInfo } from "@/lib/logger";
 import { cookies } from "next/headers";
 
 const TOKEN_TTL_MINUTES = 60;
@@ -78,11 +78,11 @@ export async function POST(req: Request) {
       if (process.env.NODE_ENV === "production") {
         return jsonError("REQUEST_FAILED", 500);
       }
-      console.info(`[password-reset] ${email} -> ${resetUrl}`);
+      logInfo(`[password-reset] dev email fallback`, { email });
       return okResponse(resetUrl);
     }
   } else if (process.env.NODE_ENV !== "production") {
-    console.info(`[password-reset] ${email} -> ${resetUrl}`);
+    logInfo(`[password-reset] dev email fallback`, { email });
     return okResponse(resetUrl);
   }
 

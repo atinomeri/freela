@@ -86,7 +86,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, project }, { status: 200 });
   } catch (e) {
     if (e instanceof ServiceError) return jsonError(e.code, e.statusHint, e.extra);
-    if (process.env.NODE_ENV !== "production") console.error("[projects] create failed", e);
     return jsonError("PROJECT_CREATE_FAILED", 500);
   }
 }

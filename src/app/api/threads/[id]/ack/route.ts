@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { publish } from "@/lib/realtime-bus";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { reportError } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -99,7 +100,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       data: { threadId: id, updates }
     });
   } catch (e) {
-    if (process.env.NODE_ENV !== "production") console.error("[ack] publish failed", e);
+    reportError("[ack] publish failed", e);
   }
 
   return NextResponse.json({ ok: true, updates }, { status: 200 });

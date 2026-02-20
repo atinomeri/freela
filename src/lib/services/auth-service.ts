@@ -14,7 +14,7 @@ import { validatePasswordStrength } from "@/lib/password-strength";
 import { isFreelancerCategory, type FreelancerCategory } from "@/lib/categories";
 import { isEmailConfigured, sendEmail } from "@/lib/email";
 import { verifyEmailTemplate } from "@/lib/email-templates/verify-email";
-import { reportError } from "@/lib/logger";
+import { reportError, logInfo } from "@/lib/logger";
 import { badRequest, conflict, rateLimited, ServiceError, internal } from "./errors";
 
 // ─── Constants ──────────────────────────────────────────────
@@ -228,7 +228,7 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
   // 4. Check existing user
   const existing = await prisma.user.findUnique({ where: { email: payload.email }, select: { id: true } });
   if (existing) {
-    if (isDev) console.info(`[register] 409 email exists email=${payload.email}`);
+    if (isDev) logInfo(`[register] 409 email exists`, { email: payload.email });
     throw conflict("USER_EXISTS");
   }
 
@@ -303,14 +303,14 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
         }
         throw internal("REQUEST_FAILED");
       }
-      console.info(`[register] ${payload.email} -> ${verifyUrl}`);
+      logInfo(`[register] dev email fallback`, { email: payload.email });
       return { user, messageCode: "EMAIL_VERIFICATION_SENT", debugVerifyUrl: verifyUrl };
     }
   } else if (process.env.NODE_ENV !== "production") {
-    console.info(`[register] ${payload.email} -> ${verifyUrl}`);
+    logInfo(`[register] dev email fallback`, { email: payload.email });
     return { user, messageCode: "EMAIL_VERIFICATION_SENT", debugVerifyUrl: verifyUrl };
   }
 
-  if (isDev) console.info(`[register] 201 created id=${user.id} email=${user.email} role=${user.role}`);
+  if (isDev) logInfo(`[register] 201 created`, { id: user.id, email: user.email, role: user.role });
   return { user, messageCode: "EMAIL_VERIFICATION_SENT" };
 }

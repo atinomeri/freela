@@ -34,7 +34,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ ok: true, proposal: updated }, { status: 200 });
   } catch (e) {
     if (e instanceof ServiceError) return jsonError(e.code, e.statusHint, e.extra);
-    if (process.env.NODE_ENV !== "production") console.error("[proposal] error", e);
     return jsonError("REQUEST_FAILED", 500);
   }
 }

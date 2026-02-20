@@ -45,7 +45,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
       return jsonError("FK_VIOLATION", 401);
     }
-    if (process.env.NODE_ENV !== "production") console.error("[apply] error", err);
     return jsonError("APPLY_FAILED", 500);
   }
 }

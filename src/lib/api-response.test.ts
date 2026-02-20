@@ -1,4 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/logger", () => ({ reportError: vi.fn() }));
+
 import {
   success,
   successWithPagination,

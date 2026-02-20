@@ -4,8 +4,6 @@ import { getClientIp } from "@/lib/rate-limit";
 import { register } from "@/lib/services/auth-service";
 import { ServiceError } from "@/lib/services/errors";
 
-const isDev = process.env.NODE_ENV !== "production";
-
 export async function POST(req: Request) {
   const locale = (await cookies()).get("NEXT_LOCALE")?.value ?? "ka";
   const raw = (await req.json().catch(() => null)) as Record<string, unknown> | null;
@@ -35,11 +33,9 @@ export async function POST(req: Request) {
 
     const message = err instanceof Error ? err.message : "";
     if (message.includes("Unique constraint") || message.includes("unique")) {
-      if (isDev) console.info("[register] 409 unique constraint", { message });
       return NextResponse.json({ ok: false, errorCode: "DUPLICATE_ID" }, { status: 409 });
     }
 
-    if (isDev) console.error("[register] error", err);
     return NextResponse.json({ ok: false, errorCode: "REGISTER_FAILED" }, { status: 500 });
   }
 }

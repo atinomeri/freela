@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPushConfigured } from "@/lib/push";
+import { reportError } from "@/lib/logger";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[API] Push subscribe error:", error);
+    reportError("[API] Push subscribe error", error);
     return jsonError("SUBSCRIBE_FAILED", 500);
   }
 }

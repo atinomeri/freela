@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "redis";
 import { trackRateLimitBreach } from "./rate-limit-alerts";
+import { logWarn } from "./logger";
 
 type HeadersLike = Headers | Record<string, string | string[] | undefined> | undefined | null;
 
@@ -51,7 +52,7 @@ async function getRedisClient(): Promise<RedisClient | null> {
   if (!url) {
     if (!warnedNoRedis && process.env.NODE_ENV !== "production") {
       warnedNoRedis = true;
-      console.warn("[rate-limit] REDIS_URL not set; using in-memory limiter (dev only).");
+      logWarn("[rate-limit] REDIS_URL not set; using in-memory limiter (dev only).");
     }
     return null;
   }
@@ -126,7 +127,7 @@ export async function checkRateLimit(params: {
       };
     }
     if (process.env.NODE_ENV === "production") {
-      console.warn("[rate-limit] Redis unavailable in production; using in-memory fallback (set RATE_LIMIT_STRICT=true to fail-closed).");
+      logWarn("[rate-limit] Redis unavailable in production; using in-memory fallback (set RATE_LIMIT_STRICT=true to fail-closed).");
     }
     return checkMemory(redisKey, params.limit, params.windowSeconds);
   }
@@ -175,7 +176,7 @@ export async function checkRateLimit(params: {
       };
     }
     if (process.env.NODE_ENV === "production") {
-      console.warn("[rate-limit] Redis operation failed in production; using in-memory fallback (set RATE_LIMIT_STRICT=true to fail-closed).");
+      logWarn("[rate-limit] Redis operation failed in production; using in-memory fallback (set RATE_LIMIT_STRICT=true to fail-closed).");
     }
     // If Redis is down, fall back to in-memory buckets in non-production environments.
     return checkMemory(redisKey, params.limit, params.windowSeconds);
