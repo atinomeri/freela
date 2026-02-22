@@ -20,9 +20,9 @@ const { mockPrisma, mockRateLimit, mockPasswordStrength, mockEmail, mockLogger }
     const mockPasswordStrength = {
       validatePasswordStrength: vi.fn(() => ({
         isAcceptable: true,
-        score: 3,
+        score: 3 as 0 | 1 | 2 | 3 | 4,
         feedback: "",
-        suggestions: [],
+        suggestions: [] as string[],
       })),
     };
     const mockEmail = {
@@ -131,13 +131,13 @@ describe("parseAndValidate", () => {
   it("parses a valid individual employer payload", () => {
     const result = parseAndValidate(validIndividualEmployerRaw());
     expect(result.role).toBe("employer");
-    expect(result.employerType).toBe("individual");
+    expect((result as { employerType: string }).employerType).toBe("individual");
   });
 
   it("parses a valid company employer payload", () => {
     const result = parseAndValidate(validCompanyEmployerRaw());
     expect(result.role).toBe("employer");
-    expect(result.employerType).toBe("company");
+    expect((result as { employerType: string }).employerType).toBe("company");
   });
 
   it("throws ROLE_INVALID for bad role", () => {
@@ -176,7 +176,7 @@ describe("parseAndValidate", () => {
   it("throws PASSWORD_WEAK for weak password", () => {
     mockPasswordStrength.validatePasswordStrength.mockReturnValue({
       isAcceptable: false,
-      score: 1,
+      score: 1 as const,
       feedback: "Too guessable",
       suggestions: ["Add symbols"],
     });
