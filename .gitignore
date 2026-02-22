@@ -26,3 +26,4 @@ tsconfig.tsbuildinfo
 
 # Storybook examples (auto-generated)
 src/stories/
+.idea/
