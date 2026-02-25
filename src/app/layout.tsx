@@ -11,6 +11,7 @@ import { LazyChatbox } from "@/components/lazy-chatbox";
 import { site } from "@/lib/site";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import Script from "next/script"; // დამატებულია Google Analytics-ისთვის
 
 export const runtime = "nodejs";
 
@@ -101,6 +102,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-dvh font-sans antialiased">
+        {/* Google Analytics - G-8QBS20Y7SM */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-8QBS20Y7SM"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-8QBS20Y7SM');
+          `}
+        </Script>
+
         <ThemeProvider defaultTheme="light">
           <NextIntlClientProvider locale={locale} messages={messages}>
             <AuthSessionProvider>
