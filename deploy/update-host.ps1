@@ -1,24 +1,26 @@
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
 
 param(
   [Parameter(Mandatory = $false)]
-  [string]$Host = $env:VPS_HOST,
-
+  [string]$TargetHost,
   [Parameter(Mandatory = $false)]
-  [string]$User = $env:VPS_USER,
-
+  [string]$User,
   [Parameter(Mandatory = $false)]
-  [int]$Port = $(if ($env:VPS_SSH_PORT) { [int]$env:VPS_SSH_PORT } else { 22 }),
-
+  [int]$Port,
   [Parameter(Mandatory = $false)]
-  [string]$AppDir = $(if ($env:VPS_APP_DIR) { $env:VPS_APP_DIR } else { "~/freela" }),
-
+  [string]$AppDir,
   [Parameter(Mandatory = $false)]
-  [string]$HealthUrl = $env:DEPLOY_HEALTHCHECK_URL
+  [string]$HealthUrl
 )
 
-if (-not $Host) {
+$ErrorActionPreference = "Stop"
+
+if (-not $PSBoundParameters.ContainsKey('TargetHost')) { $TargetHost = $env:VPS_HOST }
+if (-not $PSBoundParameters.ContainsKey('User')) { $User = $env:VPS_USER }
+if (-not $PSBoundParameters.ContainsKey('Port')) { if ($env:VPS_SSH_PORT) { $Port = [int]$env:VPS_SSH_PORT } else { $Port = 22 } }
+if (-not $PSBoundParameters.ContainsKey('AppDir')) { if ($env:VPS_APP_DIR) { $AppDir = $env:VPS_APP_DIR } else { $AppDir = '~/freela' } }
+if (-not $PSBoundParameters.ContainsKey('HealthUrl')) { $HealthUrl = $env:DEPLOY_HEALTHCHECK_URL }
+
+if (-not $TargetHost) {
   throw "Missing -Host (or set VPS_HOST env)."
 }
 if (-not $User) {
@@ -35,11 +37,10 @@ if ($HealthUrl) {
   $remote += " --health-url '$HealthUrl'"
 }
 
-$escapedRemote = $remote.Replace("'", "'\"'\"'")
-$bashInvoke = "bash -lc '$escapedRemote'"
+$bashInvoke = 'bash -lc "' + $remote + '"'
 
-Write-Host "[update-host.ps1] Deploying to $User@$Host:$Port (dir: $AppDir)"
-& ssh -p $Port "$User@$Host" $bashInvoke
+Write-Host "[update-host.ps1] Deploying to $User@${TargetHost}:$Port (dir: $AppDir)"
+& ssh -p $Port "$User@$TargetHost" $bashInvoke
 if ($LASTEXITCODE -ne 0) {
   throw "Remote deploy failed with exit code $LASTEXITCODE"
 }
