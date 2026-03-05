@@ -12,6 +12,8 @@ services:
       NODE_ENV: production
       PORT: "3000"
       UPLOADS_DIR: /data/uploads
+    ports:
+      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -62,30 +64,9 @@ services:
       retries: 10
       start_period: 10s
 
-  caddy:
-    image: caddy:2-alpine
-    container_name: freela-caddy
-    restart: unless-stopped
-    env_file:
-      - ./.env
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - freela_net
-    depends_on:
-      app:
-        condition: service_healthy
-
 volumes:
   freela_pg_data:
   uploads:
-  caddy_data:
-  caddy_config:
 
 networks:
   freela_net:
