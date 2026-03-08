@@ -382,3 +382,17 @@ model AppRelease {
   isActive      Boolean  @default(true)  // Позволяет быстро "откатить" или скрыть релиз
   createdAt     DateTime @default(now())
 }
+
+model LicenseKey {
+  id        String    @id @default(uuid())
+  key       String    @unique
+  tier      String    // "PRO" или "ENTERPRISE"
+  hwid      String?   // Hardware ID привязанной машины
+  isActive  Boolean   @default(true)
+  expiresAt DateTime? // null = бессрочная
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([key])
+  @@index([hwid])
+}
