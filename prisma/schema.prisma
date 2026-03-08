@@ -372,3 +372,13 @@ model PushSubscription {
 
   @@index([userId])
 }
+
+model AppRelease {
+  id            String   @id @default(uuid())
+  version       String   @unique // например, "1.0.1"
+  releaseNotes  String?  @db.Text
+  downloadUrl   String   // путь к файлу, например "/downloads/sender-patch-1.0.1.zip"
+  isMandatory   Boolean  @default(false) // Принудительное обновление
+  isActive      Boolean  @default(true)  // Позволяет быстро "откатить" или скрыть релиз
+  createdAt     DateTime @default(now())
+}
