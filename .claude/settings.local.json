@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml ps app\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -c \"\"SELECT key, tier, hwid, \\\"\"isActive\\\"\", \\\"\"expiresAt\\\"\", \\\"\"createdAt\\\"\" FROM \\\"\"LicenseKey\\\"\" ORDER BY \\\"\"createdAt\\\"\" DESC LIMIT 5;\"\"\")",
+      "Bash(scp src/app/api/app/version/route.ts root@76.13.144.121:/root/freela/src/app/api/app/version/route.ts)",
+      "Bash(ssh root@76.13.144.121 \"cat /root/freela/src/app/api/app/version/route.ts\")",
+      "Bash(node test-tracking-encoding.js)",
+      "Bash(ssh root@76.13.144.121 \"ls -la /root/freela/\")",
+      "Bash(ssh root@76.13.144.121 \"ls -la /root/freela/deploy/\")",
+      "Bash(ssh root@76.13.144.121 \"cat /root/freela/deploy/docker-compose.prod.yml\")",
+      "Bash(ssh root@76.13.144.121 \"mkdir -p /root/freela/src/app/api/tracking/pixel /root/freela/src/app/api/tracking/click\")",
+      "Bash(scp src/app/api/tracking/pixel/route.ts root@76.13.144.121:/root/freela/src/app/api/tracking/pixel/route.ts)",
+      "Bash(scp src/app/api/tracking/click/route.ts root@76.13.144.121:/root/freela/src/app/api/tracking/click/route.ts)",
+      "Bash(scp prisma/schema.prisma root@76.13.144.121:/root/freela/prisma/schema.prisma)",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -c ''\\dt''\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela && cat > /tmp/add_email_tracking.sql << ''EOF''\n-- CreateTable\nCREATE TABLE \"\"EmailTrackingEvent\"\" (\n    \"\"id\"\" TEXT NOT NULL,\n    \"\"email\"\" TEXT NOT NULL,\n    \"\"eventType\"\" TEXT NOT NULL,\n    \"\"url\"\" TEXT,\n    \"\"userAgent\"\" TEXT,\n    \"\"ipAddress\"\" TEXT,\n    \"\"createdAt\"\" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    CONSTRAINT \"\"EmailTrackingEvent_pkey\"\" PRIMARY KEY (\"\"id\"\")\n);\n\n-- CreateIndex\nCREATE INDEX \"\"EmailTrackingEvent_email_eventType_idx\"\" ON \"\"EmailTrackingEvent\"\"(\"\"email\"\", \"\"eventType\"\");\n\n-- CreateIndex\nCREATE INDEX \"\"EmailTrackingEvent_createdAt_idx\"\" ON \"\"EmailTrackingEvent\"\"(\"\"createdAt\"\");\nEOF\ncat /tmp/add_email_tracking.sql\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -f /tmp/add_email_tracking.sql\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela << ''EOF''\nCREATE TABLE \"\"EmailTrackingEvent\"\" (\n    \"\"id\"\" TEXT NOT NULL,\n    \"\"email\"\" TEXT NOT NULL,\n    \"\"eventType\"\" TEXT NOT NULL,\n    \"\"url\"\" TEXT,\n    \"\"userAgent\"\" TEXT,\n    \"\"ipAddress\"\" TEXT,\n    \"\"createdAt\"\" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT \"\"EmailTrackingEvent_pkey\"\" PRIMARY KEY (\"\"id\"\")\n);\n\nCREATE INDEX \"\"EmailTrackingEvent_email_eventType_idx\"\" ON \"\"EmailTrackingEvent\"\"(\"\"email\"\", \"\"eventType\"\");\nCREATE INDEX \"\"EmailTrackingEvent_createdAt_idx\"\" ON \"\"EmailTrackingEvent\"\"(\"\"createdAt\"\");\nEOF\n\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -c ''\\d \"\"EmailTrackingEvent\"\"''\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml build --no-cache app\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml up -d app\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml restart caddy\")",
+      "Bash(ssh root@76.13.144.121 \"cat /root/freela/deploy/.env | grep -E ''(NEXTAUTH_URL|DOMAIN)''\")",
+      "Bash(curl -s -I \"https://freela.ge/api/tracking/pixel?data=dGVzdEBmcmVlbGEuZ2U=\")",
+      "Bash(curl -s -I -L \"https://freela.ge/api/tracking/click?url=aHR0cHM6Ly9mcmVlbGEuZ2UvcHJvamVjdHM=&email=dGVzdEBmcmVlbGEuZ2U=\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -c ''SELECT id, email, \"\"eventType\"\", url, \"\"createdAt\"\" FROM \"\"EmailTrackingEvent\"\" ORDER BY \"\"createdAt\"\" DESC LIMIT 5;''\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml logs app --tail=20 | grep -i tracking\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml build app\")",
+      "Bash(curl -s -I \"https://freela.ge/api/tracking/click?url=aHR0cHM6Ly9mcmVlbGEuZ2UvcHJvamVjdHM=&email=dGVzdC1maXhAZnJlZWxhLmdl\")",
+      "Bash(curl -s -I \"https://freela.ge/api/tracking/click?url=L3ByaWNpbmc=&email=dGVzdC1maXhAZnJlZWxhLmdl\")",
+      "Bash(curl -s -I \"https://freela.ge/api/tracking/click\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -c ''SELECT email, \"\"eventType\"\", url, \"\"createdAt\"\" FROM \"\"EmailTrackingEvent\"\" WHERE email = ''\\''''test-fix@freela.ge''\\'''' ORDER BY \"\"createdAt\"\" DESC;''\")",
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml logs app --tail=10 | grep -i ''Click Tracking''\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -396,3 +396,16 @@ model LicenseKey {
   @@index([key])
   @@index([hwid])
 }
+
+model EmailTrackingEvent {
+  id        String   @id @default(cuid())
+  email     String   // Декодированный email получателя
+  eventType String   // 'OPEN' или 'CLICK'
+  url       String?  // Куда кликнули (только для CLICK)
+  userAgent String?  // User-Agent браузера/клиента
+  ipAddress String?  // IP адрес для дополнительной аналитики
+  createdAt DateTime @default(now())
+
+  @@index([email, eventType])
+  @@index([createdAt])
+}

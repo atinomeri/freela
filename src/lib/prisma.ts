@@ -15,7 +15,7 @@ const globalForPrisma = globalThis as unknown as PrismaSingleton;
 // If Prisma Client gets regenerated (new models), the cached instance may not have the new delegates.
 if (process.env.NODE_ENV !== "production" && globalForPrisma.prisma) {
   const maybeClient = globalForPrisma.prisma as unknown as Record<string, unknown>;
-  if (!("passwordResetToken" in maybeClient) || !("messageAttachment" in maybeClient)) {
+  if (!("passwordResetToken" in maybeClient) || !("messageAttachment" in maybeClient) || !("emailTrackingEvent" in maybeClient)) {
     globalForPrisma.prisma = undefined;
   }
 }
