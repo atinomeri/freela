@@ -398,14 +398,16 @@ model LicenseKey {
 }
 
 model EmailTrackingEvent {
-  id        String   @id @default(cuid())
-  email     String   // Декодированный email получателя
-  eventType String   // 'OPEN' или 'CLICK'
-  url       String?  // Куда кликнули (только для CLICK)
-  userAgent String?  // User-Agent браузера/клиента
-  ipAddress String?  // IP адрес для дополнительной аналитики
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  campaignId String?  // ID кампании рассылки
+  email      String   // Декодированный email получателя
+  eventType  String   // 'OPEN' или 'CLICK'
+  url        String?  // Куда кликнули (только для CLICK)
+  userAgent  String?  // User-Agent браузера/клиента
+  ipAddress  String?  // IP адрес для дополнительной аналитики
+  createdAt  DateTime @default(now())
 
+  @@index([campaignId, eventType])
   @@index([email, eventType])
   @@index([createdAt])
 }

@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     // Получаем параметр data из URL
     const { searchParams } = new URL(request.url);
     const encodedData = searchParams.get('data');
+    const campaignId = searchParams.get('cid') || null;
 
     if (!encodedData) {
       console.warn('[Pixel Tracking] Missing data parameter');
@@ -57,6 +58,7 @@ export async function GET(request: NextRequest) {
     prisma.emailTrackingEvent
       .create({
         data: {
+          campaignId,
           email,
           eventType: 'OPEN',
           userAgent,

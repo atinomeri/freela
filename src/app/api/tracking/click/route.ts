@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const encodedUrl = searchParams.get('url');
     const encodedEmail = searchParams.get('email');
+    const campaignId = searchParams.get('cid') || null;
 
     // Если отсутствуют обязательные параметры - редиректим на главную страницу
     if (!encodedUrl || !encodedEmail) {
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest) {
     prisma.emailTrackingEvent
       .create({
         data: {
+          campaignId,
           email,
           eventType: 'CLICK',
           url: finalUrl,

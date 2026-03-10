@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Считаем количество уникальных email-адресов с eventType 'OPEN'
+    const { searchParams } = new URL(request.url);
+    const campaignId = searchParams.get('campaign_id');
+
+    const where: Record<string, unknown> = {};
+    if (campaignId) {
+      where.campaignId = campaignId;
+    }
+
     const openedEmails = await prisma.emailTrackingEvent.findMany({
-      where: { eventType: 'OPEN' },
+      where: { ...where, eventType: 'OPEN' },
       distinct: ['email'],
       select: { email: true },
     });
 
-    // Считаем количество уникальных email-адресов с eventType 'CLICK'
     const clickedEmails = await prisma.emailTrackingEvent.findMany({
-      where: { eventType: 'CLICK' },
+      where: { ...where, eventType: 'CLICK' },
       distinct: ['email'],
       select: { email: true },
     });
@@ -23,7 +29,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[Tracking Stats] Error fetching stats:', error);
-
     return NextResponse.json(
       { error: 'Failed to fetch tracking stats' },
       { status: 500 }
