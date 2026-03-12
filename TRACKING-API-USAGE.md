@@ -106,7 +106,26 @@ const emailHtml = `
 
 ---
 
-## 3. Полный пример для Email Sender
+## 3. Unsubscribe Link (გამოწერის გაუქმების ბმული)
+
+### ფორმატი
+```
+https://freela.ge/unsub?email={base64_email}
+```
+
+### როგორ გამოიყენოთ თქვენს Email Sender-ში
+
+```typescript
+// Desktop აპლიკაციაში მიუთითეთ:
+const unsubscribeUrl = `https://freela.ge/unsub?email=${encodedEmail}`;
+
+// ან გამოიყენეთ პლეისჰოლდერი:
+// https://freela.ge/unsub?email=[[Email_B64]]
+```
+
+---
+
+## 4. Полный пример для Email Sender
 
 ```typescript
 interface EmailTrackingConfig {

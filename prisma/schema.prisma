@@ -411,3 +411,12 @@ model EmailTrackingEvent {
   @@index([email, eventType])
   @@index([createdAt])
 }
+
+model UnsubscribedEmail {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("link")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
