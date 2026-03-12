@@ -136,6 +136,16 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
                   {proposal.status !== "REJECTED" ? (
                     <StartChatButton projectId={project.id} freelancerId={proposal.freelancer.id} />
                   ) : null}
+                  {proposal.status === "ACCEPTED" ? (
+                    <div className="mt-3">
+                      <Link
+                        className="text-xs text-muted-foreground underline hover:text-foreground"
+                        href={`/dashboard/projects/${project.id}/print`}
+                      >
+                        {t("printContract")}
+                      </Link>
+                    </div>
+                  ) : null}
                   {status === "completed" && proposal.status === "ACCEPTED" ? (
                     reviewedSet.has(proposal.freelancer.id) ? (
                       <div className="mt-3 text-xs text-muted-foreground">{t("reviewedAlready")}</div>

@@ -640,7 +640,31 @@
     },
     "proposalsTitle": "შეთავაზებები",
     "proposalsEmpty": "ჯერ შეთავაზებები არ არის.",
-    "price": "ფასი:"
+    "price": "ფასი:",
+    "printContract": "ხელშეკრულების ბეჭვდა"
+  },
+  "dashboardPrint": {
+    "title": "ხელშეკრულება",
+    "projectDetails": "შეკვეთის დეტალები",
+    "projectTitle": "სახელი",
+    "projectDescription": "აღწერა",
+    "projectBudget": "ბიუჯეტი",
+    "projectCity": "ქალაქი",
+    "projectDate": "გამოქვეყნებულია",
+    "proposalDetails": "შეთავაზება",
+    "proposalMessage": "წინადადება",
+    "proposalDate": "გაგზავნილია",
+    "freelancer": "ფრილანსერი",
+    "employer": "დამქირავებელი",
+    "price": "ანაზღაურება",
+    "notSpecified": "არ არის მითითებული",
+    "noAcceptedProposal": "მიღებული შეთავაზება ვერ მოიძებნა",
+    "printButton": "დაბეჭდვა",
+    "backButton": "დაბრუნება",
+    "signatures": "ხელმოწერები",
+    "signatureEmployer": "დამქირავებლის ხელმოწერა",
+    "signatureFreelancer": "ფრილანსერის ხელმოწერა",
+    "signatureDate": "თარიღი"
   },
   "dashboardProposals": {
     "title": "ჩემი განაცხადები",

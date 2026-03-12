@@ -640,7 +640,31 @@
     },
     "proposalsTitle": "Предложения",
     "proposalsEmpty": "Пока предложений нет.",
-    "price": "Цена:"
+    "price": "Цена:",
+    "printContract": "Распечатать договор"
+  },
+  "dashboardPrint": {
+    "title": "Договор",
+    "projectDetails": "Детали заказа",
+    "projectTitle": "Название",
+    "projectDescription": "Описание",
+    "projectBudget": "Бюджет",
+    "projectCity": "Город",
+    "projectDate": "Опубликовано",
+    "proposalDetails": "Предложение",
+    "proposalMessage": "Сообщение",
+    "proposalDate": "Отправлено",
+    "freelancer": "Фрилансер",
+    "employer": "Работодатель",
+    "price": "Цена",
+    "notSpecified": "Не указано",
+    "noAcceptedProposal": "Принятое предложение не найдено",
+    "printButton": "Печать",
+    "backButton": "Назад",
+    "signatures": "Подписи",
+    "signatureEmployer": "Подпись работодателя",
+    "signatureFreelancer": "Подпись фрилансера",
+    "signatureDate": "Дата"
   },
   "dashboardProposals": {
     "title": "Мои заявки",
