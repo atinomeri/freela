@@ -13,18 +13,18 @@ export async function POST(request: Request) {
 
     // Проверки на валидность
     if (!license) {
-      return NextResponse.json({ valid: false, error: "Invalid license key" }, { status: 404 });
+      return NextResponse.json({ valid: false, error: "Invalid license key" }, { status: 200 });
     }
     if (!license.isActive) {
-      return NextResponse.json({ valid: false, error: "License is blocked" }, { status: 403 });
+      return NextResponse.json({ valid: false, error: "License is blocked" }, { status: 200 });
     }
     // Если ключ уже привязан к другому железу
     if (license.hwid && license.hwid !== hwid) {
-      return NextResponse.json({ valid: false, error: "License already used on another machine" }, { status: 403 });
+      return NextResponse.json({ valid: false, error: "License already used on another machine" }, { status: 200 });
     }
     // Если подписка истекла
     if (license.expiresAt && license.expiresAt < new Date()) {
-        return NextResponse.json({ valid: false, error: "License expired" }, { status: 403 });
+        return NextResponse.json({ valid: false, error: "License expired" }, { status: 200 });
     }
 
     // Привязываем HWID (если он еще не привязан)

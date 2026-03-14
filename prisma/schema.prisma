@@ -420,3 +420,19 @@ model UnsubscribedEmail {
 
   @@index([createdAt])
 }
+
+model CampaignReport {
+  id          String   @id @default(uuid())
+  campaignId  String   @unique
+  hwid        String
+  licenseKey  String?
+  total       Int
+  sent        Int
+  failed      Int
+  startedAt   DateTime
+  finishedAt  DateTime
+  events      Json?
+  createdAt   DateTime @default(now())
+
+  @@index([campaignId])
+}
