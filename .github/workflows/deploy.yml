@@ -123,4 +123,13 @@ jobs:
         if: env.HEALTHCHECK_URL != ''
         run: |
           set -euo pipefail
-          curl --fail --show-error --silent "$HEALTHCHECK_URL" > /dev/null
+          for i in $(seq 1 10); do
+            if curl --fail --show-error --silent --max-time 10 "$HEALTHCHECK_URL" > /dev/null 2>&1; then
+              echo "Health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "Health check attempt $i/10 failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Health check failed after 10 attempts"
+          exit 1
