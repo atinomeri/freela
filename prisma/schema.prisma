@@ -433,6 +433,4 @@ model CampaignReport {
   finishedAt  DateTime
   events      Json?
   createdAt   DateTime @default(now())
-
-  @@index([campaignId])
 }

@@ -32,7 +32,11 @@ describe('GET /api/unsubscribed', () => {
   });
 
   it('returns emails if secret is correct', async () => {
-    const mockEmails = [{ email: 'test1@example.com' }, { email: 'test2@example.com' }];
+    const now = new Date('2026-01-01T00:00:00.000Z');
+    const mockEmails = [
+      { email: 'test1@example.com', source: 'link', createdAt: now },
+      { email: 'test2@example.com', source: 'link', createdAt: now },
+    ];
     (prisma.unsubscribedEmail.findMany as any).mockResolvedValue(mockEmails);
 
     const request = new Request(`http://localhost/api/unsubscribed?secret=${SECRET}`);
@@ -40,7 +44,10 @@ describe('GET /api/unsubscribed', () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.emails).toEqual(['test1@example.com', 'test2@example.com']);
+    expect(data.items).toEqual([
+      { email: 'test1@example.com', source: 'link', timestamp: now.toISOString() },
+      { email: 'test2@example.com', source: 'link', timestamp: now.toISOString() },
+    ]);
     expect(data.count).toBe(2);
   });
 });
