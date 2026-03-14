@@ -17,6 +17,3 @@ CREATE TABLE "CampaignReport" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "CampaignReport_campaignId_key" ON "CampaignReport"("campaignId");
-
--- CreateIndex
-CREATE INDEX "CampaignReport_campaignId_idx" ON "CampaignReport"("campaignId");
