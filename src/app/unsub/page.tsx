@@ -61,9 +61,10 @@ async function UnsubscribeAction({ email }: { email: string }) {
 export default async function UnsubscribePage({
   searchParams,
 }: {
-  searchParams: { email?: string };
+  searchParams: Promise<{ email?: string }>;
 }) {
-  let email = searchParams.email || '';
+  const params = await searchParams;
+  let email = params.email || '';
 
   // Try to decode if it looks like Base64 (doesn't contain @)
   if (email && !email.includes('@')) {
