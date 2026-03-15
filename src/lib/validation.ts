@@ -241,6 +241,12 @@ export function formatZodErrors(issues: z.ZodIssue[]): string {
 // Desktop app schemas
 // ============================================
 
+export const desktopRegisterSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  name: z.string().min(1, "Name is required").max(100),
+});
+
 export const desktopLoginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),

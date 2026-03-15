@@ -9,7 +9,13 @@ mkdir -p "$UPLOADS_DIR"
 chown -R nodejs:nodejs "$UPLOADS_DIR"
 
 # Run database migrations
-echo "Running database migrations..."
-gosu nodejs npx prisma migrate deploy || echo "Migration warning (may already be up-to-date)"
+echo "==> Starting database migrations..."
+START_MIGRATION=$(date +%s)
+if gosu nodejs npx prisma migrate deploy --config=./prisma.config.ts; then
+  END_MIGRATION=$(date +%s)
+  echo "==> Migrations completed in $((END_MIGRATION - START_MIGRATION))s"
+else
+  echo "::warning:: Migration failed or timed out. Check database connectivity."
+fi
 
 exec gosu nodejs npm start -- -H 0.0.0.0 -p "$PORT_VALUE"
