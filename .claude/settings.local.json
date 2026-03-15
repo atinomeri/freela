@@ -35,7 +35,14 @@
       "Bash(npm install:*)",
       "Bash(node -e \"const c=require\\(''crypto''\\);console.log\\(c.randomBytes\\(32\\).toString\\(''hex''\\)\\);console.log\\(c.randomBytes\\(32\\).toString\\(''hex''\\)\\)\")",
       "Bash(npx prisma:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(curl -s -X POST https://freela.ge/api/desktop/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test-dummy-check@example.com\"\",\"\"password\"\":\"\"test123456\"\",\"\"name\"\":\"\"Test\"\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/desktop/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test-dummy-check@example.com\"\",\"\"password\"\":\"\"test123456\"\",\"\"name\"\":\"\"Test\"\"}')",
+      "Bash(curl -s -m 10 -X POST http://localhost:3000/api/desktop/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test-dummy-check@example.com\"\",\"\"password\"\":\"\"test123456\"\",\"\"name\"\":\"\"Test\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS: %{http_code}\" -X POST https://freela.ge/api/desktop/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"test-dummy-check@example.com\"\",\"\"password\"\":\"\"test123456\"\",\"\"name\"\":\"\"Test\"\"}')",
+      "Bash(ls -la /c/Users/admin/Desktop/freela/src/*.ts)",
+      "Bash(grep -h \"export async function\" /c/Users/admin/Desktop/freela/src/app/api/*/route.ts)",
+      "Bash(grep -r \"export function\\\\|export const\\\\|export async function\" /c/Users/admin/Desktop/freela/src/lib/*.ts)"
     ],
     "deny": [],
     "ask": []

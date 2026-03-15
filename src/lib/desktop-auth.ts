@@ -1,20 +1,18 @@
 /**
  * Bearer-token auth middleware for desktop app API routes.
- * Extracts JWT from Authorization header, verifies, and loads the user.
+ * Completely separate from NextAuth — uses DesktopUser table.
  */
 
 import { prisma } from "@/lib/prisma";
 import { verifyAccessToken } from "@/lib/desktop-jwt";
 import { errors } from "@/lib/api-response";
-import type { Role } from "@prisma/client";
 import type { NextResponse } from "next/server";
 
 export interface DesktopUser {
   id: string;
   email: string;
-  name: string;
-  role: Role;
   balance: number;
+  userType: "INDIVIDUAL" | "COMPANY";
 }
 
 type AuthResult =
@@ -22,8 +20,10 @@ type AuthResult =
   | { user?: never; error: NextResponse };
 
 /**
- * Extracts Bearer token, verifies JWT, loads user from DB.
+ * Extracts Bearer token, verifies JWT, loads DesktopUser from DB.
  * Returns { user } on success or { error: NextResponse } on failure.
+ *
+ * NO dependency on NextAuth, getServerSession, or site User table.
  */
 export async function requireDesktopAuth(req: Request): Promise<AuthResult> {
   const authHeader = req.headers.get("Authorization");
@@ -41,30 +41,21 @@ export async function requireDesktopAuth(req: Request): Promise<AuthResult> {
     return { error: errors.unauthorized("Invalid or expired access token") };
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.desktopUser.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, role: true, balance: true, isDisabled: true, emailVerifiedAt: true },
+    select: { id: true, email: true, balance: true, userType: true },
   });
 
   if (!user) {
     return { error: errors.unauthorized("User not found") };
   }
 
-  if (user.isDisabled) {
-    return { error: errors.forbidden("Account is disabled") };
-  }
-
-  if (!user.emailVerifiedAt) {
-    return { error: errors.forbidden("Email not verified") };
-  }
-
   return {
     user: {
       id: user.id,
       email: user.email,
-      name: user.name,
-      role: user.role,
       balance: user.balance,
+      userType: user.userType,
     },
   };
 }

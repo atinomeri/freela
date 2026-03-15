@@ -4,9 +4,11 @@ import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { quotaReportSchema } from "@/lib/validation";
 import { errors } from "@/lib/api-response";
 
+const PRICE_PER_EMAIL = Number(process.env.PRICE_PER_EMAIL) || 5; // тетри
+
 export async function POST(req: Request) {
   try {
-    // ── Auth ─────────────────────────────────────────────────────
+    // ── Auth (DesktopUser, Bearer JWT) ───────────────────────────
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
 
@@ -21,53 +23,51 @@ export async function POST(req: Request) {
 
     const { quota_id, sent, failed } = parsed.data;
 
-    // ── Find reservation ─────────────────────────────────────────
-    const reservation = await prisma.quotaReservation.findUnique({
+    // ── Find quota in desktop_quotas ─────────────────────────────
+    const quota = await prisma.desktopQuota.findUnique({
       where: { id: quota_id },
     });
 
-    if (!reservation || reservation.userId !== auth.user.id) {
+    if (!quota || quota.userId !== auth.user.id) {
       return errors.notFound("Quota");
     }
 
-    if (reservation.reportedAt) {
-      return errors.badRequest("Quota already reported");
+    if (quota.status !== "active") {
+      return errors.badRequest("Quota already reported or expired");
     }
 
-    if (reservation.expiresAt < new Date()) {
+    if (quota.expiresAt < new Date()) {
       return errors.badRequest("Quota has expired");
     }
 
-    // Cap sent+failed to the allowed amount
-    const totalReported = sent + failed;
-    if (totalReported > reservation.amount) {
+    if (sent + failed > quota.allowed) {
       return errors.badRequest(
-        `sent + failed (${totalReported}) exceeds allowed amount (${reservation.amount})`
+        `sent + failed (${sent + failed}) exceeds allowed amount (${quota.allowed})`
       );
     }
 
     // ── Refund failed emails in a transaction ────────────────────
-    const refundAmount = failed * reservation.costPerEmail;
+    const refundAmount = failed * PRICE_PER_EMAIL;
 
     const result = await prisma.$transaction(async (tx) => {
-      // Update reservation
-      await tx.quotaReservation.update({
+      // Update quota status
+      await tx.desktopQuota.update({
         where: { id: quota_id },
         data: {
-          reportedAt: new Date(),
+          status: "reported",
           sent,
           failed,
           refunded: refundAmount,
         },
       });
 
-      // Refund to balance if there are failed emails
+      // Refund balance if there are failed emails
       if (refundAmount > 0) {
-        await tx.$executeRaw`UPDATE "User" SET balance = balance + ${refundAmount} WHERE id = ${auth.user.id}`;
+        await tx.$executeRaw`UPDATE "DesktopUser" SET balance = balance + ${refundAmount} WHERE id = ${auth.user.id}`;
       }
 
       // Get updated balance
-      const user = await tx.user.findUniqueOrThrow({
+      const user = await tx.desktopUser.findUniqueOrThrow({
         where: { id: auth.user.id },
         select: { balance: true },
       });

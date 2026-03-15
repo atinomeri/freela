@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { signAccessToken, signRefreshToken, hashToken } from "@/lib/desktop-jwt";
-import { desktopRegisterSchema } from "@/lib/validation";
+import {
+  desktopRegisterIndividualSchema,
+  desktopRegisterCompanySchema,
+} from "@/lib/validation";
 import { errors } from "@/lib/api-response";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -12,12 +15,32 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => null);
     if (!body) return errors.badRequest("Invalid JSON body");
 
-    const parsed = desktopRegisterSchema.safeParse(body);
-    if (!parsed.success) {
-      return errors.validationError(parsed.error.issues);
+    // ── Validate by userType ────────────────────────────────────
+    const userType = body.userType;
+    if (!userType || !["individual", "company"].includes(userType)) {
+      return NextResponse.json(
+        { error: "Validation error", details: ["userType must be 'individual' or 'company'"] },
+        { status: 400 }
+      );
     }
 
-    const { email, password, name } = parsed.data;
+    const schema =
+      userType === "individual"
+        ? desktopRegisterIndividualSchema
+        : desktopRegisterCompanySchema;
+
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Validation error",
+          details: parsed.error.issues.map((i) => `${i.path.join(".")} ${i.message}`),
+        },
+        { status: 400 }
+      );
+    }
+
+    const data = parsed.data;
 
     // ── Rate limit ──────────────────────────────────────────────
     const ip =
@@ -35,30 +58,71 @@ export async function POST(req: Request) {
       return errors.rateLimited(ipLimit.retryAfterSeconds);
     }
 
-    // ── Check if email already taken ────────────────────────────
-    const existing = await prisma.user.findUnique({
-      where: { email },
+    // ── Check email uniqueness ──────────────────────────────────
+    const existing = await prisma.desktopUser.findUnique({
+      where: { email: data.email },
       select: { id: true },
     });
 
     if (existing) {
       return NextResponse.json(
-        { ok: false, error: { code: "CONFLICT", message: "Email already registered" } },
+        { error: "User with this email already exists" },
         { status: 409 }
       );
     }
 
-    // ── Create user ─────────────────────────────────────────────
-    const passwordHash = await bcrypt.hash(password, 10);
+    // ── Check unique constraints ────────────────────────────────
+    if (userType === "individual") {
+      const d = data as typeof desktopRegisterIndividualSchema._type;
+      const existingPn = await prisma.desktopUser.findUnique({
+        where: { personalNumber: d.personalNumber },
+        select: { id: true },
+      });
+      if (existingPn) {
+        return NextResponse.json(
+          { error: "User with this personal number already exists" },
+          { status: 409 }
+        );
+      }
+    } else {
+      const d = data as typeof desktopRegisterCompanySchema._type;
+      const existingCo = await prisma.desktopUser.findUnique({
+        where: { companyIdCode: d.companyIdCode },
+        select: { id: true },
+      });
+      if (existingCo) {
+        return NextResponse.json(
+          { error: "Company with this ID code already exists" },
+          { status: 409 }
+        );
+      }
+    }
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash,
-        balance: 0,
-        emailVerifiedAt: new Date(), // desktop registration auto-verifies
-      },
+    // ── Create user ─────────────────────────────────────────────
+    const passwordHash = await bcrypt.hash(data.password, 10);
+
+    const createData: Parameters<typeof prisma.desktopUser.create>[0]["data"] = {
+      userType: userType === "individual" ? "INDIVIDUAL" : "COMPANY",
+      phone: data.phone,
+      email: data.email,
+      passwordHash,
+      balance: 0,
+    };
+
+    if (userType === "individual") {
+      const d = data as typeof desktopRegisterIndividualSchema._type;
+      createData.firstName = d.firstName;
+      createData.lastName = d.lastName;
+      createData.personalNumber = d.personalNumber;
+      createData.birthDate = new Date(d.birthDate);
+    } else {
+      const d = data as typeof desktopRegisterCompanySchema._type;
+      createData.companyName = d.companyName;
+      createData.companyIdCode = d.companyIdCode;
+    }
+
+    const user = await prisma.desktopUser.create({
+      data: createData,
       select: { id: true, email: true, balance: true },
     });
 
@@ -66,7 +130,7 @@ export async function POST(req: Request) {
     const accessToken = signAccessToken(user.id);
     const { token: refreshToken, jti } = signRefreshToken(user.id);
 
-    await prisma.refreshToken.create({
+    await prisma.desktopRefreshToken.create({
       data: {
         userId: user.id,
         tokenHash: hashToken(jti),
@@ -76,9 +140,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_in: 900,
+        accessToken,
+        refreshToken,
+        expiresIn: 900,
         user: {
           email: user.email,
           balance: user.balance,

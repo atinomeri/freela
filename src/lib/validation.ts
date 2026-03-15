@@ -238,14 +238,31 @@ export function formatZodErrors(issues: z.ZodIssue[]): string {
 }
 
 // ============================================
-// Desktop app schemas
+// Desktop app schemas (полностью отдельные от сайта)
 // ============================================
 
-export const desktopRegisterSchema = z.object({
-  email: emailSchema,
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  name: z.string().min(1, "Name is required").max(100),
+const individualFields = z.object({
+  userType: z.literal("individual"),
+  firstName: z.string().min(1, "firstName is required"),
+  lastName: z.string().min(1, "lastName is required"),
+  personalNumber: z.string().regex(/^\d{11}$/, "personalNumber must be 11 digits"),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "birthDate must be YYYY-MM-DD"),
 });
+
+const companyFields = z.object({
+  userType: z.literal("company"),
+  companyName: z.string().min(1, "companyName is required"),
+  companyIdCode: z.string().regex(/^\d{9}$/, "companyIdCode must be 9 digits"),
+});
+
+const commonRegisterFields = z.object({
+  phone: z.string().min(4, "phone is required"),
+  email: emailSchema,
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+export const desktopRegisterIndividualSchema = individualFields.merge(commonRegisterFields);
+export const desktopRegisterCompanySchema = companyFields.merge(commonRegisterFields);
 
 export const desktopLoginSchema = z.object({
   email: emailSchema,
@@ -253,12 +270,11 @@ export const desktopLoginSchema = z.object({
 });
 
 export const desktopRefreshSchema = z.object({
-  refresh_token: z.string().min(1, "Refresh token is required"),
+  refreshToken: z.string().min(1, "Refresh token is required"),
 });
 
 export const quotaReserveSchema = z.object({
   count: z.number().int().min(1).max(100_000),
-  price_per_email: z.number().int().min(1).optional(),
 });
 
 export const quotaReportSchema = z.object({

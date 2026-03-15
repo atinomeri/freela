@@ -64,7 +64,6 @@ model User {
   disabledAt   DateTime?
   disabledReason String?
   projectEmailSubscribed Boolean @default(false)
-  balance    Int       @default(0)
 
   phone       String?
   personalId  String?   @unique
@@ -88,8 +87,6 @@ model User {
   reviewsReceived Review[] @relation("ReviewsReceived")
   approvedReviews Review[] @relation("ReviewsApproved")
   pushSubscriptions PushSubscription[]
-  refreshTokens     RefreshToken[]
-  quotaReservations QuotaReservation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -424,10 +421,48 @@ model UnsubscribedEmail {
   @@index([createdAt])
 }
 
-model RefreshToken {
+// ════════════════════════════════════════════
+// Desktop App — полностью отдельные таблицы
+// ════════════════════════════════════════════
+
+enum DesktopUserType {
+  INDIVIDUAL
+  COMPANY
+}
+
+model DesktopUser {
+  id            String          @id @default(cuid())
+  userType      DesktopUserType
+
+  // Физ. лицо
+  firstName      String?
+  lastName       String?
+  personalNumber String?         @unique
+  birthDate      DateTime?
+
+  // Компания
+  companyName    String?
+  companyIdCode  String?         @unique
+
+  // Общие
+  phone         String
+  email         String          @unique
+  passwordHash  String
+  balance       Int             @default(0)
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  refreshTokens DesktopRefreshToken[]
+  quotas        DesktopQuota[]
+
+  @@index([email])
+}
+
+model DesktopRefreshToken {
   id        String    @id @default(cuid())
   userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      DesktopUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash String    @unique
   expiresAt DateTime
   revokedAt DateTime?
@@ -437,22 +472,22 @@ model RefreshToken {
   @@index([expiresAt])
 }
 
-model QuotaReservation {
-  id           String    @id @default(cuid())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount       Int
-  costPerEmail Int
-  totalCost    Int
-  expiresAt    DateTime
-  reportedAt   DateTime?
-  sent         Int?
-  failed       Int?
-  refunded     Int       @default(0)
-  createdAt    DateTime  @default(now())
+model DesktopQuota {
+  id         String   @id @default(cuid())
+  userId     String
+  user       DesktopUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  allowed    Int
+  charged    Int
+  sent       Int      @default(0)
+  failed     Int      @default(0)
+  refunded   Int      @default(0)
+  status     String   @default("active") // active, reported, expired
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
 
   @@index([userId])
   @@index([expiresAt])
+  @@index([status, expiresAt])
 }
 
 model CampaignReport {

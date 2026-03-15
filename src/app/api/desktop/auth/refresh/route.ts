@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       return errors.validationError(parsed.error.issues);
     }
 
-    const { refresh_token } = parsed.data;
+    const { refreshToken: refreshTokenValue } = parsed.data;
 
     // ── Rate limit ──────────────────────────────────────────────
     const ip =
@@ -42,14 +42,14 @@ export async function POST(req: Request) {
     // ── Verify refresh token JWT ────────────────────────────────
     let payload;
     try {
-      payload = verifyRefreshToken(refresh_token);
+      payload = verifyRefreshToken(refreshTokenValue);
     } catch {
       return errors.unauthorized("Invalid or expired refresh token");
     }
 
-    // ── Find token in DB ────────────────────────────────────────
+    // ── Find token in desktop_refresh_tokens ────────────────────
     const tokenHash = hashToken(payload.jti);
-    const stored = await prisma.refreshToken.findUnique({
+    const stored = await prisma.desktopRefreshToken.findUnique({
       where: { tokenHash },
     });
 
@@ -57,13 +57,13 @@ export async function POST(req: Request) {
       return errors.unauthorized("Invalid or expired refresh token");
     }
 
-    // ── Check user ──────────────────────────────────────────────
-    const user = await prisma.user.findUnique({
+    // ── Check user exists in desktop_users ──────────────────────
+    const user = await prisma.desktopUser.findUnique({
       where: { id: stored.userId },
-      select: { id: true, isDisabled: true },
+      select: { id: true },
     });
 
-    if (!user || user.isDisabled) {
+    if (!user) {
       return errors.unauthorized("Account not available");
     }
 
@@ -72,11 +72,11 @@ export async function POST(req: Request) {
     const { token: newRefreshToken, jti: newJti } = signRefreshToken(user.id);
 
     await prisma.$transaction([
-      prisma.refreshToken.update({
+      prisma.desktopRefreshToken.update({
         where: { id: stored.id },
         data: { revokedAt: new Date() },
       }),
-      prisma.refreshToken.create({
+      prisma.desktopRefreshToken.create({
         data: {
           userId: user.id,
           tokenHash: hashToken(newJti),
@@ -86,8 +86,9 @@ export async function POST(req: Request) {
     ]);
 
     return NextResponse.json({
-      access_token: newAccessToken,
-      refresh_token: newRefreshToken,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      expiresIn: 900,
     });
   } catch (err) {
     console.error("[Desktop Refresh] Error:", err);
