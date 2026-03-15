@@ -90,13 +90,17 @@ jobs:
           docker compose -f docker-compose.prod.yml build app
 
           echo "==> Rolling update: start new container & wait for healthy..."
-          docker compose -f docker-compose.prod.yml up -d --no-deps --wait --wait-timeout 200 app
+          if ! docker compose -f docker-compose.prod.yml up -d --no-deps --wait --wait-timeout 400 app; then
+            echo "::error::Docker compose up failed"
+            docker compose -f docker-compose.prod.yml logs --tail=100 app
+            exit 1
+          fi
 
           # Wait for the app container to become healthy
           # (entrypoint runs migrations automatically before starting the server)
           echo "Waiting for app container to become healthy..."
           ATTEMPTS=0
-          MAX_ATTEMPTS=40
+          MAX_ATTEMPTS=60
           while [ "$ATTEMPTS" -lt "$MAX_ATTEMPTS" ]; do
             STATUS=$(docker inspect --format='{{.State.Health.Status}}' freela-app 2>/dev/null || echo "missing")
             echo "  attempt $((ATTEMPTS+1))/$MAX_ATTEMPTS - status: $STATUS"
@@ -106,7 +110,7 @@ jobs:
             fi
             if [ "$STATUS" = "unhealthy" ]; then
               echo "::error::App container is unhealthy"
-              docker compose -f docker-compose.prod.yml logs --tail=40 app
+              docker compose -f docker-compose.prod.yml logs --tail=100 app
               exit 1
             fi
             ATTEMPTS=$((ATTEMPTS+1))
@@ -114,7 +118,7 @@ jobs:
           done
           if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
             echo "::error::Timed out waiting for app container health"
-            docker compose -f docker-compose.prod.yml logs --tail=40 app
+            docker compose -f docker-compose.prod.yml logs --tail=100 app
             exit 1
           fi
           EOF
