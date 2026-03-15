@@ -7,9 +7,9 @@ export const dynamic = 'force-dynamic';
 async function UnsubscribeAction({ email }: { email: string }) {
   if (!email) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl shadow-sm">
-        <h2 className="text-xl font-bold mb-2">Error / შეცდომა</h2>
-        <p>Invalid email address. / არასწორი ელ-ფოსტა.</p>
+      <div style={{ backgroundColor: 'hsl(0 84% 95%)', border: '1px solid hsl(0 84% 82%)', color: 'hsl(0 84% 40%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'hsl(0 84% 40%)' }}>Error / შეცდომა</h2>
+        <p style={{ color: 'hsl(0 84% 40%)' }}>Invalid email address. / არასწორი ელ-ფოსტა.</p>
       </div>
     );
   }
@@ -30,7 +30,7 @@ async function UnsubscribeAction({ email }: { email: string }) {
       where: { email },
       data: { projectEmailSubscribed: false },
     });
-    
+
     success = true;
   } catch (error) {
     console.error('[Unsubscribe] Error:', error);
@@ -39,9 +39,11 @@ async function UnsubscribeAction({ email }: { email: string }) {
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl shadow-sm">
-        <h2 className="text-2xl font-bold mb-4">Successfully Unsubscribed / გამოწერა გაუქმებულია</h2>
-        <p className="text-lg">
+      <div style={{ backgroundColor: 'hsl(142 76% 94%)', border: '1px solid hsl(142 76% 78%)', color: 'hsl(142 76% 28%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem', color: 'hsl(142 76% 28%)' }}>
+          Successfully Unsubscribed / გამოწერა გაუქმებულია
+        </h2>
+        <p style={{ fontSize: '1.125rem', color: 'hsl(142 76% 28%)' }}>
           You have been successfully unsubscribed from <strong>{email}</strong>.
           <br />
           თქვენი გამოწერა წარმატებით გაუქმდა მისამართისთვის: <strong>{email}</strong>.
@@ -51,9 +53,9 @@ async function UnsubscribeAction({ email }: { email: string }) {
   }
 
   return (
-    <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl shadow-sm">
-      <h2 className="text-xl font-bold mb-2">Error / შეცდომა</h2>
-      <p>{errorMsg || 'Unknown error occurred.'}</p>
+    <div style={{ backgroundColor: 'hsl(0 84% 95%)', border: '1px solid hsl(0 84% 82%)', color: 'hsl(0 84% 40%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'hsl(0 84% 40%)' }}>Error / შეცდომა</h2>
+      <p style={{ color: 'hsl(0 84% 40%)' }}>{errorMsg || 'Unknown error occurred.'}</p>
     </div>
   );
 }
@@ -79,11 +81,11 @@ export default async function UnsubscribePage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-gray-100">
-        <div className="mb-8 flex justify-center">
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: '#f9fafb' }}>
+      <div style={{ maxWidth: '28rem', width: '100%', backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '2rem', textAlign: 'center', border: '1px solid #f3f4f6' }}>
+        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
           <svg
-            className="w-16 h-16 text-blue-600"
+            style={{ width: '4rem', height: '4rem', color: '#2563eb' }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -98,21 +100,21 @@ export default async function UnsubscribePage({
           </svg>
         </div>
 
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-6">Freela.ge</h1>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: '#111827', marginBottom: '1.5rem' }}>Freela.ge</h1>
 
-        <Suspense fallback={<div className="animate-pulse text-gray-500">Processing... / მუშავდება...</div>}>
+        <Suspense fallback={<div style={{ color: '#6b7280' }}>Processing... / მუშავდება...</div>}>
           <UnsubscribeAction email={email || ''} />
         </Suspense>
 
-        <div className="mt-8 pt-8 border-t border-gray-100">
-          <p className="text-sm text-gray-500">
+        <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #f3f4f6' }}>
+          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
             If this was a mistake, you can re-subscribe in your profile settings.
             <br />
             თუ ეს შეცდომით მოხდა, შეგიძლიათ კვლავ გამოიწეროთ თქვენი პროფილის პარამეტრებიდან.
           </p>
           <Link
             href="/"
-            className="inline-block mt-6 text-blue-600 font-semibold hover:text-blue-800 transition-colors"
+            style={{ display: 'inline-block', marginTop: '1.5rem', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}
           >
             Go to Homepage / მთავარზე გადასვლა
           </Link>
