@@ -1,0 +1,103 @@
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { signAccessToken, signRefreshToken, hashToken } from "@/lib/desktop-jwt";
+import { desktopLoginSchema } from "@/lib/validation";
+import { errors } from "@/lib/api-response";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+export async function POST(req: Request) {
+  try {
+    // ── Parse body ──────────────────────────────────────────────
+    const body = await req.json().catch(() => null);
+    if (!body) return errors.badRequest("Invalid JSON body");
+
+    const parsed = desktopLoginSchema.safeParse(body);
+    if (!parsed.success) {
+      return errors.validationError(parsed.error.issues);
+    }
+
+    const { email, password } = parsed.data;
+
+    // ── Rate limit ──────────────────────────────────────────────
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("x-real-ip") ??
+      "unknown";
+
+    const ipLimit = await checkRateLimit({
+      scope: "desktop:login:ip",
+      key: ip,
+      limit: 20,
+      windowSeconds: 900,
+    });
+    if (!ipLimit.allowed) {
+      return errors.rateLimited(ipLimit.retryAfterSeconds);
+    }
+
+    const emailLimit = await checkRateLimit({
+      scope: "desktop:login:email",
+      key: email,
+      limit: 10,
+      windowSeconds: 900,
+    });
+    if (!emailLimit.allowed) {
+      return errors.rateLimited(emailLimit.retryAfterSeconds);
+    }
+
+    // ── Find user & verify password ─────────────────────────────
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        balance: true,
+        isDisabled: true,
+        emailVerifiedAt: true,
+      },
+    });
+
+    if (!user || !user.passwordHash) {
+      return errors.unauthorized("Invalid email or password");
+    }
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      return errors.unauthorized("Invalid email or password");
+    }
+
+    if (user.isDisabled) {
+      return errors.forbidden("Account is disabled");
+    }
+
+    if (!user.emailVerifiedAt) {
+      return errors.forbidden("Email not verified");
+    }
+
+    // ── Issue tokens ────────────────────────────────────────────
+    const accessToken = signAccessToken(user.id);
+    const { token: refreshToken, jti } = signRefreshToken(user.id);
+
+    // Store refresh token hash in DB
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashToken(jti),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      },
+    });
+
+    return NextResponse.json({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: {
+        email: user.email,
+        balance: user.balance,
+      },
+    });
+  } catch (err) {
+    console.error("[Desktop Login] Error:", err);
+    return errors.serverError();
+  }
+}

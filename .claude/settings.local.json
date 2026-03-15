@@ -31,7 +31,11 @@
       "Bash(curl -s -I \"https://freela.ge/api/tracking/click?url=L3ByaWNpbmc=&email=dGVzdC1maXhAZnJlZWxhLmdl\")",
       "Bash(curl -s -I \"https://freela.ge/api/tracking/click\")",
       "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml exec -T db psql -U freela -d freela -c ''SELECT email, \"\"eventType\"\", url, \"\"createdAt\"\" FROM \"\"EmailTrackingEvent\"\" WHERE email = ''\\''''test-fix@freela.ge''\\'''' ORDER BY \"\"createdAt\"\" DESC;''\")",
-      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml logs app --tail=10 | grep -i ''Click Tracking''\")"
+      "Bash(ssh root@76.13.144.121 \"cd /root/freela/deploy && docker compose -f docker-compose.prod.yml logs app --tail=10 | grep -i ''Click Tracking''\")",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const c=require\\(''crypto''\\);console.log\\(c.randomBytes\\(32\\).toString\\(''hex''\\)\\);console.log\\(c.randomBytes\\(32\\).toString\\(''hex''\\)\\)\")",
+      "Bash(npx prisma:*)",
+      "Bash(npx next:*)"
     ],
     "deny": [],
     "ask": []

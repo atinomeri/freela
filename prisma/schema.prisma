@@ -64,6 +64,7 @@ model User {
   disabledAt   DateTime?
   disabledReason String?
   projectEmailSubscribed Boolean @default(false)
+  balance    Int       @default(0)
 
   phone       String?
   personalId  String?   @unique
@@ -87,6 +88,8 @@ model User {
   reviewsReceived Review[] @relation("ReviewsReceived")
   approvedReviews Review[] @relation("ReviewsApproved")
   pushSubscriptions PushSubscription[]
+  refreshTokens     RefreshToken[]
+  quotaReservations QuotaReservation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -419,6 +422,37 @@ model UnsubscribedEmail {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model QuotaReservation {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Int
+  costPerEmail Int
+  totalCost    Int
+  expiresAt    DateTime
+  reportedAt   DateTime?
+  sent         Int?
+  failed       Int?
+  refunded     Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model CampaignReport {

@@ -236,3 +236,32 @@ export function validate<T>(
 export function formatZodErrors(issues: z.ZodIssue[]): string {
   return issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
 }
+
+// ============================================
+// Desktop app schemas
+// ============================================
+
+export const desktopLoginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Password is required"),
+});
+
+export const desktopRefreshSchema = z.object({
+  refresh_token: z.string().min(1, "Refresh token is required"),
+});
+
+export const quotaReserveSchema = z.object({
+  count: z.number().int().min(1).max(100_000),
+  price_per_email: z.number().int().min(1).optional(),
+});
+
+export const quotaReportSchema = z.object({
+  quota_id: z.string().min(1, "Quota ID is required"),
+  sent: z.number().int().min(0),
+  failed: z.number().int().min(0),
+});
+
+export const adminTopupSchema = z.object({
+  email: emailSchema,
+  amount: z.number().int().min(1, "Amount must be positive"),
+});
