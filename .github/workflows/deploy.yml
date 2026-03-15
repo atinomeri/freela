@@ -66,8 +66,12 @@ jobs:
       - name: Deploy on server
         run: |
           set -euo pipefail
-          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" \
-            "APP_DIR='$VPS_APP_DIR' BRANCH='$DEPLOY_BRANCH' EXPECTED_SHA='$DEPLOY_SHA' bash -s" <<'EOF'
+
+          # Write remote deploy script to a unique temp file so the retry loop can re-use it
+          REMOTE_SCRIPT=$(mktemp)
+          trap 'rm -f "$REMOTE_SCRIPT"' EXIT
+
+          cat > "$REMOTE_SCRIPT" << 'REMOTE_EOF'
           set -euo pipefail
           cd "$APP_DIR"
           echo "==> Repo: $(pwd)"
@@ -121,7 +125,26 @@ jobs:
             docker compose -f docker-compose.prod.yml logs --tail=100 app
             exit 1
           fi
-          EOF
+          REMOTE_EOF
+
+          # Retry the SSH connection up to 3 times with exponential backoff
+          SSH_OPTS=(-o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
+          MAX_SSH_ATTEMPTS=3
+          SSH_ATTEMPT=0
+          RETRY_DELAY=30
+          until ssh "${SSH_OPTS[@]}" -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" \
+            "APP_DIR='$VPS_APP_DIR' BRANCH='$DEPLOY_BRANCH' EXPECTED_SHA='$DEPLOY_SHA' bash -s" \
+            < "$REMOTE_SCRIPT"
+          do
+            SSH_ATTEMPT=$((SSH_ATTEMPT + 1))
+            if [ "$SSH_ATTEMPT" -ge "$MAX_SSH_ATTEMPTS" ]; then
+              echo "::error::SSH connection to VPS failed after $MAX_SSH_ATTEMPTS attempts"
+              exit 1
+            fi
+            echo "::warning::SSH connection failed (attempt $SSH_ATTEMPT/$MAX_SSH_ATTEMPTS); retrying in ${RETRY_DELAY}s..."
+            sleep "$RETRY_DELAY"
+            RETRY_DELAY=$((RETRY_DELAY * 2))
+          done
 
       - name: Health check
         if: env.HEALTHCHECK_URL != ''
