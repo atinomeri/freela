@@ -15,7 +15,8 @@ if gosu nodejs npx prisma migrate deploy --config=./prisma.config.ts; then
   END_MIGRATION=$(date +%s)
   echo "==> Migrations completed in $((END_MIGRATION - START_MIGRATION))s"
 else
-  echo "::warning:: Migration failed or timed out. Check database connectivity."
+  echo "==> ERROR: Migration failed. Check database connectivity and migration files."
+  exit 1
 fi
 
 exec gosu nodejs npm start -- -H 0.0.0.0 -p "$PORT_VALUE"
