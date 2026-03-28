@@ -48,9 +48,22 @@ export async function GET(request: Request) {
       }
     }
     
-    // Total unsubscribed globally (if there is no campaign linkage)
-    const unsubscibedCount = await prisma.unsubscribedEmail.count();
-    unsubscribed = unsubscibedCount; // or specific query if it was possible
+    // Count unsubscribes that happened during/after this campaign
+    if (campaignId) {
+      const report = await prisma.campaignReport.findUnique({
+        where: { campaignId },
+        select: { startedAt: true },
+      });
+      if (report) {
+        unsubscribed = await prisma.unsubscribedEmail.count({
+          where: { createdAt: { gte: report.startedAt } },
+        });
+      } else {
+        unsubscribed = await prisma.unsubscribedEmail.count();
+      }
+    } else {
+      unsubscribed = await prisma.unsubscribedEmail.count();
+    }
 
     return NextResponse.json({
       campaign_id: campaignId || "",
