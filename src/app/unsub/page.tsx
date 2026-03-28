@@ -68,12 +68,19 @@ export default async function UnsubscribePage({
   const params = await searchParams;
   let email = params.email || '';
 
-  // Try to decode if it looks like Base64 (doesn't contain @)
+  // Try to decode if it looks like Base64 or HMAC-signed token (doesn't contain @)
   if (email && !email.includes('@')) {
     try {
-      const decoded = Buffer.from(email, 'base64').toString('utf-8');
+      // HMAC-signed token format: base64email.signature
+      let b64Part = email;
+      if (email.includes('.')) {
+        b64Part = email.split('.').slice(0, -1).join('.');
+      }
+      // Add padding if needed
+      const padded = b64Part + '='.repeat((4 - (b64Part.length % 4)) % 4);
+      const decoded = Buffer.from(padded, 'base64url').toString('utf-8');
       if (decoded.includes('@')) {
-        email = decoded;
+        email = decoded.toLowerCase();
       }
     } catch (e) {
       console.warn('[Unsubscribe] Failed to decode email parameter:', email);
