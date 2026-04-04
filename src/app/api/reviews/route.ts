@@ -4,12 +4,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { reportError } from "@/lib/logger";
+import { validateCsrf } from "@/lib/csrf";
 
 function jsonError(errorCode: string, status: number) {
   return NextResponse.json({ ok: false, errorCode }, { status });
 }
 
 export async function POST(req: Request) {
+  // CSRF validation (skipped for Bearer token requests)
+  const csrfError = await validateCsrf(req);
+  if (csrfError) return csrfError;
+
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
   if (session.user.role !== "EMPLOYER") return jsonError("FORBIDDEN", 403);

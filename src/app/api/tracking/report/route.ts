@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireDesktopAuth } from "@/lib/desktop-auth";
 
 export async function POST(req: NextRequest) {
   try {
+    // ── Auth: require desktop JWT ──
+    const auth = await requireDesktopAuth(req);
+    if ('error' in auth) {
+      return auth.error;
+    }
+    const desktopUserId = auth.user.id;
+
     const body = await req.json();
     const {
       campaign_id,
@@ -23,21 +31,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── Ownership check: if report already exists, verify ownership ──
+    const existing = await prisma.campaignReport.findUnique({
+      where: { campaignId: campaign_id },
+      select: { desktopUserId: true },
+    });
+
+    if (existing && existing.desktopUserId && existing.desktopUserId !== desktopUserId) {
+      return NextResponse.json(
+        { ok: false, error: "Forbidden: campaign belongs to another user" },
+        { status: 403 }
+      );
+    }
+
     // Parse unix timestamps to Date objects if they exist
     let startedAtDate = new Date();
     let finishedAtDate = new Date();
 
     if (started_at) {
-      // client sends float unix timestamps (seconds)
       startedAtDate = new Date(started_at * 1000);
     }
-    
+
     if (finished_at) {
       finishedAtDate = new Date(finished_at * 1000);
     }
 
-    // Save report to database. Using upsert to prevent duplicate errors 
-    // if client retries the same campaign_id.
+    // Save report to database with user ownership
     await prisma.campaignReport.upsert({
       where: {
         campaignId: campaign_id,
@@ -50,10 +69,12 @@ export async function POST(req: NextRequest) {
         failed: failed || 0,
         startedAt: startedAtDate,
         finishedAt: finishedAtDate,
-        events: events || null, // storing as JSON
+        events: events || null,
+        desktopUserId: desktopUserId,
       },
       create: {
         campaignId: campaign_id,
+        desktopUserId: desktopUserId,
         hwid,
         licenseKey: license_key || null,
         total: total || 0,

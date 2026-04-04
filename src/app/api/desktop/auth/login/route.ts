@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const ipLimit = await checkRateLimit({
       scope: "desktop:login:ip",
       key: ip,
-      limit: 20,
+      limit: 10,
       windowSeconds: 900,
     });
     if (!ipLimit.allowed) {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     const emailLimit = await checkRateLimit({
       scope: "desktop:login:email",
       key: email,
-      limit: 10,
+      limit: 5,
       windowSeconds: 900,
     });
     if (!emailLimit.allowed) {
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       data: {
         userId: user.id,
         tokenHash: hashToken(jti),
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
 

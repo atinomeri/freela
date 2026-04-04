@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { isFreelancerCategory } from "@/lib/categories";
 import * as projectService from "@/lib/services/project-service";
 import { ServiceError } from "@/lib/services/errors";
+import { validateCsrf } from "@/lib/csrf";
 
 function jsonError(errorCode: string, status: number, extra?: Record<string, unknown>) {
   return NextResponse.json({ ok: false, errorCode, ...extra }, { status });
@@ -50,6 +51,10 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  // CSRF validation (skipped for Bearer token requests)
+  const csrfError = await validateCsrf(req);
+  if (csrfError) return csrfError;
+
   const session = await getServerSession(authOptions);
   if (!session?.user) return jsonError("UNAUTHORIZED", 401);
   if (session.user.role !== "EMPLOYER") return jsonError("FORBIDDEN", 403);

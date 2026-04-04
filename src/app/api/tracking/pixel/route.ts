@@ -1,99 +1,87 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createHash } from 'crypto';
 
-// 1x1 прозрачный GIF в виде бинарного буфера
+// 1x1 transparent GIF
 const TRANSPARENT_GIF_BUFFER = Buffer.from(
   'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
   'base64'
 );
 
+const GIF_HEADERS = {
+  'Content-Type': 'image/gif',
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
+function hashEmail(email: string): string {
+  return createHash('sha256').update(email.toLowerCase().trim()).digest('hex');
+}
+
+function hashIp(ip: string): string {
+  return createHash('sha256').update(ip.trim()).digest('hex');
+}
+
 export async function GET(request: NextRequest) {
   try {
-    // Получаем параметр data из URL
     const { searchParams } = new URL(request.url);
     const encodedData = searchParams.get('data');
     const campaignId = searchParams.get('cid') || null;
 
     if (!encodedData) {
-      console.warn('[Pixel Tracking] Missing data parameter');
-      // Все равно возвращаем GIF, чтобы не ломать письмо
       return new NextResponse(TRANSPARENT_GIF_BUFFER, {
         status: 200,
-        headers: {
-          'Content-Type': 'image/gif',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
+        headers: GIF_HEADERS,
       });
     }
 
-    // Декодируем Base64 в строку email
-    let email: string;
+    // Decode email and immediately hash it — never store plaintext
+    let emailHash: string;
     try {
-      email = Buffer.from(encodedData, 'base64').toString('utf-8');
-    } catch (decodeError) {
-      console.error('[Pixel Tracking] Base64 decode error:', decodeError);
-      // Возвращаем GIF даже при ошибке декодирования
+      const email = Buffer.from(encodedData, 'base64').toString('utf-8');
+      emailHash = hashEmail(email);
+    } catch {
       return new NextResponse(TRANSPARENT_GIF_BUFFER, {
         status: 200,
-        headers: {
-          'Content-Type': 'image/gif',
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
+        headers: GIF_HEADERS,
       });
     }
 
-    // Получаем дополнительные данные для аналитики
-    const userAgent = request.headers.get('user-agent') || undefined;
     const ipAddress =
       request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
       request.headers.get('x-real-ip') ||
       undefined;
 
-    // Асинхронно записываем событие в базу данных
-    // Используем неблокирующий подход - не ждем завершения записи
+    // Hash IP for privacy - only store hash, never plaintext
+    const ipHash = ipAddress ? hashIp(ipAddress) : undefined;
+
+    // Store only hashed data — no plaintext PII in the database
     prisma.emailTrackingEvent
       .create({
         data: {
           campaignId,
-          email,
+          emailHash,
           eventType: 'OPEN',
-          userAgent,
-          ipAddress,
+          ipAddress: ipHash,
         },
       })
       .catch((error) => {
         console.error('[Pixel Tracking] Database error:', error);
       });
 
-    console.log(`[Pixel Tracking] Email opened: ${email}`);
-
-    // Возвращаем 1x1 прозрачный GIF с заголовками против кэширования
     return new NextResponse(TRANSPARENT_GIF_BUFFER, {
       status: 200,
       headers: {
-        'Content-Type': 'image/gif',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
+        ...GIF_HEADERS,
         'Content-Length': TRANSPARENT_GIF_BUFFER.length.toString(),
       },
     });
   } catch (error) {
     console.error('[Pixel Tracking] Unexpected error:', error);
-
-    // Даже при критической ошибке возвращаем GIF
     return new NextResponse(TRANSPARENT_GIF_BUFFER, {
       status: 200,
-      headers: {
-        'Content-Type': 'image/gif',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      },
+      headers: GIF_HEADERS,
     });
   }
 }

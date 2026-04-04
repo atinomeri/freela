@@ -28,7 +28,7 @@ export function verifyAccessToken(token: string): AccessTokenPayload {
   return jwt.verify(token, requireEnv("JWT_ACCESS_SECRET")) as AccessTokenPayload;
 }
 
-// ── Refresh Token (long-lived, 30 days, with JTI for rotation) ──
+// ── Refresh Token (7 days, with JTI for rotation) ──
 
 export interface RefreshTokenPayload {
   sub: string; // userId
@@ -38,7 +38,7 @@ export interface RefreshTokenPayload {
 export function signRefreshToken(userId: string): { token: string; jti: string } {
   const jti = randomUUID();
   const token = jwt.sign({ sub: userId, jti }, requireEnv("JWT_REFRESH_SECRET"), {
-    expiresIn: "30d",
+    expiresIn: "7d",
   });
   return { token, jti };
 }

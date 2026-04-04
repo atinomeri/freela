@@ -91,6 +91,218 @@ function checkMemory(key: string, limit: number, windowSeconds: number): RateLim
   return { allowed: existing.count <= limit, limit, remaining, retryAfterSeconds };
 }
 
+// ── Login rate limiting with exponential backoff + lockout ──
+
+type LoginRateLimitResult = RateLimitResult & {
+  lockedOut: boolean;
+  lockoutRemainingSeconds: number;
+};
+
+const LOGIN_BACKOFF_THRESHOLD = 5; // Start exponential backoff after 5 failures
+const LOGIN_LOCKOUT_THRESHOLD = 15; // Lock account after 15 failures
+const LOGIN_LOCKOUT_DURATION = 30 * 60; // 30 minutes lockout
+const LOGIN_BASE_WINDOW = 60; // Base window 1 minute
+
+export async function checkLoginRateLimit(params: {
+  key: string; // email or IP
+  scope: "email" | "ip";
+}): Promise<LoginRateLimitResult> {
+  if (process.env.NODE_ENV === "test" || process.env.E2E === "true") {
+    return { allowed: true, limit: 100, remaining: 100, retryAfterSeconds: 0, lockedOut: false, lockoutRemainingSeconds: 0 };
+  }
+
+  const keySafe = (params.key || "unknown").slice(0, 200);
+  const failKey = `rl:login:fail:${params.scope}:${keySafe}`;
+  const lockKey = `rl:login:lock:${params.scope}:${keySafe}`;
+
+  const client = await getRedisClient().catch(() => null);
+
+  // In-memory fallback for development
+  if (!client) {
+    const memFailKey = `login:fail:${params.scope}:${keySafe}`;
+    const memLockKey = `login:lock:${params.scope}:${keySafe}`;
+
+    const now = Date.now();
+    const lockBucket = memory.get(memLockKey);
+    if (lockBucket && lockBucket.expiresAt > now) {
+      const lockoutRemaining = Math.ceil((lockBucket.expiresAt - now) / 1000);
+      return {
+        allowed: false,
+        limit: LOGIN_LOCKOUT_THRESHOLD,
+        remaining: 0,
+        retryAfterSeconds: lockoutRemaining,
+        lockedOut: true,
+        lockoutRemainingSeconds: lockoutRemaining,
+      };
+    }
+
+    const failBucket = memory.get(memFailKey);
+    const failCount = failBucket && failBucket.expiresAt > now ? failBucket.count : 0;
+
+    if (failCount >= LOGIN_LOCKOUT_THRESHOLD) {
+      memory.set(memLockKey, { count: 1, expiresAt: now + LOGIN_LOCKOUT_DURATION * 1000 });
+      return {
+        allowed: false,
+        limit: LOGIN_LOCKOUT_THRESHOLD,
+        remaining: 0,
+        retryAfterSeconds: LOGIN_LOCKOUT_DURATION,
+        lockedOut: true,
+        lockoutRemainingSeconds: LOGIN_LOCKOUT_DURATION,
+      };
+    }
+
+    // Calculate exponential backoff window
+    let windowSeconds = LOGIN_BASE_WINDOW;
+    if (failCount >= LOGIN_BACKOFF_THRESHOLD) {
+      const backoffMultiplier = Math.pow(2, failCount - LOGIN_BACKOFF_THRESHOLD);
+      windowSeconds = Math.min(LOGIN_BASE_WINDOW * backoffMultiplier, LOGIN_LOCKOUT_DURATION);
+    }
+
+    const limit = params.scope === "ip" ? 30 : 10;
+    const result = checkMemory(memFailKey, limit, windowSeconds);
+    return { ...result, lockedOut: false, lockoutRemainingSeconds: 0 };
+  }
+
+  try {
+    // Check lockout first
+    const lockTtl = await client.ttl(lockKey);
+    if (lockTtl > 0) {
+      return {
+        allowed: false,
+        limit: LOGIN_LOCKOUT_THRESHOLD,
+        remaining: 0,
+        retryAfterSeconds: lockTtl,
+        lockedOut: true,
+        lockoutRemainingSeconds: lockTtl,
+      };
+    }
+
+    // Get current failure count
+    const failCountStr = await client.get(failKey);
+    const failCount = failCountStr ? parseInt(failCountStr, 10) : 0;
+
+    // Check if should be locked out
+    if (failCount >= LOGIN_LOCKOUT_THRESHOLD) {
+      await client.setEx(lockKey, LOGIN_LOCKOUT_DURATION, "1");
+      trackRateLimitBreach({
+        timestamp: new Date(),
+        scope: `login:lockout:${params.scope}`,
+        key: keySafe,
+        limit: LOGIN_LOCKOUT_THRESHOLD,
+        windowSeconds: LOGIN_LOCKOUT_DURATION,
+        attemptCount: failCount,
+        severity: "critical",
+      });
+      return {
+        allowed: false,
+        limit: LOGIN_LOCKOUT_THRESHOLD,
+        remaining: 0,
+        retryAfterSeconds: LOGIN_LOCKOUT_DURATION,
+        lockedOut: true,
+        lockoutRemainingSeconds: LOGIN_LOCKOUT_DURATION,
+      };
+    }
+
+    // Calculate exponential backoff window
+    let windowSeconds = LOGIN_BASE_WINDOW;
+    if (failCount >= LOGIN_BACKOFF_THRESHOLD) {
+      const backoffMultiplier = Math.pow(2, failCount - LOGIN_BACKOFF_THRESHOLD);
+      windowSeconds = Math.min(LOGIN_BASE_WINDOW * backoffMultiplier, LOGIN_LOCKOUT_DURATION);
+    }
+
+    const limit = params.scope === "ip" ? 30 : 10;
+    const remaining = Math.max(0, limit - failCount);
+    const ttl = await client.ttl(failKey);
+
+    return {
+      allowed: failCount < limit,
+      limit,
+      remaining,
+      retryAfterSeconds: ttl > 0 ? ttl : windowSeconds,
+      lockedOut: false,
+      lockoutRemainingSeconds: 0,
+    };
+  } catch {
+    // Fail open in case of Redis errors (but log it)
+    logWarn("[rate-limit] Redis error in checkLoginRateLimit; allowing request");
+    return { allowed: true, limit: 100, remaining: 100, retryAfterSeconds: 0, lockedOut: false, lockoutRemainingSeconds: 0 };
+  }
+}
+
+export async function recordLoginFailure(params: { key: string; scope: "email" | "ip" }): Promise<void> {
+  if (process.env.NODE_ENV === "test" || process.env.E2E === "true") return;
+
+  const keySafe = (params.key || "unknown").slice(0, 200);
+  const failKey = `rl:login:fail:${params.scope}:${keySafe}`;
+
+  const client = await getRedisClient().catch(() => null);
+
+  if (!client) {
+    // In-memory fallback
+    const memFailKey = `login:fail:${params.scope}:${keySafe}`;
+    const now = Date.now();
+    const existing = memory.get(memFailKey);
+    if (existing && existing.expiresAt > now) {
+      existing.count += 1;
+    } else {
+      memory.set(memFailKey, { count: 1, expiresAt: now + LOGIN_BASE_WINDOW * 1000 });
+    }
+    return;
+  }
+
+  try {
+    const count = await client.incr(failKey);
+    if (count === 1) {
+      await client.expire(failKey, LOGIN_BASE_WINDOW);
+    } else {
+      // Extend window with exponential backoff
+      if (count >= LOGIN_BACKOFF_THRESHOLD) {
+        const backoffMultiplier = Math.pow(2, count - LOGIN_BACKOFF_THRESHOLD);
+        const newWindow = Math.min(LOGIN_BASE_WINDOW * backoffMultiplier, LOGIN_LOCKOUT_DURATION);
+        await client.expire(failKey, newWindow);
+      }
+    }
+
+    // Track repeated failures
+    if (count >= LOGIN_BACKOFF_THRESHOLD) {
+      trackRateLimitBreach({
+        timestamp: new Date(),
+        scope: `login:backoff:${params.scope}`,
+        key: keySafe,
+        limit: LOGIN_LOCKOUT_THRESHOLD,
+        windowSeconds: LOGIN_BASE_WINDOW,
+        attemptCount: count,
+        severity: count >= LOGIN_LOCKOUT_THRESHOLD - 3 ? "high" : "medium",
+      });
+    }
+  } catch {
+    logWarn("[rate-limit] Redis error in recordLoginFailure");
+  }
+}
+
+export async function clearLoginFailures(params: { key: string; scope: "email" | "ip" }): Promise<void> {
+  if (process.env.NODE_ENV === "test" || process.env.E2E === "true") return;
+
+  const keySafe = (params.key || "unknown").slice(0, 200);
+  const failKey = `rl:login:fail:${params.scope}:${keySafe}`;
+
+  const client = await getRedisClient().catch(() => null);
+
+  if (!client) {
+    const memFailKey = `login:fail:${params.scope}:${keySafe}`;
+    memory.delete(memFailKey);
+    return;
+  }
+
+  try {
+    await client.del(failKey);
+  } catch {
+    logWarn("[rate-limit] Redis error in clearLoginFailures");
+  }
+}
+
+// ── Standard rate limiting ──
+
 export async function checkRateLimit(params: {
   scope: string;
   key: string;

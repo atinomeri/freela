@@ -400,7 +400,8 @@ model LicenseKey {
 model EmailTrackingEvent {
   id         String   @id @default(cuid())
   campaignId String?  // ID кампании рассылки
-  email      String   // Декодированный email получателя
+  email      String?  // Deprecated: will be removed after migration
+  emailHash  String?  // SHA-256 hash of recipient email (PII protection)
   eventType  String   // 'OPEN' или 'CLICK'
   url        String?  // Куда кликнули (только для CLICK)
   userAgent  String?  // User-Agent браузера/клиента
@@ -408,7 +409,7 @@ model EmailTrackingEvent {
   createdAt  DateTime @default(now())
 
   @@index([campaignId, eventType])
-  @@index([email, eventType])
+  @@index([emailHash, eventType])
   @@index([createdAt])
 }
 
@@ -453,8 +454,9 @@ model DesktopUser {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  refreshTokens DesktopRefreshToken[]
-  quotas        DesktopQuota[]
+  refreshTokens   DesktopRefreshToken[]
+  quotas          DesktopQuota[]
+  campaignReports CampaignReport[]
 
   @@index([email])
 }
@@ -491,15 +493,19 @@ model DesktopQuota {
 }
 
 model CampaignReport {
-  id          String   @id @default(uuid())
-  campaignId  String   @unique
-  hwid        String
-  licenseKey  String?
-  total       Int
-  sent        Int
-  failed      Int
-  startedAt   DateTime
-  finishedAt  DateTime
-  events      Json?
-  createdAt   DateTime @default(now())
+  id             String      @id @default(uuid())
+  campaignId     String      @unique
+  desktopUserId  String?     // Owner — nullable for backward compat with old reports
+  desktopUser    DesktopUser? @relation(fields: [desktopUserId], references: [id], onDelete: SetNull)
+  hwid           String
+  licenseKey     String?
+  total          Int
+  sent           Int
+  failed         Int
+  startedAt      DateTime
+  finishedAt     DateTime
+  events         Json?
+  createdAt      DateTime    @default(now())
+
+  @@index([desktopUserId])
 }

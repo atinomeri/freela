@@ -5,7 +5,7 @@ import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
+import { checkLoginRateLimit, recordLoginFailure, clearLoginFailures, getClientIpFromHeaders } from "@/lib/rate-limit";
 import { reportError } from "@/lib/logger";
 
 function requireEnv(name: "NEXTAUTH_URL" | "NEXTAUTH_SECRET") {
@@ -47,7 +47,7 @@ export const authOptions: NextAuthOptions = {
   secret: nextAuthSecret,
   debug: process.env.NODE_ENV !== "production",
   useSecureCookies: process.env.NODE_ENV === "production",
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 24 * 60 * 60 }, // 24 hours
   pages: {
     signIn: "/auth/login"
   },
@@ -64,10 +64,13 @@ export const authOptions: NextAuthOptions = {
         if (!email || !password) return null;
 
         const ip = getClientIpFromHeaders(req?.headers);
-        const ipLimit = await checkRateLimit({ scope: "login:ip", key: ip, limit: 30, windowSeconds: 15 * 60 });
-        if (!ipLimit.allowed) return null;
-        const emailLimit = await checkRateLimit({ scope: "login:email", key: email, limit: 10, windowSeconds: 15 * 60 });
-        if (!emailLimit.allowed) return null;
+
+        // Check rate limits with exponential backoff
+        const ipLimit = await checkLoginRateLimit({ key: ip, scope: "ip" });
+        if (!ipLimit.allowed || ipLimit.lockedOut) return null;
+
+        const emailLimit = await checkLoginRateLimit({ key: email, scope: "email" });
+        if (!emailLimit.allowed || emailLimit.lockedOut) return null;
 
         let user:
           | {
@@ -91,12 +94,44 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        if (!user || !user.passwordHash) return null;
-        if (!user.emailVerifiedAt) return null;
-        if (user.isDisabled) return null;
+        if (!user || !user.passwordHash) {
+          // Record failure for both IP and email
+          await Promise.all([
+            recordLoginFailure({ key: ip, scope: "ip" }),
+            recordLoginFailure({ key: email, scope: "email" }),
+          ]);
+          return null;
+        }
+        if (!user.emailVerifiedAt) {
+          await Promise.all([
+            recordLoginFailure({ key: ip, scope: "ip" }),
+            recordLoginFailure({ key: email, scope: "email" }),
+          ]);
+          return null;
+        }
+        if (user.isDisabled) {
+          await Promise.all([
+            recordLoginFailure({ key: ip, scope: "ip" }),
+            recordLoginFailure({ key: email, scope: "email" }),
+          ]);
+          return null;
+        }
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+        if (!ok) {
+          // Record failure for both IP and email
+          await Promise.all([
+            recordLoginFailure({ key: ip, scope: "ip" }),
+            recordLoginFailure({ key: email, scope: "email" }),
+          ]);
+          return null;
+        }
+
+        // Success - clear failure counters
+        await Promise.all([
+          clearLoginFailures({ key: ip, scope: "ip" }),
+          clearLoginFailures({ key: email, scope: "email" }),
+        ]);
 
         const authUser: AuthUser = {
           id: user.id,

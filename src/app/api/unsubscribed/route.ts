@@ -5,15 +5,23 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-/** Check either INTERNAL_API_SECRET (for desktop app) or admin session (for web panel). */
+/** Check Authorization header (desktop app), query param (legacy), or admin session (web panel). */
 async function isAuthorized(request: Request): Promise<boolean> {
-  // 1. Check INTERNAL_API_SECRET (desktop app / external)
+  const expectedSecret = process.env.INTERNAL_API_SECRET;
+
+  // 1. Authorization header (preferred — keeps secret out of URL/logs)
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ') && expectedSecret) {
+    const token = authHeader.slice(7);
+    if (token === expectedSecret) return true;
+  }
+
+  // 2. Legacy: query param (deprecated — will be removed in future version)
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
-  const expectedSecret = process.env.INTERNAL_API_SECRET;
   if (expectedSecret && secret === expectedSecret) return true;
 
-  // 2. Check admin session (web panel)
+  // 3. Admin web session
   const session = await getServerSession(authOptions);
   if (session?.user?.role === 'ADMIN') return true;
 
