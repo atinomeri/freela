@@ -500,9 +500,9 @@ model DesktopQuota {
 }
 
 model CampaignReport {
-  id             String      @id @default(uuid())
-  campaignId     String      @unique
-  desktopUserId  String?     // Owner — nullable for backward compat with old reports
+  id             String       @id @default(uuid())
+  campaignId     String       @unique
+  desktopUserId  String?      // Owner — nullable for backward compat with old reports
   desktopUser    DesktopUser? @relation(fields: [desktopUserId], references: [id], onDelete: SetNull)
   hwid           String
   licenseKey     String?
@@ -512,7 +512,7 @@ model CampaignReport {
   startedAt      DateTime
   finishedAt     DateTime
   events         Json?
-  createdAt      DateTime    @default(now())
+  createdAt      DateTime     @default(now())
 
   @@index([desktopUserId])
 }

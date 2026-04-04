@@ -59,12 +59,9 @@ export async function GET(request: NextRequest) {
       request.headers.get('x-real-ip') ||
       undefined;
 
-    // Hash IP for privacy - only store hash, never plaintext
     const ipHash = ipAddress ? hashIp(ipAddress) : undefined;
 
     // Store only hashed data — no plaintext PII in the database
-    // IMPORTANT: must await to ensure write completes before serverless
-    // runtime shuts down (fire-and-forget promises get killed on Vercel)
     try {
       await prisma.emailTrackingEvent.create({
         data: {

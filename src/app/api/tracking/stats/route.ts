@@ -19,32 +19,66 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const campaignId = searchParams.get('campaign_id');
+    const desktopUserId = isDesktopUser ? desktopAuth.user.id : null;
+    const desktopUserEmail = isDesktopUser ? desktopAuth.user.email.toLowerCase() : null;
 
     // ── Ownership check: desktop users can only see their own campaigns ──
+    let scopedReport:
+      | {
+          sent: number;
+          failed: number;
+          startedAt: Date;
+          desktopUserId: string | null;
+          hwid: string;
+        }
+      | null = null;
     if (isDesktopUser && campaignId) {
       const report = await prisma.campaignReport.findUnique({
         where: { campaignId },
-        select: { desktopUserId: true },
+        select: { desktopUserId: true, hwid: true, sent: true, failed: true, startedAt: true },
       });
-      // If report exists and belongs to another user, deny access
-      if (report && report.desktopUserId && report.desktopUserId !== desktopAuth.user.id) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      if (report) {
+        const ownedByDesktopUser =
+          report.desktopUserId === desktopUserId ||
+          (!report.desktopUserId && desktopUserEmail && report.hwid.toLowerCase() === desktopUserEmail);
+
+        if (!ownedByDesktopUser) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        scopedReport = report;
+      }
+
+      if (!report) {
+        return NextResponse.json({ error: 'Campaign report not found' }, { status: 404 });
       }
     }
 
     const where: Record<string, unknown> = {};
+    let ownedCampaignIds: string[] = [];
+
     if (campaignId) {
       where.campaignId = campaignId;
+    } else if (isDesktopUser && desktopUserId) {
+      const ownedReports = await prisma.campaignReport.findMany({
+        where: { desktopUserId },
+        select: { campaignId: true },
+      });
+      ownedCampaignIds = ownedReports.map((report) => report.campaignId);
+      if (ownedCampaignIds.length === 0) {
+        return NextResponse.json({
+          campaign_id: '',
+          total_sent: 0,
+          opened: 0,
+          clicked: 0,
+          bounced: 0,
+          unsubscribed: 0,
+          open_rate: 0,
+          click_rate: 0,
+        });
+      }
+      where.campaignId = { in: ownedCampaignIds };
     }
-
-    // Count unique opens and clicks by emailHash (or fallback to email for old data)
-    const openedCount = await prisma.emailTrackingEvent.count({
-      where: { ...where, eventType: 'OPEN' },
-    });
-
-    const clickedCount = await prisma.emailTrackingEvent.count({
-      where: { ...where, eventType: 'CLICK' },
-    });
 
     // Deduplicate: count distinct emailHash values
     const openedDistinct = await prisma.emailTrackingEvent.findMany({
@@ -68,35 +102,41 @@ export async function GET(request: Request) {
     let open_rate = 0;
     let click_rate = 0;
 
-    if (campaignId) {
-      const report = await prisma.campaignReport.findUnique({
-        where: { campaignId }
+    if (campaignId && scopedReport) {
+      total_sent = scopedReport.sent;
+      bounced = scopedReport.failed;
+    } else if (!campaignId && isDesktopUser && desktopUserId) {
+      const aggregate = await prisma.campaignReport.aggregate({
+        where: { desktopUserId },
+        _sum: { sent: true, failed: true },
       });
+      total_sent = aggregate._sum.sent ?? 0;
+      bounced = aggregate._sum.failed ?? 0;
+    }
 
-      if (report) {
-        total_sent = report.sent;
-        bounced = report.failed;
-
-        if (total_sent > 0) {
-          open_rate = parseFloat((opened / total_sent * 100).toFixed(2));
-          click_rate = parseFloat((clicked / total_sent * 100).toFixed(2));
-        }
-      }
+    if (total_sent > 0) {
+      open_rate = parseFloat((opened / total_sent * 100).toFixed(2));
+      click_rate = parseFloat((clicked / total_sent * 100).toFixed(2));
     }
 
     // Count unsubscribes that happened during/after this campaign
     if (campaignId) {
-      const report = await prisma.campaignReport.findUnique({
-        where: { campaignId },
-        select: { startedAt: true },
-      });
-      if (report) {
+      if (scopedReport) {
         unsubscribed = await prisma.unsubscribedEmail.count({
-          where: { createdAt: { gte: report.startedAt } },
+          where: {
+            createdAt: { gte: scopedReport.startedAt },
+            ...(desktopUserId ? { desktopUserId } : {}),
+          },
         });
       } else {
-        unsubscribed = await prisma.unsubscribedEmail.count();
+        unsubscribed = await prisma.unsubscribedEmail.count({
+          where: desktopUserId ? { desktopUserId } : {},
+        });
       }
+    } else if (isDesktopUser && desktopUserId) {
+      unsubscribed = await prisma.unsubscribedEmail.count({
+        where: { desktopUserId },
+      });
     } else {
       unsubscribed = await prisma.unsubscribedEmail.count();
     }
