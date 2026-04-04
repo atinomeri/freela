@@ -107,7 +107,7 @@
   "home": {
     "badge": "ქართული ფრილანსერების პლატფორმა",
     "title": "განათავსე ან იპოვე შეკვეთა — სწრაფად და მარტივად",
-    "subtitle": "გადაწყვეტილებები შენი ყოველდღიური პრობლემების წინააღმდეგ",
+    "subtitle": "{siteName} აერთიანებს დამკვეთებს და პროფესიონალებს საქართველოში: პორტფოლიოიანი პროფილები, შეკვეთების სია და ბიუჯეტები ლარში.",
     "solutionCards": [
       { "title": "ავტომატიზაცია", "description": "დაზოგეთ დრო რუტინული საქმეების ავტომატიზაციით" },
       { "title": "ოპტიმიზაცია", "description": "გააუმჯობესეთ სამუშაო პროცესები და გაზარდეთ ეფექტურობა" },
@@ -120,7 +120,7 @@
     "stats": {
       "postProjectValue": "1–3 წუთი",
       "postProjectLabel": "შეკვეთის დადება",
-      "gelValue": "",
+      "gelValue": "₾",
       "gelLabel": "პირდაპირი კონტაქტი",
       "availabilityValue": "24/7",
       "availabilityLabel": "კომუნიკაცია პლატფორმაში"
@@ -341,11 +341,11 @@
     "hoursValue": "ორშ–პარ: 10:00–19:00 (თბილისის დრო)."
   },
   "pricingPage": {
-    "title": "",
-    "subtitle": "",
+    "title": "ფასები",
+    "subtitle": "აირჩიე შენი საჭიროებების შესაბამისი გეგმა. სურვილის შემთხვევაში ყოველთვის შეძლებ განახლებას.",
     "plans": {
       "start": {
-        "name": "",
+        "name": "სტარტი",
         "price": "0 ₾",
         "subtitle": "საწყისი პროფილი",
         "features": [
@@ -765,7 +765,7 @@
     "UNKNOWN": "უცნობი"
   },
   "adminPage": {
-    "title": "Admin",
+    "title": "ადმინი",
     "subtitle": "ადმინისტრაციის პანელი.",
     "cards": {
       "users": "მომხმარებლები",
@@ -774,23 +774,23 @@
       "disabledUsers": "დაბლოკილი მომხმარებლები"
     },
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin."
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის."
   },
   "adminNav": {
     "dashboard": "ადმინი",
     "users": "მომხმარებლები",
     "projects": "შეკვეთები",
-    "pages": "Pages",
+    "pages": "გვერდები",
     "content": "კონტენტი",
     "backToDashboard": "კაბინეტზე დაბრუნება",
-    "support": "Support inbox",
+    "support": "მხარდაჭერის ინბოქსი",
     "reviews": "შეფასებები"
   },
   "adminUsers": {
     "title": "მომხმარებლები",
     "subtitle": "მომხმარებლების, როლებისა და წვდომის მართვა.",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin."
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის."
   },
   "adminUsersTable": {
     "filterPlaceholder": "ფილტრი სახელით ან ელ-ფოსტით...",
@@ -841,25 +841,25 @@
     "empty": "გვერდები ვერ მოიძებნა."
   },
   "adminPageEditor": {
-    "newTitle": "New page",
-    "newSubtitle": "Create a custom page accessible by URL path.",
-    "editTitle": "Edit page",
-    "editSubtitle": "Edit title and content per locale.",
-    "notFoundTitle": "Page not found",
-    "notFoundSubtitle": "This page no longer exists.",
+    "newTitle": "ახალი გვერდი",
+    "newSubtitle": "შექმენი საკუთარი გვერდი, რომელიც URL ბმულით იქნება ხელმისაწვდომი.",
+    "editTitle": "გვერდის რედაქტირება",
+    "editSubtitle": "სათაურისა და კონტენტის რედაქტირება ენის მიხედვით.",
+    "notFoundTitle": "გვერდი ვერ მოიძებნა",
+    "notFoundSubtitle": "ეს გვერდი აღარ არსებობს.",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin.",
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის.",
     "refresh": "განახლება",
     "save": "შენახვა",
     "saving": "ინახება...",
     "saved": "შენახულია.",
-    "pathLabel": "URL path",
-    "pathHint": "Example: /help or /company/about (no spaces, no trailing slash).",
-    "titleLabel": "Title",
-    "titlePlaceholder": "Page title",
-    "bodyLabel": "Content",
-    "bodyPlaceholder": "Write page content here...",
-    "bodyHint": "Line breaks are preserved."
+    "pathLabel": "URL ბმული",
+    "pathHint": "მაგალითი: /help ან /company/about (სივრცეების და ბოლოში / ნიშნის გარეშე).",
+    "titleLabel": "სათაური",
+    "titlePlaceholder": "გვერდის სათაური",
+    "bodyLabel": "კონტენტი",
+    "bodyPlaceholder": "ჩაწერე გვერდის კონტენტი აქ...",
+    "bodyHint": "სტრიქონების გადატანა შენარჩუნდება."
   },
   "adminProjects": {
     "title": "შეკვეთები",
@@ -891,13 +891,13 @@
     "title": "ფასების კონტენტი",
     "subtitle": "ფასების გვერდის ტექსტის შეცვლა ენის მიხედვით. ცარიელი დატოვე — გამოიყენებს ნაგულისხმევ თარგმანს.",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin.",
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის.",
     "refresh": "განახლება",
     "save": "შენახვა",
     "saving": "ინახება...",
     "saved": "შენახულია.",
-    "emptyPlaceholder": "ცარიელი დატოვე — default",
-    "emptyHint": "ცარიელი მნიშვნელობა წაშლის override-ს."
+    "emptyPlaceholder": "ცარიელი დატოვე — ნაგულისხმევი",
+    "emptyHint": "ცარიელი მნიშვნელობა წაშლის გადაფარვას."
   },
   "adminContent": {
     "title": "კონტენტი",
@@ -905,21 +905,21 @@
     "pricingTitle": "ფასების გვერდი",
     "pricingSubtitle": "გეგმების, ფასების და CTA ტექსტების შეცვლა.",
     "contactTitle": "კონტაქტის გვერდი",
-    "contactSubtitle": "კონტაქტის გვერდის ტექსტისა და support email-ის შეცვლა.",
+    "contactSubtitle": "კონტაქტის გვერდის ტექსტისა და მხარდაჭერის ელ-ფოსტის შეცვლა.",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin."
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის."
   },
   "adminContentContact": {
     "title": "კონტაქტის კონტენტი",
     "subtitle": "კონტაქტის გვერდის ტექსტის შეცვლა ენის მიხედვით. ცარიელი დატოვე — გამოიყენებს ნაგულისხმევ თარგმანს.",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin.",
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის.",
     "refresh": "განახლება",
     "save": "შენახვა",
     "saving": "ინახება...",
     "saved": "შენახულია.",
-    "emptyPlaceholder": "ცარიელი დატოვე — default",
-    "emptyHint": "ცარიელი მნიშვნელობა წაშლის override-ს."
+    "emptyPlaceholder": "ცარიელი დატოვე — ნაგულისხმევი",
+    "emptyHint": "ცარიელი მნიშვნელობა წაშლის გადაფარვას."
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "ფრილანსერები",
@@ -942,7 +942,8 @@
     "bioMissing": "ბიო არ არის მითითებული.",
     "detailsTitle": "დეტალები",
     "detailsBody": "აქ გამოჩნდება ფრილანსერის პროფილის დეტალები.",
-    "detailsFootnote": "კონფიდენციალურობისთვის საკონტაქტო ინფორმაცია არ ჩანს."
+    "detailsFootnote": "კონფიდენციალურობისთვის საკონტაქტო ინფორმაცია არ ჩანს.",
+    "premiumTooltip": "პრემიუმ ფრილანსერი"
   },
   "chatbox": {
     "title": "ჩატი",
@@ -1185,42 +1186,42 @@
     "backToLogin": "შესვლაზე დაბრუნება"
   },
   "adminPageContent": {
-    "title": "Page content",
-    "subtitle": "Editing content for: {path}",
+    "title": "გვერდის კონტენტი",
+    "subtitle": "კონტენტის რედაქტირება ბმულისთვის: {path}",
     "forbiddenTitle": "წვდომა შეზღუდულია",
-    "forbiddenSubtitle": "მხოლოდ admin.",
-    "notFoundTitle": "Page not found",
-    "notFoundSubtitle": "This page is not editable here.",
-    "filterPlaceholder": "Filter keys...",
+    "forbiddenSubtitle": "მხოლოდ ადმინისთვის.",
+    "notFoundTitle": "გვერდი ვერ მოიძებნა",
+    "notFoundSubtitle": "ამ გვერდის რედაქტირება აქ შეუძლებელია.",
+    "filterPlaceholder": "გასაღებების ფილტრი...",
     "refresh": "განახლება",
     "save": "შენახვა",
     "saving": "ინახება...",
     "saved": "შენახულია.",
-    "emptyPlaceholder": "Leave empty to use default",
-    "emptyHint": "Empty value removes the override."
+    "emptyPlaceholder": "ცარიელი დატოვე — ნაგულისხმევი",
+    "emptyHint": "ცარიელი მნიშვნელობა წაშლის გადაფარვას."
   },
   "adminSupport": {
-    "title": "Support inbox",
-    "subtitle": "Messages from the website chatbox.",
-    "forbiddenTitle": "Access restricted",
-    "forbiddenSubtitle": "Admins only.",
-    "threadsTitle": "Conversations",
-    "selectThread": "Select a conversation from the left.",
-    "threadInfo": "Conversation details",
-    "status": "Status",
-    "requester": "Requester",
-    "createdAt": "Created",
-    "empty": "No support conversations yet.",
-    "noMessages": "No messages yet.",
-    "visitorLabel": "Visitor",
-    "adminLabel": "Admin",
-    "replyPlaceholder": "Type a reply...",
-    "send": "Send reply",
-    "sending": "Sending...",
-    "closeThread": "Close conversation",
-    "reopenThread": "Reopen conversation",
-    "updating": "Updating...",
-    "refresh": "Refresh"
+    "title": "მხარდაჭერის ინბოქსი",
+    "subtitle": "ვებ-ჩატბოქსიდან მიღებული შეტყობინებები.",
+    "forbiddenTitle": "წვდომა შეზღუდულია",
+    "forbiddenSubtitle": "მხოლოდ ადმინებისთვის.",
+    "threadsTitle": "საუბრები",
+    "selectThread": "აირჩიე საუბარი მარცხენა სიიდან.",
+    "threadInfo": "საუბრის დეტალები",
+    "status": "სტატუსი",
+    "requester": "მომთხოვნი",
+    "createdAt": "შექმნის დრო",
+    "empty": "მხარდაჭერის საუბრები ჯერ არ არის.",
+    "noMessages": "შეტყობინებები ჯერ არ არის.",
+    "visitorLabel": "ვიზიტორი",
+    "adminLabel": "ადმინი",
+    "replyPlaceholder": "დაწერე პასუხი...",
+    "send": "პასუხის გაგზავნა",
+    "sending": "იგზავნება...",
+    "closeThread": "საუბრის დახურვა",
+    "reopenThread": "საუბრის ხელახლა გახსნა",
+    "updating": "განახლება...",
+    "refresh": "განახლება"
   },
   "adminReviews": {
     "title": "შეფასებების მოდერაცია",

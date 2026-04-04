@@ -780,10 +780,10 @@
     "dashboard": "Админ",
     "users": "Пользователи",
     "projects": "Заказы",
-    "pages": "Pages",
+    "pages": "Страницы",
     "content": "Контент",
     "backToDashboard": "Назад в кабинет",
-    "support": "Support inbox",
+    "support": "Входящие поддержки",
     "reviews": "Отзывы"
   },
   "adminUsers": {
@@ -841,25 +841,25 @@
     "empty": "Страниц не найдено."
   },
   "adminPageEditor": {
-    "newTitle": "New page",
-    "newSubtitle": "Create a custom page accessible by URL path.",
-    "editTitle": "Edit page",
-    "editSubtitle": "Edit title and content per locale.",
-    "notFoundTitle": "Page not found",
-    "notFoundSubtitle": "This page no longer exists.",
+    "newTitle": "Новая страница",
+    "newSubtitle": "Создайте пользовательскую страницу, доступную по URL.",
+    "editTitle": "Редактирование страницы",
+    "editSubtitle": "Редактируйте заголовок и контент по локали.",
+    "notFoundTitle": "Страница не найдена",
+    "notFoundSubtitle": "Эта страница больше не существует.",
     "forbiddenTitle": "Доступ ограничен",
     "forbiddenSubtitle": "Только для админов.",
     "refresh": "Обновить",
     "save": "Сохранить",
     "saving": "Сохранение...",
     "saved": "Сохранено.",
-    "pathLabel": "URL path",
-    "pathHint": "Example: /help or /company/about (no spaces, no trailing slash).",
-    "titleLabel": "Title",
-    "titlePlaceholder": "Page title",
-    "bodyLabel": "Content",
-    "bodyPlaceholder": "Write page content here...",
-    "bodyHint": "Line breaks are preserved."
+    "pathLabel": "URL путь",
+    "pathHint": "Пример: /help или /company/about (без пробелов и без / в конце).",
+    "titleLabel": "Заголовок",
+    "titlePlaceholder": "Заголовок страницы",
+    "bodyLabel": "Контент",
+    "bodyPlaceholder": "Введите контент страницы...",
+    "bodyHint": "Переносы строк сохраняются."
   },
   "adminProjects": {
     "title": "Заказы",
@@ -897,7 +897,7 @@
     "saving": "Сохранение...",
     "saved": "Сохранено.",
     "emptyPlaceholder": "Оставьте пустым — по умолчанию",
-    "emptyHint": "Пустое значение удаляет override."
+    "emptyHint": "Пустое значение удалит переопределение."
   },
   "adminContent": {
     "title": "Контент",
@@ -905,7 +905,7 @@
     "pricingTitle": "Страница цен",
     "pricingSubtitle": "Редактирование планов, цен и CTA.",
     "contactTitle": "Страница контактов",
-    "contactSubtitle": "Редактирование текста контактов и support email.",
+    "contactSubtitle": "Редактирование текста страницы контактов и email поддержки.",
     "forbiddenTitle": "Доступ ограничен",
     "forbiddenSubtitle": "Только для админов."
   },
@@ -919,7 +919,7 @@
     "saving": "Сохранение...",
     "saved": "Сохранено.",
     "emptyPlaceholder": "Оставьте пустым — по умолчанию",
-    "emptyHint": "Пустое значение удаляет override."
+    "emptyHint": "Пустое значение удалит переопределение."
   },
   "freelancerDetail": {
     "breadcrumbFreelancers": "Фрилансеры",
@@ -942,7 +942,8 @@
     "bioMissing": "Описание не указано.",
     "detailsTitle": "Детали",
     "detailsBody": "Здесь будет отображаться полная информация профиля.",
-    "detailsFootnote": "Контактная информация скрыта для приватности."
+    "detailsFootnote": "Контактная информация скрыта для приватности.",
+    "premiumTooltip": "Премиум фрилансер"
   },
   "chatbox": {
     "title": "Чат",
@@ -1185,42 +1186,42 @@
     "backToLogin": "Назад ко входу"
   },
   "adminPageContent": {
-    "title": "Page content",
-    "subtitle": "Editing content for: {path}",
+    "title": "Контент страницы",
+    "subtitle": "Редактирование контента для: {path}",
     "forbiddenTitle": "Доступ ограничен",
     "forbiddenSubtitle": "Только для админов.",
-    "notFoundTitle": "Page not found",
-    "notFoundSubtitle": "This page is not editable here.",
-    "filterPlaceholder": "Filter keys...",
+    "notFoundTitle": "Страница не найдена",
+    "notFoundSubtitle": "Эту страницу нельзя редактировать здесь.",
+    "filterPlaceholder": "Фильтр ключей...",
     "refresh": "Обновить",
     "save": "Сохранить",
     "saving": "Сохранение...",
     "saved": "Сохранено.",
-    "emptyPlaceholder": "Leave empty to use default",
-    "emptyHint": "Empty value removes the override."
+    "emptyPlaceholder": "Оставьте пустым для значения по умолчанию",
+    "emptyHint": "Пустое значение удалит переопределение."
   },
   "adminSupport": {
-    "title": "Support inbox",
-    "subtitle": "Messages from the website chatbox.",
-    "forbiddenTitle": "Access restricted",
-    "forbiddenSubtitle": "Admins only.",
-    "threadsTitle": "Conversations",
-    "selectThread": "Select a conversation from the left.",
-    "threadInfo": "Conversation details",
-    "status": "Status",
-    "requester": "Requester",
-    "createdAt": "Created",
-    "empty": "No support conversations yet.",
-    "noMessages": "No messages yet.",
-    "visitorLabel": "Visitor",
-    "adminLabel": "Admin",
-    "replyPlaceholder": "Type a reply...",
-    "send": "Send reply",
-    "sending": "Sending...",
-    "closeThread": "Close conversation",
-    "reopenThread": "Reopen conversation",
-    "updating": "Updating...",
-    "refresh": "Refresh"
+    "title": "Входящие поддержки",
+    "subtitle": "Сообщения из чат-виджета на сайте.",
+    "forbiddenTitle": "Доступ ограничен",
+    "forbiddenSubtitle": "Только для админов.",
+    "threadsTitle": "Диалоги",
+    "selectThread": "Выберите диалог слева.",
+    "threadInfo": "Детали диалога",
+    "status": "Статус",
+    "requester": "Заявитель",
+    "createdAt": "Создан",
+    "empty": "Пока нет диалогов поддержки.",
+    "noMessages": "Пока нет сообщений.",
+    "visitorLabel": "Посетитель",
+    "adminLabel": "Админ",
+    "replyPlaceholder": "Введите ответ...",
+    "send": "Отправить ответ",
+    "sending": "Отправка...",
+    "closeThread": "Закрыть диалог",
+    "reopenThread": "Открыть диалог снова",
+    "updating": "Обновление...",
+    "refresh": "Обновить"
   },
   "adminReviews": {
     "title": "Модерация отзывов",
