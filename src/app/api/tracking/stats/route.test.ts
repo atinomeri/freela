@@ -118,4 +118,33 @@ describe('GET /api/tracking/stats', () => {
     expect(body.total_sent).toBe(40);
     expect(body.opened).toBe(1);
   });
+
+  it('falls back when CampaignReport.desktopUserId column is missing in DB', async () => {
+    const startedAt = new Date('2026-04-05T00:00:00.000Z');
+    (prisma.campaignReport.findUnique as any)
+      .mockRejectedValueOnce({
+        code: 'P2022',
+        message: 'The column `CampaignReport.desktopUserId` does not exist in the current database.',
+      })
+      .mockResolvedValueOnce({
+        hwid: 'user@example.com',
+        sent: 25,
+        failed: 1,
+        startedAt,
+      });
+
+    (prisma.emailTrackingEvent.findMany as any)
+      .mockResolvedValueOnce([{ emailHash: 'aa' }])
+      .mockResolvedValueOnce([]);
+
+    const response = await GET(new Request('http://localhost/api/tracking/stats?campaign_id=legacy-schema-cid'));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.total_sent).toBe(25);
+    expect(body.bounced).toBe(1);
+    expect(body.opened).toBe(1);
+    expect(body.clicked).toBe(0);
+    expect(prisma.campaignReport.findUnique).toHaveBeenCalledTimes(2);
+  });
 });

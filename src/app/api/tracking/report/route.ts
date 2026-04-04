@@ -2,6 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireDesktopAuth } from "@/lib/desktop-auth";
 
+function isMissingCampaignDesktopUserColumn(error: unknown): boolean {
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    meta?: { column?: unknown };
+  };
+  if (candidate?.code !== "P2022") return false;
+  const details = `${candidate.message ?? ""} ${String(candidate.meta?.column ?? "")}`.toLowerCase();
+  return details.includes("desktopuserid");
+}
+
 export async function POST(req: NextRequest) {
   try {
     // ── Auth: require desktop JWT ──
@@ -32,10 +43,18 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Ownership check: if report already exists, verify ownership ──
-    const existing = await prisma.campaignReport.findUnique({
-      where: { campaignId: campaign_id },
-      select: { desktopUserId: true },
-    });
+    let existing: { desktopUserId: string | null } | null = null;
+    try {
+      existing = await prisma.campaignReport.findUnique({
+        where: { campaignId: campaign_id },
+        select: { desktopUserId: true },
+      });
+    } catch (error) {
+      if (!isMissingCampaignDesktopUserColumn(error)) {
+        throw error;
+      }
+      console.warn("[Tracking Report] Legacy schema detected: CampaignReport.desktopUserId is missing.");
+    }
 
     if (existing && existing.desktopUserId && existing.desktopUserId !== desktopUserId) {
       return NextResponse.json(
@@ -57,34 +76,70 @@ export async function POST(req: NextRequest) {
     }
 
     // Save report to database with user ownership
-    await prisma.campaignReport.upsert({
-      where: {
-        campaignId: campaign_id,
-      },
-      update: {
-        hwid,
-        licenseKey: license_key || null,
-        total: total || 0,
-        sent: sent || 0,
-        failed: failed || 0,
-        startedAt: startedAtDate,
-        finishedAt: finishedAtDate,
-        events: events || null,
-        desktopUserId: desktopUserId,
-      },
-      create: {
-        campaignId: campaign_id,
-        desktopUserId: desktopUserId,
-        hwid,
-        licenseKey: license_key || null,
-        total: total || 0,
-        sent: sent || 0,
-        failed: failed || 0,
-        startedAt: startedAtDate,
-        finishedAt: finishedAtDate,
-        events: events || null,
+    try {
+      await prisma.campaignReport.upsert({
+        where: {
+          campaignId: campaign_id,
+        },
+        update: {
+          hwid,
+          licenseKey: license_key || null,
+          total: total || 0,
+          sent: sent || 0,
+          failed: failed || 0,
+          startedAt: startedAtDate,
+          finishedAt: finishedAtDate,
+          events: events || null,
+          desktopUserId: desktopUserId,
+        },
+        create: {
+          campaignId: campaign_id,
+          desktopUserId: desktopUserId,
+          hwid,
+          licenseKey: license_key || null,
+          total: total || 0,
+          sent: sent || 0,
+          failed: failed || 0,
+          startedAt: startedAtDate,
+          finishedAt: finishedAtDate,
+          events: events || null,
+        },
+        select: { id: true },
+      });
+    } catch (error) {
+      if (!isMissingCampaignDesktopUserColumn(error)) {
+        throw error;
       }
-    });
+
+      console.warn("[Tracking Report] Retrying upsert without desktopUserId due to legacy schema.");
+      await prisma.campaignReport.upsert({
+        where: {
+          campaignId: campaign_id,
+        },
+        update: {
+          hwid,
+          licenseKey: license_key || null,
+          total: total || 0,
+          sent: sent || 0,
+          failed: failed || 0,
+          startedAt: startedAtDate,
+          finishedAt: finishedAtDate,
+          events: events || null,
+        },
+        create: {
+          campaignId: campaign_id,
+          hwid,
+          licenseKey: license_key || null,
+          total: total || 0,
+          sent: sent || 0,
+          failed: failed || 0,
+          startedAt: startedAtDate,
+          finishedAt: finishedAtDate,
+          events: events || null,
+        },
+        select: { id: true },
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

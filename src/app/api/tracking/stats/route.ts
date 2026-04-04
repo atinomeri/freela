@@ -4,6 +4,97 @@ import { requireDesktopAuth } from '@/lib/desktop-auth';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+type ScopedReport = {
+  sent: number;
+  failed: number;
+  startedAt: Date;
+  desktopUserId: string | null;
+  hwid: string;
+};
+
+function isMissingCampaignDesktopUserColumn(error: unknown): boolean {
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    meta?: { column?: unknown };
+  };
+  if (candidate?.code !== 'P2022') return false;
+  const details = `${candidate.message ?? ''} ${String(candidate.meta?.column ?? '')}`.toLowerCase();
+  return details.includes('desktopuserid');
+}
+
+async function getScopedReport(campaignId: string): Promise<ScopedReport | null> {
+  try {
+    return await prisma.campaignReport.findUnique({
+      where: { campaignId },
+      select: { desktopUserId: true, hwid: true, sent: true, failed: true, startedAt: true },
+    });
+  } catch (error) {
+    if (!isMissingCampaignDesktopUserColumn(error)) {
+      throw error;
+    }
+
+    console.warn('[Tracking Stats] Legacy schema detected: CampaignReport.desktopUserId is missing.');
+    const legacy = await prisma.campaignReport.findUnique({
+      where: { campaignId },
+      select: { hwid: true, sent: true, failed: true, startedAt: true },
+    });
+    return legacy ? { ...legacy, desktopUserId: null } : null;
+  }
+}
+
+async function getOwnedCampaignIds(
+  desktopUserId: string,
+  desktopUserEmail: string | null,
+): Promise<string[]> {
+  try {
+    const ownedReports = await prisma.campaignReport.findMany({
+      where: { desktopUserId },
+      select: { campaignId: true },
+    });
+    return ownedReports.map((report) => report.campaignId);
+  } catch (error) {
+    if (!isMissingCampaignDesktopUserColumn(error) || !desktopUserEmail) {
+      throw error;
+    }
+
+    const legacyReports = await prisma.campaignReport.findMany({
+      where: { hwid: desktopUserEmail },
+      select: { campaignId: true },
+    });
+    return legacyReports.map((report) => report.campaignId);
+  }
+}
+
+async function getOwnedAggregate(
+  desktopUserId: string,
+  desktopUserEmail: string | null,
+): Promise<{ sent: number; failed: number }> {
+  try {
+    const aggregate = await prisma.campaignReport.aggregate({
+      where: { desktopUserId },
+      _sum: { sent: true, failed: true },
+    });
+    return {
+      sent: aggregate._sum.sent ?? 0,
+      failed: aggregate._sum.failed ?? 0,
+    };
+  } catch (error) {
+    if (!isMissingCampaignDesktopUserColumn(error) || !desktopUserEmail) {
+      throw error;
+    }
+
+    const legacyAggregate = await prisma.campaignReport.aggregate({
+      where: { hwid: desktopUserEmail },
+      _sum: { sent: true, failed: true },
+    });
+    return {
+      sent: legacyAggregate._sum.sent ?? 0,
+      failed: legacyAggregate._sum.failed ?? 0,
+    };
+  }
+}
+
 export async function GET(request: Request) {
   try {
     // ── Auth: require desktop JWT OR admin web session ──
@@ -23,20 +114,9 @@ export async function GET(request: Request) {
     const desktopUserEmail = isDesktopUser ? desktopAuth.user.email.toLowerCase() : null;
 
     // ── Ownership check: desktop users can only see their own campaigns ──
-    let scopedReport:
-      | {
-          sent: number;
-          failed: number;
-          startedAt: Date;
-          desktopUserId: string | null;
-          hwid: string;
-        }
-      | null = null;
+    let scopedReport: ScopedReport | null = null;
     if (isDesktopUser && campaignId) {
-      const report = await prisma.campaignReport.findUnique({
-        where: { campaignId },
-        select: { desktopUserId: true, hwid: true, sent: true, failed: true, startedAt: true },
-      });
+      const report = await getScopedReport(campaignId);
       if (report) {
         const ownedByDesktopUser =
           report.desktopUserId === desktopUserId ||
@@ -60,11 +140,7 @@ export async function GET(request: Request) {
     if (campaignId) {
       where.campaignId = campaignId;
     } else if (isDesktopUser && desktopUserId) {
-      const ownedReports = await prisma.campaignReport.findMany({
-        where: { desktopUserId },
-        select: { campaignId: true },
-      });
-      ownedCampaignIds = ownedReports.map((report) => report.campaignId);
+      ownedCampaignIds = await getOwnedCampaignIds(desktopUserId, desktopUserEmail);
       if (ownedCampaignIds.length === 0) {
         return NextResponse.json({
           campaign_id: '',
@@ -106,12 +182,9 @@ export async function GET(request: Request) {
       total_sent = scopedReport.sent;
       bounced = scopedReport.failed;
     } else if (!campaignId && isDesktopUser && desktopUserId) {
-      const aggregate = await prisma.campaignReport.aggregate({
-        where: { desktopUserId },
-        _sum: { sent: true, failed: true },
-      });
-      total_sent = aggregate._sum.sent ?? 0;
-      bounced = aggregate._sum.failed ?? 0;
+      const aggregate = await getOwnedAggregate(desktopUserId, desktopUserEmail);
+      total_sent = aggregate.sent;
+      bounced = aggregate.failed;
     }
 
     if (total_sent > 0) {

@@ -9,6 +9,12 @@
 
 This document outlines all security enhancements implemented to achieve production-ready security for freela.ge.
 
+### Latest Verification (2026-04-04)
+
+- Tracking stats endpoint now enforces desktop/admin authentication and ownership scope checks.
+- Tracking report endpoint now requires desktop bearer auth and blocks cross-user campaign overwrite.
+- Tracking pixel/click writes are hash-based (`emailHash`, hashed IP) on the current write path.
+
 ### Completed Upgrades:
 
 #### 1. ✅ Password Strength Validation (zxcvbn)
