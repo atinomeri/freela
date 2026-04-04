@@ -11,6 +11,14 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}));
+
 describe('GET /api/unsubscribed', () => {
   const SECRET = 'test-secret';
 
