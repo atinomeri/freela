@@ -63,8 +63,10 @@ export async function GET(request: NextRequest) {
     const ipHash = ipAddress ? hashIp(ipAddress) : undefined;
 
     // Store only hashed data — no plaintext PII in the database
-    prisma.emailTrackingEvent
-      .create({
+    // IMPORTANT: must await to ensure write completes before serverless
+    // runtime shuts down (fire-and-forget promises get killed on Vercel)
+    try {
+      await prisma.emailTrackingEvent.create({
         data: {
           campaignId,
           emailHash,
@@ -72,10 +74,10 @@ export async function GET(request: NextRequest) {
           url: finalUrl,
           ipAddress: ipHash,
         },
-      })
-      .catch((error) => {
-        console.error('[Click Tracking] Database error:', error);
       });
+    } catch (error) {
+      console.error('[Click Tracking] Database error:', error);
+    }
 
     return NextResponse.redirect(finalUrl, 302);
   } catch (error) {
