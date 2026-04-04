@@ -14,6 +14,7 @@ This document outlines all security enhancements implemented to achieve producti
 - Tracking stats endpoint now enforces desktop/admin authentication and ownership scope checks.
 - Tracking report endpoint now requires desktop bearer auth and blocks cross-user campaign overwrite.
 - Tracking pixel/click writes are hash-based (`emailHash`, hashed IP) on the current write path.
+- Production deployment now includes explicit migration coverage for `CampaignReport.desktopUserId`; `prisma migrate status` verified schema is up to date after rollout.
 
 ### Completed Upgrades:
 

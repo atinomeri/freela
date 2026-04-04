@@ -7,6 +7,13 @@ This document describes the current state of the Freela repository and its two p
 1. The public marketplace web app (freelancers, employers, projects, chat, admin).
 2. The desktop-mailer backend APIs (desktop auth, quotas, tracking, updates, unsubscribe sync).
 
+## Production Status (2026-04-04)
+
+- Tracking report/stats production incident is resolved.
+- Root cause was migration drift on `CampaignReport.desktopUserId`.
+- Fix was deployed with migration plus temporary compatibility fallback in tracking routes.
+- Production checks confirmed healthy app startup and successful end-to-end tracking flow.
+
 ## 1. Stack
 
 - Framework: Next.js 16 (App Router)

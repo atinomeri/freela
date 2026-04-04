@@ -1,6 +1,6 @@
 # Email Tracking API Usage Guide
 
-Updated: 2026-04-04
+Updated: 2026-04-04 (production-verified)
 
 This guide describes how the desktop sender should integrate with Freela tracking endpoints.
 
@@ -134,3 +134,19 @@ export function makeTrackedLink(baseUrl: string, targetUrl: string, recipientEma
 - Always pass `campaign_id` (`cid`) when available to keep campaign-level analytics clean.
 - Treat report/stats endpoints as protected APIs; they are not anonymous endpoints.
 - The current analytics model is hash-based for recipient identity (`emailHash`).
+
+## 7. Incident Resolution Note (2026-04-04)
+
+Resolved production incident:
+
+- Symptom: `POST /tracking/report` returned 400 and `GET /tracking/stats` returned 500 for desktop flow.
+- Root cause: migration drift (`CampaignReport.desktopUserId` existed in code/schema but was missing in DB).
+- Permanent fix: migration `20260404143000_add_campaign_report_desktop_user_id` added and deployed.
+- Safety fix: route-level fallback keeps report/stats operational on temporarily outdated DBs.
+
+Verification performed in production:
+
+- report: 200 (`ok: true`)
+- pixel: 200
+- click: 302 redirect
+- stats: returns campaign totals and non-zero open/click counts after events

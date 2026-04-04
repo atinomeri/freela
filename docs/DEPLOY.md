@@ -35,6 +35,38 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME?schema=public&sslmode=r
 npm run prisma:migrate:deploy
 ```
 
+### Tracking Stats/Report Recovery Runbook (2026-04)
+
+Use this when desktop tracking report/stats fail due to schema drift:
+
+1. Ensure latest code is deployed (commit includes migration `20260404143000_add_campaign_report_desktop_user_id`).
+2. Rebuild and roll app container:
+
+```bash
+cd /root/freela/deploy
+docker compose -f docker-compose.prod.yml build app
+docker compose -f docker-compose.prod.yml up -d --no-deps --wait --wait-timeout 400 app
+```
+
+3. Confirm migrations inside app container:
+
+```bash
+cd /root/freela/deploy
+docker compose -f docker-compose.prod.yml exec -T app npx prisma migrate status --config=./prisma.config.ts
+```
+
+Expected result: `Database schema is up to date!`
+
+4. Verify runtime:
+
+```bash
+curl https://freela.ge/api/health
+```
+
+5. Optional smoke flow (desktop path):
+report -> pixel -> click -> stats for a temporary campaign ID.
+Expected: report 200, pixel 200, click 302, stats 200 with campaign totals.
+
 ## Build & start
 ```bash
 npm run build
