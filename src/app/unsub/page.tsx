@@ -4,7 +4,56 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-async function UnsubscribeAction({ email }: { email: string }) {
+interface DecodedToken {
+  email: string;
+  desktopUserId?: string;
+}
+
+/**
+ * Decode unsubscribe token.
+ * Supports formats:
+ * - New: base64url(email|desktopUserId) (with optional .signature suffix)
+ * - Legacy: base64url(email) or plain email
+ */
+function decodeUnsubscribeToken(raw: string): DecodedToken | null {
+  if (!raw) return null;
+
+  // Remove signature if present (format: payload.signature)
+  let payload = raw;
+  if (raw.includes('.') && !raw.includes('@')) {
+    payload = raw.split('.').slice(0, -1).join('.');
+  }
+
+  // If it's a plain email, return it
+  if (payload.includes('@')) {
+    return { email: payload.toLowerCase().trim() };
+  }
+
+  // Try to decode base64url
+  try {
+    const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
+    const decoded = Buffer.from(padded, 'base64url').toString('utf-8').trim();
+
+    // Check for new format: email|desktopUserId
+    if (decoded.includes('|')) {
+      const [email, desktopUserId] = decoded.split('|', 2);
+      if (email.includes('@') && desktopUserId) {
+        return { email: email.toLowerCase(), desktopUserId };
+      }
+    }
+
+    // Legacy format: just email
+    if (decoded.includes('@')) {
+      return { email: decoded.toLowerCase() };
+    }
+  } catch {
+    // Failed to decode
+  }
+
+  return null;
+}
+
+async function UnsubscribeAction({ email, desktopUserId }: { email: string; desktopUserId?: string }) {
   if (!email) {
     return (
       <div style={{ backgroundColor: 'hsl(0 84% 95%)', border: '1px solid hsl(0 84% 82%)', color: 'hsl(0 84% 40%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
@@ -18,14 +67,39 @@ async function UnsubscribeAction({ email }: { email: string }) {
   let errorMsg = '';
 
   try {
-    // 1. Add to general unsub list
-    await prisma.unsubscribedEmail.upsert({
-      where: { email },
-      update: { source: 'link' },
-      create: { email, source: 'link' },
+    // Verify desktopUserId exists if provided
+    if (desktopUserId) {
+      const desktopUser = await prisma.desktopUser.findUnique({
+        where: { id: desktopUserId },
+        select: { id: true },
+      });
+      if (!desktopUser) {
+        // Invalid desktopUserId — treat as legacy (no user association)
+        console.warn('[Unsubscribe] Invalid desktopUserId:', desktopUserId);
+      }
+    }
+
+    // Add to unsub list with desktopUserId association
+    // Handle nullable composite unique key manually
+    const existingUnsub = await prisma.unsubscribedEmail.findFirst({
+      where: {
+        email,
+        desktopUserId: desktopUserId ?? null,
+      },
     });
 
-    // 2. Update user if exists
+    if (existingUnsub) {
+      await prisma.unsubscribedEmail.update({
+        where: { id: existingUnsub.id },
+        data: { source: 'link' },
+      });
+    } else {
+      await prisma.unsubscribedEmail.create({
+        data: { email, source: 'link', desktopUserId: desktopUserId ?? null },
+      });
+    }
+
+    // Also update web user if exists (for platform notifications)
     await prisma.user.updateMany({
       where: { email },
       data: { projectEmailSubscribed: false },
@@ -66,26 +140,10 @@ export default async function UnsubscribePage({
   searchParams: Promise<{ email?: string }>;
 }) {
   const params = await searchParams;
-  let email = params.email || '';
+  const rawToken = params.email || '';
 
-  // Try to decode if it looks like Base64 or HMAC-signed token (doesn't contain @)
-  if (email && !email.includes('@')) {
-    try {
-      // HMAC-signed token format: base64email.signature
-      let b64Part = email;
-      if (email.includes('.')) {
-        b64Part = email.split('.').slice(0, -1).join('.');
-      }
-      // Add padding if needed
-      const padded = b64Part + '='.repeat((4 - (b64Part.length % 4)) % 4);
-      const decoded = Buffer.from(padded, 'base64url').toString('utf-8');
-      if (decoded.includes('@')) {
-        email = decoded.toLowerCase();
-      }
-    } catch (e) {
-      console.warn('[Unsubscribe] Failed to decode email parameter:', email);
-    }
-  }
+  // Decode the token to get email and optional desktopUserId
+  const decoded = decodeUnsubscribeToken(rawToken);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: '#f9fafb' }}>
@@ -110,7 +168,7 @@ export default async function UnsubscribePage({
         <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: '#111827', marginBottom: '1.5rem' }}>Freela.ge</h1>
 
         <Suspense fallback={<div style={{ color: '#6b7280' }}>Processing... / მუშავდება...</div>}>
-          <UnsubscribeAction email={email || ''} />
+          <UnsubscribeAction email={decoded?.email || ''} desktopUserId={decoded?.desktopUserId} />
         </Suspense>
 
         <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #f3f4f6' }}>

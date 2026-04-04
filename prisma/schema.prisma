@@ -414,12 +414,18 @@ model EmailTrackingEvent {
 }
 
 model UnsubscribedEmail {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  source    String   @default("link")
-  createdAt DateTime @default(now())
+  id            String       @id @default(cuid())
+  email         String
+  source        String       @default("link")
+  createdAt     DateTime     @default(now())
 
+  // Desktop user who sent the campaign (nullable for legacy/web unsubscribes)
+  desktopUserId String?
+  desktopUser   DesktopUser? @relation(fields: [desktopUserId], references: [id], onDelete: SetNull)
+
+  @@unique([email, desktopUserId]) // Same email can unsubscribe from multiple senders
   @@index([createdAt])
+  @@index([desktopUserId])
 }
 
 // ════════════════════════════════════════════
@@ -454,9 +460,10 @@ model DesktopUser {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  refreshTokens   DesktopRefreshToken[]
-  quotas          DesktopQuota[]
-  campaignReports CampaignReport[]
+  refreshTokens     DesktopRefreshToken[]
+  quotas            DesktopQuota[]
+  campaignReports   CampaignReport[]
+  unsubscribedEmails UnsubscribedEmail[]
 
   @@index([email])
 }

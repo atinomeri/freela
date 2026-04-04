@@ -82,6 +82,7 @@ export async function POST(req: Request) {
       refreshToken,
       expiresIn: 900,
       user: {
+        id: user.id,
         email: user.email,
         balance: user.balance,
       },
