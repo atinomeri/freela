@@ -3,12 +3,11 @@ import { prisma } from '@/lib/prisma';
 
 /**
  * Temporary diagnostic endpoint — remove after debugging.
- * Tests DB write + read for EmailTrackingEvent.
  */
 export async function GET() {
   const results: Record<string, unknown> = {};
 
-  // 1. Check if emailHash column exists by attempting a write
+  // 1. Test write + read
   try {
     const testEvent = await prisma.emailTrackingEvent.create({
       data: {
@@ -18,15 +17,13 @@ export async function GET() {
       },
     });
     results.write = { ok: true, id: testEvent.id };
-
-    // Clean up
     await prisma.emailTrackingEvent.delete({ where: { id: testEvent.id } });
     results.cleanup = { ok: true };
   } catch (error) {
-    results.write = { ok: false, error: String(error) };
+    results.write = { ok: false, error: String(error).slice(0, 500) };
   }
 
-  // 2. Count events for the user's latest campaign
+  // 2. Latest campaign report
   try {
     const latestReport = await prisma.campaignReport.findFirst({
       orderBy: { createdAt: 'desc' },
@@ -44,28 +41,14 @@ export async function GET() {
       results.events = { opens, clicks };
     }
   } catch (error) {
-    results.latestReport = { error: String(error) };
+    results.latestReport = { error: String(error).slice(0, 500) };
   }
 
-  // 3. Count total tracking events in the table
+  // 3. Total events
   try {
-    const total = await prisma.emailTrackingEvent.count();
-    results.totalEvents = total;
+    results.totalEvents = await prisma.emailTrackingEvent.count();
   } catch (error) {
-    results.totalEvents = { error: String(error) };
-  }
-
-  // 4. Check migration status - list columns
-  try {
-    const columns = await prisma.$queryRaw`
-      SELECT column_name, is_nullable, data_type
-      FROM information_schema.columns
-      WHERE table_name = 'EmailTrackingEvent'
-      ORDER BY ordinal_position
-    `;
-    results.columns = columns;
-  } catch (error) {
-    results.columns = { error: String(error) };
+    results.totalEvents = { error: String(error).slice(0, 500) };
   }
 
   return NextResponse.json(results);
