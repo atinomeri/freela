@@ -491,6 +491,7 @@ model DesktopUser {
   contactLists      ContactList[]
   unsubscribedEmails UnsubscribedEmail[]
   smtpConfig        DesktopSmtpConfig?
+  smtpPoolAccounts  DesktopSmtpPoolAccount[]
   campaignTemplates CampaignTemplate[]
 
   @@index([email])
@@ -526,6 +527,35 @@ model DesktopSmtpConfig {
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+}
+
+model DesktopSmtpPoolAccount {
+  id               String      @id @default(cuid())
+  desktopUserId    String
+  desktopUser      DesktopUser @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  host             String
+  port             Int         @default(465)
+  secure           Boolean     @default(true)
+  username         String
+  passwordEnc      String
+  fromEmail        String?
+  fromName         String?
+
+  proxyType        String?
+  proxyHost        String?
+  proxyPort        Int?
+  proxyUsername    String?
+  proxyPasswordEnc String?
+
+  active           Boolean     @default(true)
+  failCount        Int         @default(0)
+  priority         Int         @default(0)
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([desktopUserId, active, priority, createdAt])
 }
 
 model DesktopQuota {

@@ -1288,6 +1288,7 @@
       "campaigns": "Campaigns",
       "contacts": "Contacts",
       "templates": "Templates",
+      "smtpPool": "SMTP Pool",
       "settings": "Settings"
     },
     "actions": {

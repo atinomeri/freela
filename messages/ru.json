@@ -1288,6 +1288,7 @@
       "campaigns": "Кампании",
       "contacts": "Контакты",
       "templates": "Шаблоны",
+      "smtpPool": "SMTP пул",
       "settings": "Настройки"
     },
     "actions": {

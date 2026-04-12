@@ -129,6 +129,34 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+interface SmtpResolvedAccount {
+  id: string;
+  host: string;
+  port: number;
+  secure: boolean;
+  username: string;
+  password: string;
+  fromEmail?: string | null;
+  fromName?: string | null;
+  proxyType?: string | null;
+  proxyHost?: string | null;
+  proxyPort?: number | null;
+  proxyUsername?: string | null;
+  proxyPassword?: string | null;
+}
+
+function buildProxyUrl(account: SmtpResolvedAccount): string | null {
+  if (!account.proxyType || !account.proxyHost || !account.proxyPort) return null;
+  const user = account.proxyUsername
+    ? encodeURIComponent(account.proxyUsername)
+    : "";
+  const pass = account.proxyPassword
+    ? `:${encodeURIComponent(account.proxyPassword)}`
+    : "";
+  const auth = user ? `${user}${pass}@` : "";
+  return `${account.proxyType}://${auth}${account.proxyHost}:${account.proxyPort}`;
+}
+
 // ============================================
 // Job Processor
 // ============================================
@@ -193,7 +221,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       data: { status: "SENDING", startedAt: new Date(), totalCount: totalContacts },
     });
 
-    // 4. Resolve SMTP config (user-specific first, env fallback)
+    // 4. Resolve SMTP config (pool -> user config -> env fallback)
     const userSmtp = await prisma.desktopSmtpConfig.findUnique({
       where: { desktopUserId },
       select: {
@@ -208,33 +236,72 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         trackClicks: true,
       },
     });
+    const smtpPoolAccounts = await prisma.desktopSmtpPoolAccount.findMany({
+      where: { desktopUserId, active: true },
+      orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        host: true,
+        port: true,
+        secure: true,
+        username: true,
+        passwordEnc: true,
+        fromEmail: true,
+        fromName: true,
+        proxyType: true,
+        proxyHost: true,
+        proxyPort: true,
+        proxyUsername: true,
+        proxyPasswordEnc: true,
+      },
+    });
 
-    const smtpHost = userSmtp?.host || process.env.SMTP_HOST;
-    const smtpPort = userSmtp?.port || parseInt(process.env.SMTP_PORT || "465", 10);
-    const smtpUser = userSmtp?.username || process.env.SMTP_USER;
-    const smtpPass = userSmtp
-      ? decryptSecretValue(userSmtp.passwordEnc)
-      : process.env.SMTP_PASS;
-    const smtpSecure = userSmtp?.secure ?? smtpPort === 465;
-    const smtpFrom =
-      campaign.senderEmail ||
-      userSmtp?.fromEmail ||
-      process.env.SMTP_FROM ||
-      smtpUser ||
-      "";
+    const resolvedPool: SmtpResolvedAccount[] = smtpPoolAccounts.map((item) => ({
+      id: item.id,
+      host: item.host,
+      port: item.port,
+      secure: item.secure,
+      username: item.username,
+      password: decryptSecretValue(item.passwordEnc),
+      fromEmail: item.fromEmail,
+      fromName: item.fromName,
+      proxyType: item.proxyType,
+      proxyHost: item.proxyHost,
+      proxyPort: item.proxyPort,
+      proxyUsername: item.proxyUsername,
+      proxyPassword: item.proxyPasswordEnc
+        ? decryptSecretValue(item.proxyPasswordEnc)
+        : null,
+    }));
 
-    if (!smtpHost || !smtpUser || !smtpPass) {
+    const fallbackPort = userSmtp?.port || parseInt(process.env.SMTP_PORT || "465", 10);
+    const fallbackSecure = userSmtp?.secure ?? fallbackPort === 465;
+    const fallbackAccount: SmtpResolvedAccount | null =
+      (userSmtp?.host || process.env.SMTP_HOST) &&
+      (userSmtp?.username || process.env.SMTP_USER) &&
+      (userSmtp?.passwordEnc || process.env.SMTP_PASS)
+        ? {
+            id: "single",
+            host: userSmtp?.host || process.env.SMTP_HOST || "",
+            port: fallbackPort,
+            secure: fallbackSecure,
+            username: userSmtp?.username || process.env.SMTP_USER || "",
+            password: userSmtp
+              ? decryptSecretValue(userSmtp.passwordEnc)
+              : process.env.SMTP_PASS || "",
+            fromEmail: userSmtp?.fromEmail || process.env.SMTP_FROM || null,
+            fromName: userSmtp?.fromName || null,
+          }
+        : null;
+
+    if (resolvedPool.length === 0 && !fallbackAccount) {
       throw new Error("SMTP not configured for this account");
     }
 
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpSecure,
-      auth: { user: smtpUser, pass: smtpPass },
-      connectionTimeout: SMTP_TIMEOUT_MS,
-      socketTimeout: SMTP_TIMEOUT_MS,
-    });
+    const smtpAccounts = resolvedPool.length > 0 ? resolvedPool : [fallbackAccount!];
+    const transporters = new Map<string, nodemailer.Transporter>();
+    const accountFailures = new Map<string, number>();
+    let rotationIndex = 0;
 
     // Tracking config
     const trackOpens = userSmtp?.trackOpens ?? process.env.TRACK_OPENS === "true";
@@ -243,7 +310,6 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     const clickTrackingUrl = process.env.CLICK_TRACKING_URL || "";
 
     const emailColumn = campaign.contactList?.emailColumn || "email";
-    const senderName = campaign.senderName || userSmtp?.fromName || "";
 
     let sentCount = 0;
     let failedCount = 0;
@@ -303,6 +369,33 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
         const plainText = htmlToPlainText(htmlBody);
 
+        const smtpAccount = smtpAccounts[rotationIndex % smtpAccounts.length];
+        rotationIndex++;
+        const senderName = campaign.senderName || smtpAccount.fromName || "";
+        const smtpFrom =
+          campaign.senderEmail ||
+          smtpAccount.fromEmail ||
+          process.env.SMTP_FROM ||
+          smtpAccount.username;
+
+        let transporter = transporters.get(smtpAccount.id);
+        if (!transporter) {
+          const transportConfig: Record<string, unknown> = {
+            host: smtpAccount.host,
+            port: smtpAccount.port,
+            secure: smtpAccount.secure,
+            auth: { user: smtpAccount.username, pass: smtpAccount.password },
+            connectionTimeout: SMTP_TIMEOUT_MS,
+            socketTimeout: SMTP_TIMEOUT_MS,
+          };
+          const proxy = buildProxyUrl(smtpAccount);
+          if (proxy) {
+            transportConfig.proxy = proxy;
+          }
+          transporter = nodemailer.createTransport(transportConfig as any);
+          transporters.set(smtpAccount.id, transporter);
+        }
+
         // Send with retry
         let sent = false;
         for (let attempt = 0; attempt < 3; attempt++) {
@@ -326,9 +419,11 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         if (sent) {
           sentCount++;
           consecutiveFailures = 0;
+          accountFailures.set(smtpAccount.id, Math.max(0, (accountFailures.get(smtpAccount.id) ?? 0) - 1));
         } else {
           failedCount++;
           consecutiveFailures++;
+          accountFailures.set(smtpAccount.id, (accountFailures.get(smtpAccount.id) ?? 0) + 1);
         }
 
         // Update progress every 10 emails
@@ -366,6 +461,21 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       // Batch pause
       if (offset < totalContacts) {
         await sleep(BATCH_PAUSE_MS);
+      }
+    }
+
+    if (resolvedPool.length > 0 && accountFailures.size > 0) {
+      const poolIds = resolvedPool.map((item) => item.id);
+      for (const accountId of poolIds) {
+        const failures = accountFailures.get(accountId) ?? 0;
+        if (failures <= 0) continue;
+        await prisma.desktopSmtpPoolAccount.updateMany({
+          where: { id: accountId, desktopUserId },
+          data: {
+            failCount: { increment: failures },
+            ...(failures >= MAX_CONSECUTIVE_FAILURES ? { active: false } : {}),
+          },
+        });
       }
     }
 

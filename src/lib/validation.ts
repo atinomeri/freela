@@ -397,6 +397,40 @@ export const upsertDesktopSmtpConfigSchema = z.object({
   trackClicks: z.boolean().optional(),
 });
 
+export const createDesktopSmtpPoolAccountSchema = z.object({
+  host: z.string().min(1, "SMTP host is required").max(255),
+  port: z.coerce.number().int().min(1).max(65535).default(465),
+  secure: z.boolean().optional(),
+  username: z.string().min(1, "SMTP username is required").max(255),
+  password: z.string().min(1, "SMTP password is required").max(1000),
+  fromEmail: z.string().email("Invalid from email").nullable().optional(),
+  fromName: z.string().max(200).nullable().optional(),
+  proxyType: z.string().max(32).nullable().optional(),
+  proxyHost: z.string().max(255).nullable().optional(),
+  proxyPort: z.coerce.number().int().min(1).max(65535).nullable().optional(),
+  proxyUsername: z.string().max(255).nullable().optional(),
+  proxyPassword: z.string().max(1000).nullable().optional(),
+  active: z.boolean().optional(),
+  priority: z.coerce.number().int().min(-1000).max(1000).optional(),
+});
+
+export const updateDesktopSmtpPoolAccountSchema = z.object({
+  host: z.string().min(1).max(255).optional(),
+  port: z.coerce.number().int().min(1).max(65535).optional(),
+  secure: z.boolean().optional(),
+  username: z.string().min(1).max(255).optional(),
+  password: z.string().min(1).max(1000).optional(),
+  fromEmail: z.string().email("Invalid from email").nullable().optional(),
+  fromName: z.string().max(200).nullable().optional(),
+  proxyType: z.string().max(32).nullable().optional(),
+  proxyHost: z.string().max(255).nullable().optional(),
+  proxyPort: z.coerce.number().int().min(1).max(65535).nullable().optional(),
+  proxyUsername: z.string().max(255).nullable().optional(),
+  proxyPassword: z.string().max(1000).nullable().optional(),
+  active: z.boolean().optional(),
+  priority: z.coerce.number().int().min(-1000).max(1000).optional(),
+});
+
 // ============================================
 // Contact list schemas
 // ============================================

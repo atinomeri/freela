@@ -1288,6 +1288,7 @@
       "campaigns": "კამპანიები",
       "contacts": "კონტაქტები",
       "templates": "შაბლონები",
+      "smtpPool": "SMTP პული",
       "settings": "პარამეტრები"
     },
     "actions": {

@@ -14,6 +14,7 @@ import {
   X,
   FileText,
   Settings,
+  Server,
 } from "lucide-react";
 import { useState } from "react";
 import { PageSpinner } from "@/components/ui/spinner";
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/mailer/campaigns", key: "nav.campaigns", icon: Mail },
   { href: "/mailer/contacts", key: "nav.contacts", icon: Users },
   { href: "/mailer/templates", key: "nav.templates", icon: FileText },
+  { href: "/mailer/smtp-pool", key: "nav.smtpPool", icon: Server },
   { href: "/mailer/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
