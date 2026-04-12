@@ -57,28 +57,26 @@ export default async function AdminEditBuiltInPage({
     );
   }
 
-  const [messagesKa, messagesEn, messagesRu] = await Promise.all([
+  const [messagesKa, messagesEn] = await Promise.all([
     import("../../../../../messages/ka.json").then((m) => m.default as Record<string, unknown>),
-    import("../../../../../messages/en.json").then((m) => m.default as Record<string, unknown>),
-    import("../../../../../messages/ru.json").then((m) => m.default as Record<string, unknown>)
+    import("../../../../../messages/en.json").then((m) => m.default as Record<string, unknown>)
   ]);
 
   const keys = namespaces
     .flatMap((ns) => getNamespaceKeysFromMessages(messagesEn, ns).map((k) => `${ns}.${k}`))
     .sort();
 
-  const locales = ["ka", "en", "ru"] as const;
+  const locales = ["ka", "en"] as const;
   const initialValuesByLocaleEntries = await Promise.all(
     locales.map(async (locale) => [locale, await getSiteContentValues({ keys, locale })] as const)
   );
   const initialValuesByLocale = Object.fromEntries(initialValuesByLocaleEntries) as Record<
-    "ka" | "en" | "ru",
+    "ka" | "en",
     Record<string, string>
   >;
-  const defaultValuesByLocale: Record<"ka" | "en" | "ru", Record<string, string>> = {
+  const defaultValuesByLocale: Record<"ka" | "en", Record<string, string>> = {
     ka: getMessageValuesByKeys(messagesKa, keys),
-    en: getMessageValuesByKeys(messagesEn, keys),
-    ru: getMessageValuesByKeys(messagesRu, keys)
+    en: getMessageValuesByKeys(messagesEn, keys)
   };
 
   return (

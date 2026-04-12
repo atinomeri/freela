@@ -13,7 +13,7 @@ type Body = {
   updates?: unknown;
 };
 
-const ALLOWED_LOCALES = ["ka", "en", "ru"] as const;
+const ALLOWED_LOCALES = ["ka", "en"] as const;
 type Locale = (typeof ALLOWED_LOCALES)[number];
 
 function asLocale(value: unknown): Locale | null {

@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import { Dropdown, DropdownContent, DropdownItem, DropdownLabel, DropdownTrigger } from "@/components/ui/dropdown";
 import { cn } from "@/lib/utils";
 
-const LOCALES = ["ka", "en", "ru"] as const;
+const LOCALES = ["ka", "en"] as const;
 type Locale = (typeof LOCALES)[number];
 
 export function LocaleSwitcher() {

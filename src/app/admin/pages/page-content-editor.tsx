@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-const LOCALES = ["ka", "en", "ru"] as const;
+const LOCALES = ["ka", "en"] as const;
 
 async function postJson(url: string, body: unknown) {
   const res = await fetch(url, {
@@ -25,14 +25,14 @@ export function PageContentEditor({
   defaultValuesByLocale
 }: {
   keys: string[];
-  initialValuesByLocale: Record<"ka" | "en" | "ru", Record<string, string>>;
-  defaultValuesByLocale: Record<"ka" | "en" | "ru", Record<string, string>>;
+  initialValuesByLocale: Record<"ka" | "en", Record<string, string>>;
+  defaultValuesByLocale: Record<"ka" | "en", Record<string, string>>;
 }) {
   const t = useTranslations("adminPageContent");
   const tErrors = useTranslations("apiErrors");
   const router = useRouter();
 
-  const [valuesByLocale, setValuesByLocale] = useState<Record<"ka" | "en" | "ru", Record<string, string>>>(
+  const [valuesByLocale, setValuesByLocale] = useState<Record<"ka" | "en", Record<string, string>>>(
     initialValuesByLocale
   );
   const [filter, setFilter] = useState("");

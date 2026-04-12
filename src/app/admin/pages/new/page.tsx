@@ -36,8 +36,7 @@ export default async function AdminNewPage() {
         initialPath="/new-page"
         initialContents={{
           ka: { title: "", body: "" },
-          en: { title: "", body: "" },
-          ru: { title: "", body: "" }
+          en: { title: "", body: "" }
         }}
       />
     </div>

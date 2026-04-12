@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-type Locale = "ka" | "en" | "ru";
+type Locale = "ka" | "en";
 
 type ContentValues = Record<Locale, { title: string; body: string }>;
 
@@ -52,7 +52,7 @@ export function PageEditor({
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2 text-sm">
-          {(["ka", "en", "ru"] as const).map((l) => (
+          {(["ka", "en"] as const).map((l) => (
             <button
               key={l}
               type="button"

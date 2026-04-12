@@ -17,7 +17,7 @@ function isReservedCustomPath(path: string) {
   return false;
 }
 
-type Locale = "ka" | "en" | "ru";
+type Locale = "ka" | "en";
 
 function normalizeContent(input: unknown) {
   const content = input && typeof input === "object" ? (input as Record<string, unknown>) : {};
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   if (isReservedCustomPath(path)) return jsonError("PAGE_PATH_RESERVED", 400);
 
   const contentsRaw = body?.contents && typeof body.contents === "object" ? (body.contents as Record<string, unknown>) : null;
-  const locales: Locale[] = ["ka", "en", "ru"];
+  const locales: Locale[] = ["ka", "en"];
   const contents = locales.map((locale) => ({ locale, ...normalizeContent(contentsRaw?.[locale]) }));
 
   try {
@@ -62,4 +62,3 @@ export async function POST(req: Request) {
     throw e;
   }
 }
-

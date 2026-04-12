@@ -45,7 +45,7 @@ export default async function AdminEditPage({ params }: { params: Promise<{ id: 
   }
 
   const byLocale = new Map(page.contents.map((c) => [c.locale, c]));
-  const get = (locale: "ka" | "en" | "ru") => {
+  const get = (locale: "ka" | "en") => {
     const c = byLocale.get(locale);
     return { title: c?.title ?? "", body: c?.body ?? "" };
   };
@@ -60,9 +60,8 @@ export default async function AdminEditPage({ params }: { params: Promise<{ id: 
         mode="edit"
         pageId={page.id}
         initialPath={page.path}
-        initialContents={{ ka: get("ka"), en: get("en"), ru: get("ru") }}
+        initialContents={{ ka: get("ka"), en: get("en") }}
       />
     </div>
   );
 }
-

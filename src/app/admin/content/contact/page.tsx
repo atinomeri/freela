@@ -16,6 +16,6 @@ function toSingle(value: string | string[] | undefined) {
 export default async function AdminContactContentPage({ searchParams }: Props) {
   const sp = (await searchParams) ?? {};
   const localeRaw = toSingle(sp.locale).trim().toLowerCase();
-  const locale = localeRaw === "en" || localeRaw === "ru" ? localeRaw : "ka";
+  const locale = localeRaw === "en" ? localeRaw : "ka";
   redirect(`/admin/pages/edit?path=%2Fcontact&locale=${encodeURIComponent(locale)}`);
 }

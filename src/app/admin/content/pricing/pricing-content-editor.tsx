@@ -24,7 +24,7 @@ export function PricingContentEditor({
   keys,
   initialValues
 }: {
-  locale: "ka" | "en" | "ru";
+  locale: "ka" | "en";
   keys: string[];
   initialValues: Record<string, string>;
 }) {
@@ -46,7 +46,7 @@ export function PricingContentEditor({
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2 text-sm">
-          {(["ka", "en", "ru"] as const).map((l) => (
+          {(["ka", "en"] as const).map((l) => (
             <a
               key={l}
               className={[
@@ -117,4 +117,3 @@ export function PricingContentEditor({
     </div>
   );
 }
-
