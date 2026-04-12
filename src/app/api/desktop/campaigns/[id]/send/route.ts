@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { enqueueCampaignSend } from "@/lib/campaign-queue";
+import { ensureCampaignWorkerStarted } from "@/lib/campaign-worker-init";
 import { errors, success } from "@/lib/api-response";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -54,6 +55,9 @@ export async function POST(req: Request, { params }: RouteContext) {
         totalCount: campaign.contactList.contactCount,
       },
     });
+
+    // Ensure worker is started before enqueueing jobs.
+    ensureCampaignWorkerStarted();
 
     // Enqueue the job
     const jobId = await enqueueCampaignSend(id, auth.user.id);
