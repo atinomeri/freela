@@ -8,24 +8,29 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+function InvalidLinkCard() {
+  return (
+    <div style={{ backgroundColor: 'hsl(0 84% 95%)', border: '1px solid hsl(0 84% 82%)', color: 'hsl(0 84% 40%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'hsl(0 84% 40%)' }}>Error / შეცდომა</h2>
+      <p style={{ color: 'hsl(0 84% 40%)' }}>
+        Invalid or expired unsubscribe link. / ბმული არასწორია ან ვადაგასულია.
+      </p>
+    </div>
+  );
+}
+
 async function UnsubscribeAction({
   payload,
 }: {
   payload: UnsubscribeTokenPayload | null;
 }) {
   if (!payload) {
-    return (
-      <div style={{ backgroundColor: 'hsl(0 84% 95%)', border: '1px solid hsl(0 84% 82%)', color: 'hsl(0 84% 40%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'hsl(0 84% 40%)' }}>Error / შეცდომა</h2>
-        <p style={{ color: 'hsl(0 84% 40%)' }}>
-          Invalid or expired unsubscribe link. / ბმული არასწორია ან ვადაგასულია.
-        </p>
-      </div>
-    );
+    return <InvalidLinkCard />;
   }
 
   const { email, desktopUserId } = payload;
   let success = false;
+  let invalidLink = false;
   let errorMsg = '';
 
   try {
@@ -35,45 +40,44 @@ async function UnsubscribeAction({
         select: { id: true },
       });
       if (!desktopUser) {
-        return (
-          <div style={{ backgroundColor: 'hsl(0 84% 95%)', border: '1px solid hsl(0 84% 82%)', color: 'hsl(0 84% 40%)', padding: '1.5rem', borderRadius: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'hsl(0 84% 40%)' }}>Error / შეცდომა</h2>
-            <p style={{ color: 'hsl(0 84% 40%)' }}>
-              Invalid or expired unsubscribe link. / ბმული არასწორია ან ვადაგასულია.
-            </p>
-          </div>
-        );
+        invalidLink = true;
       }
     }
 
-    const existingUnsub = await prisma.unsubscribedEmail.findFirst({
-      where: {
-        email,
-        desktopUserId: desktopUserId ?? null,
-      },
-    });
+    if (!invalidLink) {
+      const existingUnsub = await prisma.unsubscribedEmail.findFirst({
+        where: {
+          email,
+          desktopUserId: desktopUserId ?? null,
+        },
+      });
 
-    if (existingUnsub) {
-      await prisma.unsubscribedEmail.update({
-        where: { id: existingUnsub.id },
-        data: { source: 'link' },
+      if (existingUnsub) {
+        await prisma.unsubscribedEmail.update({
+          where: { id: existingUnsub.id },
+          data: { source: 'link' },
+        });
+      } else {
+        await prisma.unsubscribedEmail.create({
+          data: { email, source: 'link', desktopUserId: desktopUserId ?? null },
+        });
+      }
+
+      // Also update web user if exists (for platform notifications)
+      await prisma.user.updateMany({
+        where: { email },
+        data: { projectEmailSubscribed: false },
       });
-    } else {
-      await prisma.unsubscribedEmail.create({
-        data: { email, source: 'link', desktopUserId: desktopUserId ?? null },
-      });
+
+      success = true;
     }
-
-    // Also update web user if exists (for platform notifications)
-    await prisma.user.updateMany({
-      where: { email },
-      data: { projectEmailSubscribed: false },
-    });
-
-    success = true;
   } catch (error) {
     console.error('[Unsubscribe] Error:', error);
     errorMsg = 'Something went wrong. Please try again later. / რაღაც შეფერხდა. გთხოვთ სცადოთ მოგვიანებით.';
+  }
+
+  if (invalidLink) {
+    return <InvalidLinkCard />;
   }
 
   if (success) {

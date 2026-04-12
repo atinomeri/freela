@@ -4,8 +4,8 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
+  useEffect,
   type ReactNode,
 } from "react";
 
@@ -81,12 +81,22 @@ export function MailerAuthProvider({ children }: { children: ReactNode }) {
 
   // Hydrate from localStorage on mount
   useEffect(() => {
+    let cancelled = false;
     const stored = loadFromStorage();
-    if (stored) {
-      setState({ user: stored.user, token: stored.token, loading: false });
-    } else {
-      setState((s) => ({ ...s, loading: false }));
-    }
+    const nextState: AuthState = stored
+      ? { user: stored.user, token: stored.token, loading: false }
+      : { user: null, token: null, loading: false };
+
+    const timer = window.setTimeout(() => {
+      if (!cancelled) {
+        setState(nextState);
+      }
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const logout = useCallback(() => {
