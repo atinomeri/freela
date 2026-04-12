@@ -6,9 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function MailerLoginPage() {
   const { login } = useMailerAuth();
+  const t = useTranslations("mailer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +24,7 @@ export function MailerLoginPage() {
     try {
       await login(email, password);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : t("errors.loginFailed"));
     } finally {
       setPending(false);
     }
@@ -35,9 +37,9 @@ export function MailerLoginPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
             <Mail className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-semibold">Mailer</h1>
+          <h1 className="text-2xl font-semibold">{t("brand")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Sign in to manage your email campaigns
+            {t("login.subtitle")}
           </p>
         </div>
 
@@ -50,31 +52,31 @@ export function MailerLoginPage() {
 
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">Email</span>
+              <span className="font-medium">{t("login.emailLabel")}</span>
               <Input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
-                placeholder="name@company.com"
+                placeholder={t("login.emailPlaceholder")}
                 autoComplete="email"
                 required
               />
             </label>
 
             <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">Password</span>
+              <span className="font-medium">{t("login.passwordLabel")}</span>
               <Input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("login.passwordPlaceholder")}
                 autoComplete="current-password"
                 required
               />
             </label>
 
             <Button type="submit" className="mt-2 h-11" loading={pending}>
-              {pending ? "Signing in..." : "Sign in"}
+              {pending ? t("actions.signingIn") : t("actions.signIn")}
             </Button>
           </form>
         </Card>

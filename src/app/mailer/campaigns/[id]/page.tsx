@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { MailerLoginPage } from "../../login-page";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Campaign {
   id: string;
@@ -55,20 +56,27 @@ interface TrackingStats {
   click_rate: number;
 }
 
+interface ApiErrorShape {
+  error?: string | { message?: string };
+  message?: string;
+}
+
 const STATUS_BADGE: Record<
   string,
-  { variant: "default" | "success" | "warning" | "destructive" | "secondary"; label: string }
+  { variant: "default" | "success" | "warning" | "destructive" | "secondary"; labelKey: string }
 > = {
-  DRAFT: { variant: "secondary", label: "Draft" },
-  QUEUED: { variant: "default", label: "Queued" },
-  SENDING: { variant: "warning", label: "Sending" },
-  PAUSED: { variant: "secondary", label: "Paused" },
-  COMPLETED: { variant: "success", label: "Completed" },
-  FAILED: { variant: "destructive", label: "Failed" },
+  DRAFT: { variant: "secondary", labelKey: "campaigns.status.draft" },
+  QUEUED: { variant: "default", labelKey: "campaigns.status.queued" },
+  SENDING: { variant: "warning", labelKey: "campaigns.status.sending" },
+  PAUSED: { variant: "secondary", labelKey: "campaigns.status.paused" },
+  COMPLETED: { variant: "success", labelKey: "campaigns.status.completed" },
+  FAILED: { variant: "destructive", labelKey: "campaigns.status.failed" },
 };
 
 export default function CampaignDetailPage() {
   const { user, apiFetch } = useMailerAuth();
+  const t = useTranslations("mailer");
+  const locale = useLocale();
   const params = useParams<{ id: string }>();
   const router = useRouter();
 
@@ -82,6 +90,14 @@ export default function CampaignDetailPage() {
   const [showAssignList, setShowAssignList] = useState(false);
   const [tracking, setTracking] = useState<TrackingStats | null>(null);
 
+  function getApiError(body: ApiErrorShape | null, fallback: string): string {
+    const apiError = body?.error;
+    if (typeof apiError === "string") return apiError;
+    if (typeof apiError?.message === "string") return apiError.message;
+    if (typeof body?.message === "string") return body.message;
+    return fallback;
+  }
+
   const loadCampaign = useCallback(async () => {
     try {
       const res = await apiFetch(`/api/desktop/campaigns/${params.id}`);
@@ -89,14 +105,14 @@ export default function CampaignDetailPage() {
         const data = await res.json();
         setCampaign(data.data);
       } else {
-        setError("Campaign not found");
+        setError(t("campaignDetail.notFound"));
       }
     } catch {
-      setError("Failed to load campaign");
+      setError(t("errors.failedToLoadCampaign"));
     } finally {
       setLoading(false);
     }
-  }, [apiFetch, params.id]);
+  }, [apiFetch, params.id, t]);
 
   const loadContactLists = useCallback(async () => {
     try {
@@ -158,13 +174,13 @@ export default function CampaignDetailPage() {
         body: JSON.stringify({ contactListId: listId }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Failed to assign list");
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        throw new Error(getApiError(body, t("errors.assignListFailed")));
       }
       setShowAssignList(false);
       await loadCampaign();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to assign list");
+      setError(err instanceof Error ? err.message : t("errors.assignListFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -178,14 +194,14 @@ export default function CampaignDetailPage() {
         method: "POST",
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Failed to send campaign");
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        throw new Error(getApiError(body, t("errors.sendCampaignFailed")));
       }
       setShowSendConfirm(false);
       await loadCampaign();
       await loadTracking();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to send");
+      setError(err instanceof Error ? err.message : t("errors.sendCampaignFailed"));
     } finally {
       setActionLoading(false);
     }
@@ -200,11 +216,11 @@ export default function CampaignDetailPage() {
       if (res.ok || res.status === 204) {
         router.push("/mailer/campaigns");
       } else {
-        const body = await res.json().catch(() => ({}));
-        setError(body.error || "Failed to delete");
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        setError(getApiError(body, t("errors.deleteCampaignFailed")));
       }
     } catch {
-      setError("Failed to delete campaign");
+      setError(t("errors.deleteCampaignFailed"));
     } finally {
       setActionLoading(false);
       setShowDeleteConfirm(false);
@@ -216,9 +232,9 @@ export default function CampaignDetailPage() {
   if (!campaign) {
     return (
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-muted-foreground">Campaign not found</p>
+        <p className="text-muted-foreground">{t("campaignDetail.notFound")}</p>
         <Link href="/mailer/campaigns" className="mt-2 inline-block text-sm text-primary hover:underline">
-          Back to campaigns
+          {t("actions.backToCampaigns")}
         </Link>
       </div>
     );
@@ -244,7 +260,7 @@ export default function CampaignDetailPage() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to campaigns
+          {t("actions.backToCampaigns")}
         </Link>
       </div>
 
@@ -261,13 +277,13 @@ export default function CampaignDetailPage() {
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold">{campaign.name}</h1>
               <Badge variant={badge.variant} dot>
-                {badge.label}
+                {t(badge.labelKey)}
               </Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">{campaign.subject}</p>
             {campaign.senderName && (
               <p className="mt-0.5 text-xs text-muted-foreground">
-                From: {campaign.senderName}{" "}
+                {t("campaignDetail.fromPrefix")} {campaign.senderName}{" "}
                 {campaign.senderEmail && `<${campaign.senderEmail}>`}
               </p>
             )}
@@ -291,17 +307,17 @@ export default function CampaignDetailPage() {
       <Card className="mt-4 p-6" hover={false}>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold">Contact List</h2>
+            <h2 className="text-sm font-semibold">{t("campaignDetail.contactListTitle")}</h2>
             {assignedList ? (
               <p className="mt-1 text-sm text-muted-foreground">
-                {assignedList.name} ({assignedList.contactCount} contacts)
+                {assignedList.name} ({t("contacts.contactsCount", { count: assignedList.contactCount })})
               </p>
             ) : campaign.contactListId ? (
               <p className="mt-1 text-sm text-muted-foreground">
-                List assigned ({campaign.totalCount} contacts)
+                {t("campaignDetail.listAssigned")} ({t("contacts.contactsCount", { count: campaign.totalCount })})
               </p>
             ) : (
-              <p className="mt-1 text-sm text-muted-foreground">No list assigned</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("campaignDetail.noListAssigned")}</p>
             )}
           </div>
           {isDraft && (
@@ -311,7 +327,7 @@ export default function CampaignDetailPage() {
               onClick={() => setShowAssignList(!showAssignList)}
             >
               <Link2 className="h-4 w-4" />
-              {campaign.contactListId ? "Change" : "Assign"}
+              {campaign.contactListId ? t("actions.change") : t("actions.assign")}
             </Button>
           )}
         </div>
@@ -321,9 +337,9 @@ export default function CampaignDetailPage() {
           <div className="mt-4 space-y-2 border-t border-border pt-4">
             {contactLists.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No contact lists available.{" "}
+                {t("campaignDetail.contactListsEmpty")}{" "}
                 <Link href="/mailer/contacts" className="text-primary hover:underline">
-                  Create one first
+                  {t("contacts.createOneFirst")}
                 </Link>
               </p>
             ) : (
@@ -335,7 +351,7 @@ export default function CampaignDetailPage() {
                   className="flex w-full items-center justify-between rounded-lg border border-border p-3 text-left text-sm transition-colors hover:bg-muted disabled:opacity-50"
                 >
                   <span className="font-medium">{list.name}</span>
-                  <span className="text-muted-foreground">{list.contactCount} contacts</span>
+                  <span className="text-muted-foreground">{t("contacts.contactsCount", { count: list.contactCount })}</span>
                 </button>
               ))
             )}
@@ -346,7 +362,7 @@ export default function CampaignDetailPage() {
       {/* Progress (for sending/completed/failed) */}
       {(isSending || isCompleted || isFailed) && (
         <Card className="mt-4 p-6" hover={false}>
-          <h2 className="mb-4 text-sm font-semibold">Sending Progress</h2>
+          <h2 className="mb-4 text-sm font-semibold">{t("campaignDetail.sendingProgress")}</h2>
 
           <Progress value={progress} className="mb-3" showLabel />
 
@@ -356,14 +372,14 @@ export default function CampaignDetailPage() {
                 <CheckCircle className="h-4 w-4" />
                 <span className="text-xl font-semibold">{campaign.sentCount}</span>
               </div>
-              <div className="text-xs text-muted-foreground">Sent</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.sent")}</div>
             </div>
             <div>
               <div className="flex items-center justify-center gap-1 text-destructive">
                 <XCircle className="h-4 w-4" />
                 <span className="text-xl font-semibold">{campaign.failedCount}</span>
               </div>
-              <div className="text-xs text-muted-foreground">Failed</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.failed")}</div>
             </div>
             <div>
               <div className="flex items-center justify-center gap-1 text-muted-foreground">
@@ -372,18 +388,18 @@ export default function CampaignDetailPage() {
                   {campaign.totalCount - campaign.sentCount - campaign.failedCount}
                 </span>
               </div>
-              <div className="text-xs text-muted-foreground">Remaining</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.remaining")}</div>
             </div>
           </div>
 
           {campaign.startedAt && (
             <p className="mt-4 text-xs text-muted-foreground">
-              Started: {new Date(campaign.startedAt).toLocaleString()}
+              {t("campaignDetail.started")}: {new Date(campaign.startedAt).toLocaleString(locale)}
             </p>
           )}
           {campaign.completedAt && (
             <p className="text-xs text-muted-foreground">
-              Completed: {new Date(campaign.completedAt).toLocaleString()}
+              {t("campaignDetail.completed")}: {new Date(campaign.completedAt).toLocaleString(locale)}
             </p>
           )}
         </Card>
@@ -392,32 +408,32 @@ export default function CampaignDetailPage() {
       {/* Tracking stats */}
       {tracking && (
         <Card className="mt-4 p-6" hover={false}>
-          <h2 className="mb-4 text-sm font-semibold">Tracking Stats</h2>
+          <h2 className="mb-4 text-sm font-semibold">{t("campaignDetail.trackingStats")}</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-lg border border-border p-3">
-              <div className="text-xs text-muted-foreground">Open Rate</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.openRate")}</div>
               <div className="mt-1 flex items-center gap-1 text-base font-semibold">
                 <Eye className="h-4 w-4 text-primary" />
                 {tracking.open_rate}%
               </div>
-              <div className="text-xs text-muted-foreground">{tracking.opened} opens</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.opens", { count: tracking.opened })}</div>
             </div>
             <div className="rounded-lg border border-border p-3">
-              <div className="text-xs text-muted-foreground">Click Rate</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.clickRate")}</div>
               <div className="mt-1 flex items-center gap-1 text-base font-semibold">
                 <MousePointerClick className="h-4 w-4 text-primary" />
                 {tracking.click_rate}%
               </div>
-              <div className="text-xs text-muted-foreground">{tracking.clicked} clicks</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.clicks", { count: tracking.clicked })}</div>
             </div>
             <div className="rounded-lg border border-border p-3">
-              <div className="text-xs text-muted-foreground">Bounced</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.bounced")}</div>
               <div className="mt-1 text-base font-semibold text-destructive">
                 {tracking.bounced}
               </div>
             </div>
             <div className="rounded-lg border border-border p-3">
-              <div className="text-xs text-muted-foreground">Unsubscribed</div>
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.unsubscribed")}</div>
               <div className="mt-1 text-base font-semibold">{tracking.unsubscribed}</div>
             </div>
           </div>
@@ -429,7 +445,7 @@ export default function CampaignDetailPage() {
         <div className="mt-6 flex justify-end">
           <Button onClick={() => setShowSendConfirm(true)}>
             <Send className="h-4 w-4" />
-            Send Campaign
+            {t("actions.sendCampaign")}
           </Button>
         </div>
       )}
@@ -439,9 +455,12 @@ export default function CampaignDetailPage() {
         isOpen={showSendConfirm}
         onClose={() => setShowSendConfirm(false)}
         onConfirm={handleSend}
-        title="Send Campaign"
-        description={`This will send "${campaign.name}" to ${campaign.totalCount} recipients. This action cannot be undone.`}
-        confirmText="Send Now"
+        title={t("campaignDetail.sendTitle")}
+        description={t("campaignDetail.sendDescription", {
+          name: campaign.name,
+          count: campaign.totalCount,
+        })}
+        confirmText={t("actions.sendNow")}
         loading={actionLoading}
       />
 
@@ -449,9 +468,9 @@ export default function CampaignDetailPage() {
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Delete Campaign"
-        description="Are you sure you want to delete this campaign? This action cannot be undone."
-        confirmText="Delete"
+        title={t("campaignDetail.deleteTitle")}
+        description={t("campaignDetail.deleteDescription")}
+        confirmText={t("actions.delete")}
         variant="destructive"
         loading={actionLoading}
       />

@@ -32,6 +32,11 @@ interface MailerAuthContextType extends AuthState {
   apiFetch: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
+interface ApiErrorShape {
+  error?: string | { message?: string };
+  message?: string;
+}
+
 // ============================================
 // Storage helpers
 // ============================================
@@ -112,8 +117,17 @@ export function MailerAuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || "Login failed");
+      const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+      const apiError = body?.error;
+      const message =
+        typeof apiError === "string"
+          ? apiError
+          : typeof apiError?.message === "string"
+            ? apiError.message
+            : typeof body?.message === "string"
+              ? body.message
+              : "Login failed";
+      throw new Error(message);
     }
 
     const data = await res.json();

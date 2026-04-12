@@ -109,9 +109,18 @@
     "title": "Find a freelancer — or find an order — fast and safely",
     "subtitle": "{siteName} connects clients and professionals in Georgia: profiles with portfolios, order listings, and budgets in GEL.",
     "solutionCards": [
-      { "title": "Automation", "description": "Save time by automating routine tasks" },
-      { "title": "Optimisation", "description": "Improve workflows and increase efficiency" },
-      { "title": "Consultation", "description": "Get professional advice from experienced specialists" }
+      {
+        "title": "Automation",
+        "description": "Save time by automating routine tasks"
+      },
+      {
+        "title": "Optimisation",
+        "description": "Improve workflows and increase efficiency"
+      },
+      {
+        "title": "Consultation",
+        "description": "Get professional advice from experienced specialists"
+      }
     ],
     "cta": {
       "findProject": "Find an order",
@@ -178,20 +187,44 @@
         "title": "Employer Journey",
         "subtitle": "How to find the right specialist quickly and with clear control.",
         "steps": [
-          { "title": "1) Define your task", "description": "Describe the outcome, timeline, and budget in GEL so the right people respond quickly." },
-          { "title": "2) Find and compare candidates", "description": "Review profiles, experience, ratings, and proposals in one place." },
-          { "title": "3) Align on execution", "description": "Agree on scope, milestones, and communication for clear expectations on both sides." },
-          { "title": "4) Accept and review", "description": "Leave a review after completion and build a reliable collaboration history." }
+          {
+            "title": "1) Define your task",
+            "description": "Describe the outcome, timeline, and budget in GEL so the right people respond quickly."
+          },
+          {
+            "title": "2) Find and compare candidates",
+            "description": "Review profiles, experience, ratings, and proposals in one place."
+          },
+          {
+            "title": "3) Align on execution",
+            "description": "Agree on scope, milestones, and communication for clear expectations on both sides."
+          },
+          {
+            "title": "4) Accept and review",
+            "description": "Leave a review after completion and build a reliable collaboration history."
+          }
         ]
       },
       "freelancer": {
         "title": "Freelancer Journey",
         "subtitle": "How to get more projects and build stronger platform reputation.",
         "steps": [
-          { "title": "1) Strengthen your profile", "description": "Add specialization, focused bio, and portfolio so you appear in more shortlists." },
-          { "title": "2) Find relevant projects", "description": "Use filters to target the right opportunities in your niche." },
-          { "title": "3) Send precise proposals", "description": "Clear messages and realistic pricing improve acceptance rate." },
-          { "title": "4) Deliver and grow your rating", "description": "Reliable delivery and quality work unlock better future opportunities." }
+          {
+            "title": "1) Strengthen your profile",
+            "description": "Add specialization, focused bio, and portfolio so you appear in more shortlists."
+          },
+          {
+            "title": "2) Find relevant projects",
+            "description": "Use filters to target the right opportunities in your niche."
+          },
+          {
+            "title": "3) Send precise proposals",
+            "description": "Clear messages and realistic pricing improve acceptance rate."
+          },
+          {
+            "title": "4) Deliver and grow your rating",
+            "description": "Reliable delivery and quality work unlock better future opportunities."
+          }
         ]
       }
     },
@@ -1246,6 +1279,135 @@
       "status": "Status",
       "created": "Created",
       "actions": "Actions"
+    }
+  },
+  "mailer": {
+    "brand": "Mailer",
+    "nav": {
+      "dashboard": "Dashboard",
+      "campaigns": "Campaigns",
+      "contacts": "Contacts"
+    },
+    "actions": {
+      "logOut": "Log out",
+      "signIn": "Sign in",
+      "signingIn": "Signing in...",
+      "newCampaign": "New Campaign",
+      "manageContacts": "Manage Contacts",
+      "newList": "New List",
+      "upload": "Upload",
+      "dismiss": "Dismiss",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "create": "Create",
+      "delete": "Delete",
+      "backToCampaigns": "Back to campaigns",
+      "change": "Change",
+      "assign": "Assign",
+      "sendCampaign": "Send Campaign",
+      "sendNow": "Send Now"
+    },
+    "errors": {
+      "loginFailed": "Login failed",
+      "createCampaignFailed": "Failed to create campaign",
+      "createListFailed": "Failed to create list",
+      "uploadFailed": "Upload failed",
+      "failedToLoadCampaign": "Failed to load campaign",
+      "assignListFailed": "Failed to assign list",
+      "sendCampaignFailed": "Failed to send campaign",
+      "deleteCampaignFailed": "Failed to delete campaign"
+    },
+    "login": {
+      "subtitle": "Sign in to manage your email campaigns",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@company.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "welcomeBack": "Welcome back, {email}",
+      "campaigns": "Campaigns",
+      "contactLists": "Contact Lists",
+      "emailsSent": "Emails Sent",
+      "openClickRate": "Open / Click Rate",
+      "quickActions": "Quick Actions"
+    },
+    "campaigns": {
+      "title": "Campaigns",
+      "description": "Create and manage email campaigns",
+      "noCampaignsTitle": "No campaigns yet",
+      "noCampaignsDescription": "Create your first email campaign to get started",
+      "pageInfo": "{page} / {pages}",
+      "failedSuffix": "({count} failed)",
+      "status": {
+        "draft": "Draft",
+        "queued": "Queued",
+        "sending": "Sending",
+        "paused": "Paused",
+        "completed": "Completed",
+        "failed": "Failed"
+      }
+    },
+    "newCampaign": {
+      "title": "New Campaign",
+      "campaignNameLabel": "Campaign Name *",
+      "campaignNamePlaceholder": "e.g. April Newsletter",
+      "emailSubjectLabel": "Email Subject *",
+      "emailSubjectPlaceholder": "e.g. Check out our latest updates",
+      "senderNameLabel": "Sender Name",
+      "senderNamePlaceholder": "e.g. John from Company",
+      "senderEmailLabel": "Sender Email",
+      "senderEmailPlaceholder": "e.g. john@company.com",
+      "htmlBodyLabel": "HTML Body *",
+      "htmlBodyHelp": "Use [[column_name]] for personalization placeholders",
+      "htmlBodyPlaceholder": "<p>Hello [[name]],</p><p>Your email content here...</p>",
+      "createCampaign": "Create Campaign"
+    },
+    "contacts": {
+      "title": "Contacts",
+      "description": "Manage your contact lists",
+      "noListsTitle": "No contact lists",
+      "noListsDescription": "Create a list and upload your CSV or XLSX file",
+      "contactsCount": "{count} contacts",
+      "columnsPrefix": "Columns:",
+      "noContactsYet": "No contacts yet. Upload a CSV or XLSX file.",
+      "showingOf": "Showing {shown} of {total} contacts",
+      "newContactList": "New Contact List",
+      "listNameLabel": "List Name",
+      "listNamePlaceholder": "e.g. Newsletter subscribers",
+      "deleteTitle": "Delete Contact List",
+      "deleteDescription": "This will permanently delete the list and all its contacts. This action cannot be undone.",
+      "importedSummary": "Imported {imported} contacts ({duplicates} duplicates skipped)",
+      "createOneFirst": "Create one first"
+    },
+    "common": {
+      "loading": "Loading..."
+    },
+    "campaignDetail": {
+      "notFound": "Campaign not found",
+      "fromPrefix": "From:",
+      "contactListTitle": "Contact List",
+      "listAssigned": "List assigned",
+      "noListAssigned": "No list assigned",
+      "contactListsEmpty": "No contact lists available.",
+      "sendingProgress": "Sending Progress",
+      "sent": "Sent",
+      "failed": "Failed",
+      "remaining": "Remaining",
+      "started": "Started",
+      "completed": "Completed",
+      "trackingStats": "Tracking Stats",
+      "openRate": "Open Rate",
+      "opens": "{count} opens",
+      "clickRate": "Click Rate",
+      "clicks": "{count} clicks",
+      "bounced": "Bounced",
+      "unsubscribed": "Unsubscribed",
+      "sendTitle": "Send Campaign",
+      "sendDescription": "This will send \"{name}\" to {count} recipients. This action cannot be undone.",
+      "deleteTitle": "Delete Campaign",
+      "deleteDescription": "Are you sure you want to delete this campaign? This action cannot be undone."
     }
   }
 }

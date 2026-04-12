@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { Mail, Users, Send, BarChart3 } from "lucide-react";
 import { MailerLoginPage } from "./login-page";
+import { useTranslations } from "next-intl";
 
 interface DashboardStats {
   totalCampaigns: number;
@@ -17,6 +18,7 @@ interface DashboardStats {
 
 export default function MailerDashboard() {
   const { user, apiFetch } = useMailerAuth();
+  const t = useTranslations("mailer");
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -60,9 +62,9 @@ export default function MailerDashboard() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("dashboard.title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Welcome back, {user.email}
+          {t("dashboard.welcomeBack", { email: user.email })}
         </p>
       </div>
 
@@ -77,7 +79,7 @@ export default function MailerDashboard() {
               <div className="text-2xl font-semibold">
                 {loading ? "—" : stats?.totalCampaigns ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground">Campaigns</div>
+              <div className="text-xs text-muted-foreground">{t("dashboard.campaigns")}</div>
             </div>
           </div>
         </Card>
@@ -91,7 +93,7 @@ export default function MailerDashboard() {
               <div className="text-2xl font-semibold">
                 {loading ? "—" : stats?.totalContactLists ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground">Contact Lists</div>
+              <div className="text-xs text-muted-foreground">{t("dashboard.contactLists")}</div>
             </div>
           </div>
         </Card>
@@ -105,7 +107,7 @@ export default function MailerDashboard() {
               <div className="text-2xl font-semibold">
                 {loading ? "—" : stats?.totalSent ?? 0}
               </div>
-              <div className="text-xs text-muted-foreground">Emails Sent</div>
+              <div className="text-xs text-muted-foreground">{t("dashboard.emailsSent")}</div>
             </div>
           </div>
         </Card>
@@ -119,7 +121,7 @@ export default function MailerDashboard() {
               <div className="text-lg font-semibold">
                 {loading ? "—" : `${stats?.openRate ?? 0}% / ${stats?.clickRate ?? 0}%`}
               </div>
-              <div className="text-xs text-muted-foreground">Open / Click Rate</div>
+              <div className="text-xs text-muted-foreground">{t("dashboard.openClickRate")}</div>
             </div>
           </div>
         </Card>
@@ -127,15 +129,15 @@ export default function MailerDashboard() {
 
       {/* Quick actions */}
       <Card className="mt-6 p-6" hover={false}>
-        <h2 className="mb-4 text-sm font-semibold">Quick Actions</h2>
+        <h2 className="mb-4 text-sm font-semibold">{t("dashboard.quickActions")}</h2>
         <div className="flex flex-wrap gap-3">
           <ButtonLink href="/mailer/campaigns/new" variant="primary" size="sm">
             <Mail className="h-4 w-4" />
-            New Campaign
+            {t("actions.newCampaign")}
           </ButtonLink>
           <ButtonLink href="/mailer/contacts" variant="secondary" size="sm">
             <Users className="h-4 w-4" />
-            Manage Contacts
+            {t("actions.manageContacts")}
           </ButtonLink>
         </div>
       </Card>

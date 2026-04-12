@@ -58,9 +58,9 @@ const nextConfig = {
               "font-src 'self' data:",
               "style-src 'self' 'unsafe-inline'",
               // Next.js uses inline scripts; keep CSP meaningful while staying compatible.
-              "script-src 'self' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
               // Allow same-origin APIs and optional Sentry ingest.
-              "connect-src 'self' https://*.ingest.sentry.io",
+              "connect-src 'self' https://*.ingest.sentry.io https://www.google-analytics.com https://region1.google-analytics.com",
               "upgrade-insecure-requests"
             ].join("; ")
           }

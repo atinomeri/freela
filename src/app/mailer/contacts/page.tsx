@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { MailerLoginPage } from "../login-page";
+import { useTranslations } from "next-intl";
 
 interface ContactList {
   id: string;
@@ -26,8 +27,14 @@ interface ContactList {
   createdAt: string;
 }
 
+interface ApiErrorShape {
+  error?: string | { message?: string };
+  message?: string;
+}
+
 export default function ContactsPage() {
   const { user, apiFetch } = useMailerAuth();
+  const t = useTranslations("mailer");
   const [lists, setLists] = useState<ContactList[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -70,6 +77,14 @@ export default function ContactsPage() {
 
   if (!user) return <MailerLoginPage />;
 
+  function getApiError(body: ApiErrorShape | null, fallback: string): string {
+    const apiError = body?.error;
+    if (typeof apiError === "string") return apiError;
+    if (typeof apiError?.message === "string") return apiError.message;
+    if (typeof body?.message === "string") return body.message;
+    return fallback;
+  }
+
   async function handleCreateList(e: React.FormEvent) {
     e.preventDefault();
     setCreating(true);
@@ -83,15 +98,15 @@ export default function ContactsPage() {
       });
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Failed to create list");
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        throw new Error(getApiError(body, t("errors.createListFailed")));
       }
 
       setShowCreate(false);
       setCreateName("");
       await loadLists();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create list");
+      setError(err instanceof Error ? err.message : t("errors.createListFailed"));
     } finally {
       setCreating(false);
     }
@@ -117,17 +132,20 @@ export default function ContactsPage() {
       const body = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(body.error || "Upload failed");
+        throw new Error(getApiError(body as ApiErrorShape, t("errors.uploadFailed")));
       }
 
       setUploadResult(
-        `Imported ${body.data.imported} contacts (${body.data.duplicatesSkipped ?? body.data.skippedDuplicates ?? 0} duplicates skipped)`,
+        t("contacts.importedSummary", {
+          imported: body.data.imported,
+          duplicates: body.data.duplicatesSkipped ?? body.data.skippedDuplicates ?? 0,
+        }),
       );
       setUploadListId(null);
       if (fileRef.current) fileRef.current.value = "";
       await loadLists();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      setError(err instanceof Error ? err.message : t("errors.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -181,28 +199,28 @@ export default function ContactsPage() {
     <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Contacts</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("contacts.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your contact lists
+            {t("contacts.description")}
           </p>
         </div>
         <Button size="sm" onClick={() => setShowCreate(true)}>
           <Plus className="h-4 w-4" />
-          New List
+          {t("actions.newList")}
         </Button>
       </div>
 
       {error && (
         <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {error}
-          <button className="ml-2 underline" onClick={() => setError("")}>dismiss</button>
+          <button className="ml-2 underline" onClick={() => setError("")}>{t("actions.dismiss")}</button>
         </div>
       )}
 
       {uploadResult && (
         <div className="mb-4 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm text-success">
           {uploadResult}
-          <button className="ml-2 underline" onClick={() => setUploadResult(null)}>dismiss</button>
+          <button className="ml-2 underline" onClick={() => setUploadResult(null)}>{t("actions.dismiss")}</button>
         </div>
       )}
 
@@ -211,9 +229,9 @@ export default function ContactsPage() {
       ) : lists.length === 0 ? (
         <EmptyState
           icon={<Users className="h-12 w-12" />}
-          title="No contact lists"
-          description="Create a list and upload your CSV or XLSX file"
-          action={{ label: "New List", onClick: () => setShowCreate(true) }}
+          title={t("contacts.noListsTitle")}
+          description={t("contacts.noListsDescription")}
+          action={{ label: t("actions.newList"), onClick: () => setShowCreate(true) }}
         />
       ) : (
         <div className="space-y-3">
@@ -233,11 +251,11 @@ export default function ContactsPage() {
                     <div className="min-w-0">
                       <h3 className="truncate font-medium">{list.name}</h3>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{list.contactCount} contacts</span>
+                        <span>{t("contacts.contactsCount", { count: list.contactCount })}</span>
                         {list.columns.length > 0 && (
                           <>
                             <span>&middot;</span>
-                            <span>Columns: {list.columns.join(", ")}</span>
+                            <span>{t("contacts.columnsPrefix")} {list.columns.join(", ")}</span>
                           </>
                         )}
                       </div>
@@ -254,7 +272,7 @@ export default function ContactsPage() {
                       }}
                     >
                       <Upload className="h-4 w-4" />
-                      Upload
+                      {t("actions.upload")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -270,17 +288,17 @@ export default function ContactsPage() {
                 {expandedList === list.id && (
                   <div className="mt-4 border-t border-border pt-4">
                     {contactsLoading ? (
-                      <p className="text-sm text-muted-foreground">Loading...</p>
+                      <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
                     ) : contacts.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
-                        No contacts yet. Upload a CSV or XLSX file.
+                        {t("contacts.noContactsYet")}
                       </p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b border-border text-left">
-                              <th className="pb-2 pr-4 font-medium text-muted-foreground">Email</th>
+                              <th className="pb-2 pr-4 font-medium text-muted-foreground">{t("login.emailLabel")}</th>
                               {list.columns
                                 .filter((c) => c.toLowerCase() !== list.emailColumn.toLowerCase())
                                 .slice(0, 4)
@@ -319,7 +337,7 @@ export default function ContactsPage() {
                         </table>
                         {list.contactCount > 20 && (
                           <p className="mt-2 text-xs text-muted-foreground">
-                            Showing 20 of {list.contactCount} contacts
+                            {t("contacts.showingOf", { shown: 20, total: list.contactCount })}
                           </p>
                         )}
                       </div>
@@ -346,15 +364,15 @@ export default function ContactsPage() {
       {/* Create list modal */}
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)}>
         <ModalContent size="sm">
-          <ModalHeader>New Contact List</ModalHeader>
+          <ModalHeader>{t("contacts.newContactList")}</ModalHeader>
           <form onSubmit={handleCreateList}>
             <ModalBody>
               <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">List Name</span>
+                <span className="font-medium">{t("contacts.listNameLabel")}</span>
                 <Input
                   value={createName}
                   onChange={(e) => setCreateName(e.target.value)}
-                  placeholder="e.g. Newsletter subscribers"
+                  placeholder={t("contacts.listNamePlaceholder")}
                   required
                   autoFocus
                 />
@@ -366,10 +384,10 @@ export default function ContactsPage() {
                 variant="ghost"
                 onClick={() => setShowCreate(false)}
               >
-                Cancel
+                {t("actions.cancel")}
               </Button>
               <Button type="submit" loading={creating}>
-                Create
+                {creating ? t("actions.creating") : t("actions.create")}
               </Button>
             </ModalFooter>
           </form>
@@ -381,9 +399,9 @@ export default function ContactsPage() {
         isOpen={!!deleteListId}
         onClose={() => setDeleteListId(null)}
         onConfirm={handleDelete}
-        title="Delete Contact List"
-        description="This will permanently delete the list and all its contacts. This action cannot be undone."
-        confirmText="Delete"
+        title={t("contacts.deleteTitle")}
+        description={t("contacts.deleteDescription")}
+        confirmText={t("actions.delete")}
         variant="destructive"
         loading={deleting}
       />

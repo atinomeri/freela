@@ -4,6 +4,7 @@ import { useMailerAuth } from "@/lib/mailer-auth";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   Mail,
   Users,
@@ -16,14 +17,15 @@ import { useState } from "react";
 import { PageSpinner } from "@/components/ui/spinner";
 
 const NAV_ITEMS = [
-  { href: "/mailer", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/mailer/campaigns", label: "Campaigns", icon: Mail },
-  { href: "/mailer/contacts", label: "Contacts", icon: Users },
+  { href: "/mailer", key: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/mailer/campaigns", key: "nav.campaigns", icon: Mail },
+  { href: "/mailer/contacts", key: "nav.contacts", icon: Users },
 ] as const;
 
 export function MailerShell({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useMailerAuth();
   const pathname = usePathname();
+  const t = useTranslations("mailer");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) {
@@ -63,7 +65,7 @@ export function MailerShell({ children }: { children: React.ReactNode }) {
         <div className="flex h-16 items-center justify-between border-b border-border px-6">
           <Link href="/mailer" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
             <Mail className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold">Mailer</span>
+            <span className="text-lg font-semibold">{t("brand")}</span>
           </Link>
           <button
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted lg:hidden"
@@ -75,7 +77,7 @@ export function MailerShell({ children }: { children: React.ReactNode }) {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+          {NAV_ITEMS.map(({ href, key, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -88,7 +90,7 @@ export function MailerShell({ children }: { children: React.ReactNode }) {
               )}
             >
               <Icon className="h-4 w-4" />
-              {label}
+              {t(key)}
             </Link>
           ))}
         </nav>
@@ -101,7 +103,7 @@ export function MailerShell({ children }: { children: React.ReactNode }) {
             className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <LogOut className="h-4 w-4" />
-            Log out
+            {t("actions.logOut")}
           </button>
         </div>
       </aside>
@@ -116,7 +118,7 @@ export function MailerShell({ children }: { children: React.ReactNode }) {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-lg font-semibold">Mailer</span>
+          <span className="text-lg font-semibold">{t("brand")}</span>
         </header>
 
         <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">{children}</main>

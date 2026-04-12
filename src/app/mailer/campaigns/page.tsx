@@ -10,6 +10,7 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { Plus, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MailerLoginPage } from "../login-page";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Campaign {
   id: string;
@@ -29,17 +30,19 @@ interface Pagination {
   hasMore: boolean;
 }
 
-const STATUS_BADGE: Record<string, { variant: "default" | "success" | "warning" | "destructive" | "secondary"; label: string }> = {
-  DRAFT: { variant: "secondary", label: "Draft" },
-  QUEUED: { variant: "default", label: "Queued" },
-  SENDING: { variant: "warning", label: "Sending" },
-  PAUSED: { variant: "secondary", label: "Paused" },
-  COMPLETED: { variant: "success", label: "Completed" },
-  FAILED: { variant: "destructive", label: "Failed" },
+const STATUS_BADGE: Record<string, { variant: "default" | "success" | "warning" | "destructive" | "secondary"; labelKey: string }> = {
+  DRAFT: { variant: "secondary", labelKey: "campaigns.status.draft" },
+  QUEUED: { variant: "default", labelKey: "campaigns.status.queued" },
+  SENDING: { variant: "warning", labelKey: "campaigns.status.sending" },
+  PAUSED: { variant: "secondary", labelKey: "campaigns.status.paused" },
+  COMPLETED: { variant: "success", labelKey: "campaigns.status.completed" },
+  FAILED: { variant: "destructive", labelKey: "campaigns.status.failed" },
 };
 
 export default function CampaignsPage() {
   const { user, apiFetch } = useMailerAuth();
+  const t = useTranslations("mailer");
+  const locale = useLocale();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,14 +90,14 @@ export default function CampaignsPage() {
     <div className="mx-auto max-w-5xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Campaigns</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("campaigns.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Create and manage email campaigns
+            {t("campaigns.description")}
           </p>
         </div>
         <ButtonLink href="/mailer/campaigns/new" size="sm">
           <Plus className="h-4 w-4" />
-          New Campaign
+          {t("actions.newCampaign")}
         </ButtonLink>
       </div>
 
@@ -103,9 +106,9 @@ export default function CampaignsPage() {
       ) : campaigns.length === 0 ? (
         <EmptyState
           icon={<Mail className="h-12 w-12" />}
-          title="No campaigns yet"
-          description="Create your first email campaign to get started"
-          action={{ label: "New Campaign", href: "/mailer/campaigns/new" }}
+          title={t("campaigns.noCampaignsTitle")}
+          description={t("campaigns.noCampaignsDescription")}
+          action={{ label: t("actions.newCampaign"), href: "/mailer/campaigns/new" }}
         />
       ) : (
         <>
@@ -121,7 +124,7 @@ export default function CampaignsPage() {
                         <div className="flex items-center gap-2">
                           <h3 className="truncate font-medium">{campaign.name}</h3>
                           <Badge variant={badge.variant} size="sm" dot>
-                            {badge.label}
+                            {t(badge.labelKey)}
                           </Badge>
                         </div>
                         <p className="mt-1 truncate text-sm text-muted-foreground">
@@ -136,11 +139,14 @@ export default function CampaignsPage() {
                             {" / "}
                             <span>{campaign.totalCount}</span>
                             {campaign.failedCount > 0 && (
-                              <span className="text-destructive"> ({campaign.failedCount} failed)</span>
+                              <span className="text-destructive">
+                                {" "}
+                                {t("campaigns.failedSuffix", { count: campaign.failedCount })}
+                              </span>
                             )}
                           </div>
                         ) : (
-                          <div>{new Date(campaign.createdAt).toLocaleDateString()}</div>
+                          <div>{new Date(campaign.createdAt).toLocaleDateString(locale)}</div>
                         )}
                       </div>
                     </div>
@@ -162,7 +168,7 @@ export default function CampaignsPage() {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-muted-foreground">
-                {page} / {totalPages}
+                {t("campaigns.pageInfo", { page, pages: totalPages })}
               </span>
               <Button
                 variant="outline"
