@@ -1,0 +1,188 @@
+"use client";
+
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
+
+// ============================================
+// Types
+// ============================================
+
+interface MailerUser {
+  id: string;
+  email: string;
+  balance: number;
+}
+
+interface AuthState {
+  user: MailerUser | null;
+  token: string | null;
+  loading: boolean;
+}
+
+interface MailerAuthContextType extends AuthState {
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  /** Authenticated fetch — attaches Bearer token, handles 401 refresh */
+  apiFetch: (url: string, init?: RequestInit) => Promise<Response>;
+}
+
+// ============================================
+// Storage helpers
+// ============================================
+
+const STORAGE_KEY = "mailer_auth";
+
+function loadFromStorage(): { token: string; refreshToken: string; user: MailerUser } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveToStorage(data: { token: string; refreshToken: string; user: MailerUser }) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function clearStorage() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// ============================================
+// Context
+// ============================================
+
+const MailerAuthContext = createContext<MailerAuthContextType | undefined>(undefined);
+
+export function useMailerAuth() {
+  const ctx = useContext(MailerAuthContext);
+  if (!ctx) throw new Error("useMailerAuth must be used within MailerAuthProvider");
+  return ctx;
+}
+
+// ============================================
+// Provider
+// ============================================
+
+export function MailerAuthProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    token: null,
+    loading: true,
+  });
+
+  // Hydrate from localStorage on mount
+  useEffect(() => {
+    const stored = loadFromStorage();
+    if (stored) {
+      setState({ user: stored.user, token: stored.token, loading: false });
+    } else {
+      setState((s) => ({ ...s, loading: false }));
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    clearStorage();
+    setState({ user: null, token: null, loading: false });
+  }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const res = await fetch("/api/desktop/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Login failed");
+    }
+
+    const data = await res.json();
+    const user: MailerUser = {
+      id: data.user.id,
+      email: data.user.email,
+      balance: data.user.balance,
+    };
+
+    saveToStorage({
+      token: data.accessToken,
+      refreshToken: data.refreshToken,
+      user,
+    });
+
+    setState({ user, token: data.accessToken, loading: false });
+  }, []);
+
+  const refreshAccessToken = useCallback(async (): Promise<string | null> => {
+    const stored = loadFromStorage();
+    if (!stored?.refreshToken) return null;
+
+    try {
+      const res = await fetch("/api/desktop/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: stored.refreshToken }),
+      });
+
+      if (!res.ok) return null;
+
+      const data = await res.json();
+      saveToStorage({
+        token: data.accessToken,
+        refreshToken: data.refreshToken,
+        user: stored.user,
+      });
+
+      setState((s) => ({ ...s, token: data.accessToken }));
+      return data.accessToken;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const apiFetch = useCallback(
+    async (url: string, init?: RequestInit): Promise<Response> => {
+      const stored = loadFromStorage();
+      const currentToken = stored?.token;
+
+      if (!currentToken) {
+        logout();
+        throw new Error("Not authenticated");
+      }
+
+      const headers = new Headers(init?.headers);
+      headers.set("Authorization", `Bearer ${currentToken}`);
+
+      let res = await fetch(url, { ...init, headers });
+
+      // Try refresh on 401
+      if (res.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          headers.set("Authorization", `Bearer ${newToken}`);
+          res = await fetch(url, { ...init, headers });
+        } else {
+          logout();
+        }
+      }
+
+      return res;
+    },
+    [logout, refreshAccessToken],
+  );
+
+  return (
+    <MailerAuthContext.Provider value={{ ...state, login, logout, apiFetch }}>
+      {children}
+    </MailerAuthContext.Provider>
+  );
+}

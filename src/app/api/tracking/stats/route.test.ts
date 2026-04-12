@@ -6,6 +6,11 @@ import { getServerSession } from 'next-auth';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
+    campaign: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      aggregate: vi.fn(),
+    },
     campaignReport: {
       findUnique: vi.fn(),
       findMany: vi.fn(),
@@ -41,6 +46,11 @@ describe('GET /api/tracking/stats', () => {
     });
     (prisma.emailTrackingEvent.findMany as any).mockResolvedValue([]);
     (prisma.unsubscribedEmail.count as any).mockResolvedValue(0);
+    (prisma.campaign.findUnique as any).mockResolvedValue(null);
+    (prisma.campaign.findMany as any).mockResolvedValue([]);
+    (prisma.campaign.aggregate as any).mockResolvedValue({
+      _sum: { sentCount: 0, failedCount: 0 },
+    });
   });
 
   it('returns campaign stats for owned campaign', async () => {
@@ -146,5 +156,28 @@ describe('GET /api/tracking/stats', () => {
     expect(body.opened).toBe(1);
     expect(body.clicked).toBe(0);
     expect(prisma.campaignReport.findUnique).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back to Campaign table when campaign report is missing', async () => {
+    const startedAt = new Date('2026-04-06T00:00:00.000Z');
+    (prisma.campaignReport.findUnique as any).mockResolvedValue(null);
+    (prisma.campaign.findUnique as any).mockResolvedValue({
+      desktopUserId: 'desktop-user-1',
+      sentCount: 12,
+      failedCount: 1,
+      startedAt,
+      createdAt: startedAt,
+    });
+    (prisma.emailTrackingEvent.findMany as any)
+      .mockResolvedValueOnce([{ emailHash: 'x' }])
+      .mockResolvedValueOnce([]);
+
+    const response = await GET(new Request('http://localhost/api/tracking/stats?campaign_id=cid-fallback'));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.total_sent).toBe(12);
+    expect(body.bounced).toBe(1);
+    expect(body.opened).toBe(1);
   });
 });

@@ -2,59 +2,63 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { verifyAccessToken } from '@/lib/desktop-jwt';
+import { requireDesktopAuth } from '@/lib/desktop-auth';
+import { timingSafeEqual } from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
 interface AuthResult {
   authorized: boolean;
-  desktopUserId?: string; // If authenticated via desktop JWT
-  isAdmin?: boolean;
+  scope?: 'desktop' | 'admin' | 'internal';
+  desktopUserId?: string;
 }
 
-/** Check Authorization header (desktop JWT or legacy secret), or admin session. */
+function envEnabled(name: string): boolean {
+  const value = String(process.env[name] ?? '').trim().toLowerCase();
+  return value === 'true' || value === '1' || value === 'yes';
+}
+
+function safeSecretMatch(value: string, expected: string): boolean {
+  const left = Buffer.from(value);
+  const right = Buffer.from(expected);
+  if (left.length !== right.length) return false;
+  return timingSafeEqual(left, right);
+}
+
+function isInternalSecret(token: string, expectedSecret?: string): boolean {
+  if (!expectedSecret || !token) return false;
+  return safeSecretMatch(token, expectedSecret);
+}
+
 async function checkAuth(request: Request): Promise<AuthResult> {
   const authHeader = request.headers.get('Authorization');
   const expectedSecret = process.env.INTERNAL_API_SECRET;
+  const allowQuerySecret = envEnabled('UNSUBSCRIBED_ALLOW_QUERY_SECRET');
 
-  // 1. Try desktop JWT first (preferred for user-specific filtering)
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.slice(7);
 
-    // Check if it's a desktop JWT
-    try {
-      const payload = verifyAccessToken(token);
-      if (payload.sub) {
-        // Verify user exists
-        const user = await prisma.desktopUser.findUnique({
-          where: { id: payload.sub },
-          select: { id: true },
-        });
-        if (user) {
-          return { authorized: true, desktopUserId: user.id };
-        }
-      }
-    } catch {
-      // Not a valid JWT — might be legacy secret
+    const desktopAuth = await requireDesktopAuth(request);
+    if (desktopAuth.user) {
+      return { authorized: true, scope: 'desktop', desktopUserId: desktopAuth.user.id };
     }
 
-    // Check if it's the legacy API secret
-    if (expectedSecret && token === expectedSecret) {
-      return { authorized: true, isAdmin: true };
+    if (isInternalSecret(token, expectedSecret)) {
+      return { authorized: true, scope: 'internal' };
     }
   }
 
-  // 2. Legacy: query param (deprecated — will be removed in future version)
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
-  if (expectedSecret && secret === expectedSecret) {
-    return { authorized: true, isAdmin: true };
+  if (allowQuerySecret) {
+    const { searchParams } = new URL(request.url);
+    const secret = searchParams.get('secret')?.trim() ?? '';
+    if (isInternalSecret(secret, expectedSecret)) {
+      return { authorized: true, scope: 'internal' };
+    }
   }
 
-  // 3. Admin web session
   const session = await getServerSession(authOptions);
   if (session?.user?.role === 'ADMIN') {
-    return { authorized: true, isAdmin: true };
+    return { authorized: true, scope: 'admin' };
   }
 
   return { authorized: false };
@@ -67,8 +71,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Build where clause — filter by desktopUserId if not admin
-    const where = auth.desktopUserId ? { desktopUserId: auth.desktopUserId } : {};
+    const where = auth.scope === 'desktop' ? { desktopUserId: auth.desktopUserId } : {};
 
     const unsubscribed = await prisma.unsubscribedEmail.findMany({
       where,
@@ -103,14 +106,20 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    if (auth.scope === 'internal' && !envEnabled('UNSUBSCRIBED_ALLOW_SECRET_DELETE')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
     const { id, email } = body as { id?: string; email?: string };
 
-    // Build where clause for ownership check
-    const ownershipFilter = auth.desktopUserId ? { desktopUserId: auth.desktopUserId } : {};
+    const ownershipFilter = auth.scope === 'desktop' ? { desktopUserId: auth.desktopUserId } : {};
 
     if (id) {
-      // Verify ownership before delete
       const record = await prisma.unsubscribedEmail.findFirst({
         where: { id, ...ownershipFilter },
       });
@@ -122,7 +131,6 @@ export async function DELETE(request: Request) {
     }
 
     if (email) {
-      // Delete only records owned by this user
       const result = await prisma.unsubscribedEmail.deleteMany({
         where: { email, ...ownershipFilter },
       });

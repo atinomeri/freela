@@ -38,6 +38,7 @@ Freela is one codebase with two isolated user domains:
 ### Desktop Mailer Domain
 
 - Uses separate models: `DesktopUser`, `DesktopRefreshToken`, `DesktopQuota`, `CampaignReport`.
+- Billing hardening models: `DesktopPayment`, `DesktopLedgerEntry`.
 - Auth is bearer JWT (`Authorization: Bearer ...`) via `src/lib/desktop-auth.ts`.
 - Main endpoints are under `src/app/api/desktop/*`.
 
@@ -59,6 +60,8 @@ Desktop entities:
 - `DesktopUser`
 - `DesktopRefreshToken`
 - `DesktopQuota`
+- `DesktopPayment`
+- `DesktopLedgerEntry`
 - `CampaignReport`
 
 Shared operational entities:
@@ -77,7 +80,7 @@ Major groups:
 - Marketplace: `/api/projects*`, `/api/proposals/*`, `/api/freelancers`
 - Messaging/realtime: `/api/threads*`, `/api/realtime`, `/api/notifications*`
 - Admin: `/api/admin/*`
-- Desktop auth/billing: `/api/desktop/auth/*`, `/api/desktop/account/me`, `/api/desktop/quota/*`
+- Desktop auth/billing: `/api/desktop/auth/*`, `/api/desktop/account/me`, `/api/desktop/quota/*`, `/api/desktop/billing/*`
 - Desktop ops: `/api/tracking/*`, `/api/updates/check`, `/api/unsubscribed`
 
 OpenAPI baseline lives in `docs/openapi.yaml` (web-centric). Desktop-specific endpoint behavior is additionally documented in `mails/BACKEND_API_SPEC.md`.

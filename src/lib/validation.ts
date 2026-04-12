@@ -275,15 +275,106 @@ export const desktopRefreshSchema = z.object({
 
 export const quotaReserveSchema = z.object({
   count: z.number().int().min(1).max(100_000),
+  idempotency_key: z.string().min(1).max(128).optional(),
 });
 
 export const quotaReportSchema = z.object({
   quota_id: z.string().min(1, "Quota ID is required"),
   sent: z.number().int().min(0),
   failed: z.number().int().min(0),
+  idempotency_key: z.string().min(1).max(128).optional(),
 });
 
 export const adminTopupSchema = z.object({
   email: emailSchema,
   amount: z.number().int().min(1, "Amount must be positive"),
+  reason: z.string().min(1).max(300).optional(),
+  externalPaymentId: z.string().min(1).max(200).optional(),
+});
+
+export const billingLedgerTypeSchema = z.enum([
+  "TOPUP",
+  "QUOTA_RESERVE",
+  "QUOTA_REFUND",
+  "ADJUSTMENT",
+  "PAYMENT_CAPTURE",
+  "PAYMENT_REFUND",
+]);
+
+export const listBillingLedgerSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  type: billingLedgerTypeSchema.optional(),
+});
+
+export const desktopPaymentStatusSchema = z.enum([
+  "PENDING",
+  "SUCCEEDED",
+  "FAILED",
+  "CANCELED",
+]);
+
+export const listDesktopPaymentsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  status: desktopPaymentStatusSchema.optional(),
+});
+
+// ============================================
+// Campaign schemas
+// ============================================
+
+export const campaignStatusSchema = z.enum([
+  "DRAFT",
+  "QUEUED",
+  "SENDING",
+  "PAUSED",
+  "COMPLETED",
+  "FAILED",
+]);
+
+export const createCampaignSchema = z.object({
+  name: z.string().min(1, "Campaign name is required").max(200),
+  subject: z.string().min(1, "Subject is required").max(998),
+  senderName: z.string().max(200).optional(),
+  senderEmail: z.string().email("Invalid sender email").optional(),
+  html: z.string().min(1, "HTML body is required"),
+  scheduledAt: z.string().datetime().optional(),
+});
+
+export const updateCampaignSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  subject: z.string().min(1).max(998).optional(),
+  senderName: z.string().max(200).nullable().optional(),
+  senderEmail: z.string().email("Invalid sender email").nullable().optional(),
+  html: z.string().min(1).optional(),
+  scheduledAt: z.string().datetime().nullable().optional(),
+});
+
+export const listCampaignsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  status: campaignStatusSchema.optional(),
+});
+
+export const assignContactListSchema = z.object({
+  contactListId: z.string().min(1, "Contact list ID is required"),
+});
+
+// ============================================
+// Contact list schemas
+// ============================================
+
+export const createContactListSchema = z.object({
+  name: z.string().min(1, "List name is required").max(200),
+});
+
+export const listContactListsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export const listContactsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(500).default(50),
 });

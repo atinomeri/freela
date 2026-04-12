@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import { LazyChatbox } from "@/components/lazy-chatbox";
+import { SiteChrome } from "@/components/site-chrome";
 import { site } from "@/lib/site";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -121,13 +122,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <AuthSessionProvider>
               <ToastProvider>
                 <div className="min-h-dvh flex flex-col">
-                  <SiteHeader />
+                  <SiteChrome>
+                    <SiteHeader />
+                  </SiteChrome>
                   <main className="flex-1">
                     <PageTransition>{children}</PageTransition>
                   </main>
-                  <SiteFooter />
+                  <SiteChrome>
+                    <SiteFooter />
+                  </SiteChrome>
                 </div>
-                <LazyChatbox />
+                <SiteChrome>
+                  <LazyChatbox />
+                </SiteChrome>
               </ToastProvider>
             </AuthSessionProvider>
           </NextIntlClientProvider>

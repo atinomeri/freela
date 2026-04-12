@@ -1,0 +1,82 @@
+import { prisma } from "@/lib/prisma";
+import { requireDesktopAuth } from "@/lib/desktop-auth";
+import { enqueueCampaignSend } from "@/lib/campaign-queue";
+import { errors, success } from "@/lib/api-response";
+
+type RouteContext = { params: Promise<{ id: string }> };
+
+// ── POST /api/desktop/campaigns/:id/send — trigger campaign sending ─
+export async function POST(req: Request, { params }: RouteContext) {
+  try {
+    const auth = await requireDesktopAuth(req);
+    if (auth.error) return auth.error;
+
+    const { id } = await params;
+
+    // Load campaign with contact list info
+    const campaign = await prisma.campaign.findUnique({
+      where: { id },
+      select: {
+        desktopUserId: true,
+        status: true,
+        contactListId: true,
+        contactList: {
+          select: { contactCount: true },
+        },
+      },
+    });
+
+    if (!campaign) return errors.notFound("Campaign");
+    if (campaign.desktopUserId !== auth.user.id) return errors.forbidden();
+
+    // Validate campaign is ready to send
+    if (campaign.status !== "DRAFT") {
+      return errors.badRequest(
+        `Campaign cannot be sent from status "${campaign.status}". Only DRAFT campaigns can be sent.`,
+      );
+    }
+
+    if (!campaign.contactListId || !campaign.contactList) {
+      return errors.badRequest(
+        "Campaign has no contact list assigned. Use PATCH /campaigns/:id/assign-list first.",
+      );
+    }
+
+    if (campaign.contactList.contactCount === 0) {
+      return errors.badRequest("Contact list is empty. Upload contacts first.");
+    }
+
+    // Move to QUEUED status
+    await prisma.campaign.update({
+      where: { id },
+      data: {
+        status: "QUEUED",
+        totalCount: campaign.contactList.contactCount,
+      },
+    });
+
+    // Enqueue the job
+    const jobId = await enqueueCampaignSend(id, auth.user.id);
+
+    if (!jobId) {
+      // Queue not available — revert status
+      await prisma.campaign.update({
+        where: { id },
+        data: { status: "DRAFT" },
+      });
+      return errors.serverError(
+        "Job queue is not available. Ensure Redis is running.",
+      );
+    }
+
+    return success({
+      campaignId: id,
+      status: "QUEUED",
+      jobId,
+      totalRecipients: campaign.contactList.contactCount,
+    });
+  } catch (err) {
+    console.error("[Campaign Send] Error:", err);
+    return errors.serverError();
+  }
+}

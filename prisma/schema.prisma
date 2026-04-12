@@ -437,6 +437,28 @@ enum DesktopUserType {
   COMPANY
 }
 
+enum DesktopLedgerEntryType {
+  TOPUP
+  QUOTA_RESERVE
+  QUOTA_REFUND
+  ADJUSTMENT
+  PAYMENT_CAPTURE
+  PAYMENT_REFUND
+}
+
+enum DesktopPaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum DesktopPaymentProvider {
+  MANUAL
+  STRIPE
+  BOG
+}
+
 model DesktopUser {
   id            String          @id @default(cuid())
   userType      DesktopUserType
@@ -462,7 +484,11 @@ model DesktopUser {
 
   refreshTokens     DesktopRefreshToken[]
   quotas            DesktopQuota[]
+  payments          DesktopPayment[]
+  ledgerEntries     DesktopLedgerEntry[]
   campaignReports   CampaignReport[]
+  campaigns         Campaign[]
+  contactLists      ContactList[]
   unsubscribedEmails UnsubscribedEmail[]
 
   @@index([email])
@@ -499,6 +525,46 @@ model DesktopQuota {
   @@index([status, expiresAt])
 }
 
+model DesktopPayment {
+  id                 String                 @id @default(cuid())
+  userId             String
+  user               DesktopUser            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount             Int
+  currency           String                 @default("GEL")
+  status             DesktopPaymentStatus   @default(PENDING)
+  provider           DesktopPaymentProvider @default(MANUAL)
+  externalPaymentId  String?
+  metadata           Json?
+  processedByAdminId String?
+  completedAt        DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([externalPaymentId])
+}
+
+model DesktopLedgerEntry {
+  id             String                @id @default(cuid())
+  userId         String
+  user           DesktopUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           DesktopLedgerEntryType
+  amount         Int
+  balanceBefore  Int
+  balanceAfter   Int
+  currency       String                @default("GEL")
+  referenceType  String?
+  referenceId    String?
+  description    String?
+  metadata       Json?
+  idempotencyKey String?               @unique
+  createdAt      DateTime              @default(now())
+
+  @@index([userId, createdAt])
+  @@index([referenceType, referenceId])
+}
+
 model CampaignReport {
   id             String       @id @default(uuid())
   campaignId     String       @unique
@@ -515,4 +581,85 @@ model CampaignReport {
   createdAt      DateTime     @default(now())
 
   @@index([desktopUserId])
+}
+
+// ════════════════════════════════════════════
+// Campaign — server-side email campaigns
+// ════════════════════════════════════════════
+
+enum CampaignStatus {
+  DRAFT
+  QUEUED
+  SENDING
+  PAUSED
+  COMPLETED
+  FAILED
+}
+
+model Campaign {
+  id              String         @id @default(cuid())
+  desktopUserId   String
+  desktopUser     DesktopUser    @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  name            String         // internal campaign name
+  subject         String         // email subject line
+  senderName      String?        // "From" display name
+  senderEmail     String?        // "From" email override
+  html            String         @db.Text  // email HTML body
+  status          CampaignStatus @default(DRAFT)
+
+  contactListId   String?
+  contactList     ContactList?   @relation(fields: [contactListId], references: [id], onDelete: SetNull)
+
+  scheduledAt     DateTime?      // optional future send time
+  startedAt       DateTime?      // actual sending start
+  completedAt     DateTime?      // sending finished
+
+  totalCount      Int            @default(0)  // total recipients
+  sentCount       Int            @default(0)  // successfully sent
+  failedCount     Int            @default(0)  // failed deliveries
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([desktopUserId, createdAt])
+  @@index([status])
+}
+
+// ════════════════════════════════════════════
+// Contact Lists & Contacts
+// ════════════════════════════════════════════
+
+model ContactList {
+  id              String       @id @default(cuid())
+  desktopUserId   String
+  desktopUser     DesktopUser  @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  name            String
+  columns         Json         // string[] — original CSV/XLSX column names
+  emailColumn     String       // which column holds the email address
+  contactCount    Int          @default(0)
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  contacts        Contact[]
+  campaigns       Campaign[]
+
+  @@index([desktopUserId, createdAt])
+}
+
+model Contact {
+  id              String       @id @default(cuid())
+  contactListId   String
+  contactList     ContactList  @relation(fields: [contactListId], references: [id], onDelete: Cascade)
+
+  email           String
+  data            Json?        // all other columns as key-value pairs for personalization
+
+  createdAt       DateTime     @default(now())
+
+  @@unique([contactListId, email])
+  @@index([contactListId])
+  @@index([email])
 }
