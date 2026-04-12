@@ -243,21 +243,26 @@ export async function GET(request: Request) {
       if (scopedReport) {
         unsubscribed = await prisma.unsubscribedEmail.count({
           where: {
+            source: { not: "bounce" },
             createdAt: { gte: scopedReport.startedAt },
             ...(desktopUserId ? { desktopUserId } : {}),
           },
         });
       } else {
         unsubscribed = await prisma.unsubscribedEmail.count({
-          where: desktopUserId ? { desktopUserId } : {},
+          where: desktopUserId
+            ? { desktopUserId, source: { not: "bounce" } }
+            : { source: { not: "bounce" } },
         });
       }
     } else if (isDesktopUser && desktopUserId) {
       unsubscribed = await prisma.unsubscribedEmail.count({
-        where: { desktopUserId },
+        where: { desktopUserId, source: { not: "bounce" } },
       });
     } else {
-      unsubscribed = await prisma.unsubscribedEmail.count();
+      unsubscribed = await prisma.unsubscribedEmail.count({
+        where: { source: { not: "bounce" } },
+      });
     }
 
     return NextResponse.json({

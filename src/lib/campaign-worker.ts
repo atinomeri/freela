@@ -315,6 +315,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     let failedCount = 0;
     let consecutiveFailures = 0;
     let offset = 0;
+    const bouncedEmails = new Set<string>();
 
     // 5. Process contacts in batches
     while (offset < totalContacts) {
@@ -424,6 +425,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           failedCount++;
           consecutiveFailures++;
           accountFailures.set(smtpAccount.id, (accountFailures.get(smtpAccount.id) ?? 0) + 1);
+          bouncedEmails.add(contact.email.trim().toLowerCase());
         }
 
         // Update progress every 10 emails
@@ -477,6 +479,17 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           },
         });
       }
+    }
+
+    if (bouncedEmails.size > 0) {
+      await prisma.unsubscribedEmail.createMany({
+        data: Array.from(bouncedEmails).map((email) => ({
+          email,
+          source: "bounce",
+          desktopUserId,
+        })),
+        skipDuplicates: true,
+      });
     }
 
     // 6. Mark as COMPLETED
