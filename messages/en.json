@@ -1286,7 +1286,9 @@
     "nav": {
       "dashboard": "Dashboard",
       "campaigns": "Campaigns",
-      "contacts": "Contacts"
+      "contacts": "Contacts",
+      "templates": "Templates",
+      "settings": "Settings"
     },
     "actions": {
       "logOut": "Log out",

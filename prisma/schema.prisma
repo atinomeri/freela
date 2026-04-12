@@ -490,6 +490,8 @@ model DesktopUser {
   campaigns         Campaign[]
   contactLists      ContactList[]
   unsubscribedEmails UnsubscribedEmail[]
+  smtpConfig        DesktopSmtpConfig?
+  campaignTemplates CampaignTemplate[]
 
   @@index([email])
 }
@@ -505,6 +507,25 @@ model DesktopRefreshToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model DesktopSmtpConfig {
+  id            String      @id @default(cuid())
+  desktopUserId String      @unique
+  desktopUser   DesktopUser @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  host          String
+  port          Int         @default(465)
+  secure        Boolean     @default(true)
+  username      String
+  passwordEnc   String
+  fromEmail     String?
+  fromName      String?
+  trackOpens    Boolean     @default(true)
+  trackClicks   Boolean     @default(true)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model DesktopQuota {
@@ -581,6 +602,23 @@ model CampaignReport {
   createdAt      DateTime     @default(now())
 
   @@index([desktopUserId])
+}
+
+model CampaignTemplate {
+  id            String      @id @default(cuid())
+  desktopUserId String
+  desktopUser   DesktopUser @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  name          String
+  category      String      @default("custom")
+  subject       String
+  html          String      @db.Text
+  description   String?     @db.Text
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([desktopUserId, createdAt])
 }
 
 // ════════════════════════════════════════════

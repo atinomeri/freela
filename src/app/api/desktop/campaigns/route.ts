@@ -6,6 +6,7 @@ import {
   listCampaignsSchema,
 } from "@/lib/validation";
 import { errors, created, successWithPagination } from "@/lib/api-response";
+import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
 import type { CampaignStatus } from "@prisma/client";
 
 // ── POST /api/desktop/campaigns — create campaign ────────────
@@ -13,6 +14,7 @@ export async function POST(req: Request) {
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const body = await req.json().catch(() => null);
     if (!body) return errors.badRequest("Invalid JSON body");
@@ -63,6 +65,7 @@ export async function GET(req: Request) {
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const url = new URL(req.url);
     const parsed = listCampaignsSchema.safeParse({

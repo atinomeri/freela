@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { enqueueCampaignSend } from "@/lib/campaign-queue";
-import { ensureCampaignWorkerStarted } from "@/lib/campaign-worker-init";
+import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
 import { errors, success } from "@/lib/api-response";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -11,6 +11,7 @@ export async function POST(req: Request, { params }: RouteContext) {
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const { id } = await params;
 
@@ -47,17 +48,41 @@ export async function POST(req: Request, { params }: RouteContext) {
       return errors.badRequest("Contact list is empty. Upload contacts first.");
     }
 
+    const unsubscribed = await prisma.unsubscribedEmail.findMany({
+      where: { desktopUserId: auth.user.id },
+      select: { email: true },
+    });
+    const blockedEmails = Array.from(
+      new Set(
+        unsubscribed
+          .map((item) => item.email.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+    );
+
+    const eligibleCount = await prisma.contact.count({
+      where: {
+        contactListId: campaign.contactListId,
+        ...(blockedEmails.length > 0
+          ? { email: { notIn: blockedEmails } }
+          : {}),
+      },
+    });
+
+    if (eligibleCount === 0) {
+      return errors.badRequest(
+        "No sendable contacts left after unsubscribe suppression.",
+      );
+    }
+
     // Move to QUEUED status
     await prisma.campaign.update({
       where: { id },
       data: {
         status: "QUEUED",
-        totalCount: campaign.contactList.contactCount,
+        totalCount: eligibleCount,
       },
     });
-
-    // Ensure worker is started before enqueueing jobs.
-    ensureCampaignWorkerStarted();
 
     // Enqueue the job
     const jobId = await enqueueCampaignSend(id, auth.user.id);
@@ -77,7 +102,8 @@ export async function POST(req: Request, { params }: RouteContext) {
       campaignId: id,
       status: "QUEUED",
       jobId,
-      totalRecipients: campaign.contactList.contactCount,
+      totalRecipients: eligibleCount,
+      suppressed: Math.max(0, campaign.contactList.contactCount - eligibleCount),
     });
   } catch (err) {
     console.error("[Campaign Send] Error:", err);

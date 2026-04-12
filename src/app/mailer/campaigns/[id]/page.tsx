@@ -32,6 +32,7 @@ interface Campaign {
   senderEmail: string | null;
   status: string;
   contactListId: string | null;
+  scheduledAt: string | null;
   totalCount: number;
   sentCount: number;
   failedCount: number;
@@ -281,6 +282,11 @@ export default function CampaignDetailPage() {
               </Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">{campaign.subject}</p>
+            {campaign.scheduledAt && campaign.status === "DRAFT" && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Scheduled: {new Date(campaign.scheduledAt).toLocaleString(locale)}
+              </p>
+            )}
             {campaign.senderName && (
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {t("campaignDetail.fromPrefix")} {campaign.senderName}{" "}

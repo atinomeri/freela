@@ -1286,7 +1286,9 @@
     "nav": {
       "dashboard": "დეშბორდი",
       "campaigns": "კამპანიები",
-      "contacts": "კონტაქტები"
+      "contacts": "კონტაქტები",
+      "templates": "შაბლონები",
+      "settings": "პარამეტრები"
     },
     "actions": {
       "logOut": "გასვლა",

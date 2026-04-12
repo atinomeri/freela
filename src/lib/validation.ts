@@ -361,6 +361,42 @@ export const assignContactListSchema = z.object({
   contactListId: z.string().min(1, "Contact list ID is required"),
 });
 
+export const createCampaignTemplateSchema = z.object({
+  name: z.string().min(1, "Template name is required").max(200),
+  category: z.string().min(1).max(100).default("custom"),
+  subject: z.string().min(1, "Template subject is required").max(998),
+  html: z.string().min(1, "Template body is required"),
+  description: z.string().max(1000).optional(),
+});
+
+export const updateCampaignTemplateSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  category: z.string().min(1).max(100).optional(),
+  subject: z.string().min(1).max(998).optional(),
+  html: z.string().min(1).optional(),
+  description: z.string().max(1000).nullable().optional(),
+});
+
+export const listCampaignTemplatesSchema = z.object({
+  category: z.string().min(1).max(100).optional(),
+});
+
+// ============================================
+// Desktop SMTP config schemas
+// ============================================
+
+export const upsertDesktopSmtpConfigSchema = z.object({
+  host: z.string().min(1, "SMTP host is required").max(255),
+  port: z.coerce.number().int().min(1).max(65535).default(465),
+  secure: z.boolean().optional(),
+  username: z.string().min(1, "SMTP username is required").max(255),
+  password: z.string().min(1, "SMTP password is required").max(1000).optional(),
+  fromEmail: z.string().email("Invalid from email").nullable().optional(),
+  fromName: z.string().max(200).nullable().optional(),
+  trackOpens: z.boolean().optional(),
+  trackClicks: z.boolean().optional(),
+});
+
 // ============================================
 // Contact list schemas
 // ============================================

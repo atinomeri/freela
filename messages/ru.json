@@ -1286,7 +1286,9 @@
     "nav": {
       "dashboard": "Дашборд",
       "campaigns": "Кампании",
-      "contacts": "Контакты"
+      "contacts": "Контакты",
+      "templates": "Шаблоны",
+      "settings": "Настройки"
     },
     "actions": {
       "logOut": "Выйти",

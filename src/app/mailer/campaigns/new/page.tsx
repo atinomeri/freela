@@ -1,7 +1,7 @@
 "use client";
 
 import { useMailerAuth } from "@/lib/mailer-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,15 @@ interface ApiErrorShape {
   message?: string;
 }
 
+interface TemplateOption {
+  id: string;
+  name: string;
+  category: string;
+  subject: string;
+  html: string;
+  builtIn: boolean;
+}
+
 export default function NewCampaignPage() {
   const { user, apiFetch } = useMailerAuth();
   const router = useRouter();
@@ -27,8 +36,26 @@ export default function NewCampaignPage() {
   const [senderName, setSenderName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [html, setHtml] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [templates, setTemplates] = useState<TemplateOption[]>([]);
+  const [templateId, setTemplateId] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    async function loadTemplates() {
+      try {
+        const res = await apiFetch("/api/desktop/templates");
+        if (!res.ok) return;
+        const body = await res.json();
+        setTemplates(body.data ?? []);
+      } catch {
+        // ignore template load failures
+      }
+    }
+    void loadTemplates();
+  }, [user, apiFetch]);
 
   if (!user) return <MailerLoginPage />;
 
@@ -47,6 +74,7 @@ export default function NewCampaignPage() {
           html: html || `<p>${subject}</p>`,
           senderName: senderName || undefined,
           senderEmail: senderEmail || undefined,
+          scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
         }),
       });
 
@@ -95,6 +123,29 @@ export default function NewCampaignPage() {
 
         <form className="grid gap-5" onSubmit={handleSubmit}>
           <label className="grid gap-1.5 text-sm">
+            <span className="font-medium">Template</span>
+            <select
+              value={templateId}
+              onChange={(e) => {
+                const value = e.target.value;
+                setTemplateId(value);
+                const tpl = templates.find((item) => item.id === value);
+                if (!tpl) return;
+                setSubject(tpl.subject);
+                setHtml(tpl.html);
+              }}
+              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20"
+            >
+              <option value="">No template</option>
+              {templates.map((tpl) => (
+                <option key={tpl.id} value={tpl.id}>
+                  {tpl.name} ({tpl.category})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-1.5 text-sm">
             <span className="font-medium">{t("newCampaign.campaignNameLabel")}</span>
             <Input
               value={name}
@@ -133,6 +184,15 @@ export default function NewCampaignPage() {
               />
             </label>
           </div>
+
+          <label className="grid gap-1.5 text-sm">
+            <span className="font-medium">Schedule at (optional)</span>
+            <Input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+            />
+          </label>
 
           <label className="grid gap-1.5 text-sm">
             <span className="font-medium">{t("newCampaign.htmlBodyLabel")}</span>

@@ -12,6 +12,8 @@ import {
   LogOut,
   Menu,
   X,
+  FileText,
+  Settings,
 } from "lucide-react";
 import { useState } from "react";
 import { PageSpinner } from "@/components/ui/spinner";
@@ -20,6 +22,8 @@ const NAV_ITEMS = [
   { href: "/mailer", key: "nav.dashboard", icon: LayoutDashboard },
   { href: "/mailer/campaigns", key: "nav.campaigns", icon: Mail },
   { href: "/mailer/contacts", key: "nav.contacts", icon: Users },
+  { href: "/mailer/templates", key: "nav.templates", icon: FileText },
+  { href: "/mailer/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
 export function MailerShell({ children }: { children: React.ReactNode }) {

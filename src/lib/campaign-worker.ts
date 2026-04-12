@@ -17,6 +17,7 @@ import {
   getRedisConnection,
   type CampaignSendJobData,
 } from "./campaign-queue";
+import { decryptSecretValue } from "./secret-crypto";
 
 // ── Prisma (dynamic import to avoid "server-only" issues in worker process) ──
 
@@ -152,45 +153,97 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     if (campaign.status !== "QUEUED") throw new Error(`Campaign status is ${campaign.status}, expected QUEUED`);
     if (!campaign.contactListId) throw new Error("No contact list assigned");
 
-    // 2. Mark as SENDING
+    const unsubscribed = await prisma.unsubscribedEmail.findMany({
+      where: { desktopUserId },
+      select: { email: true },
+    });
+    const blockedEmails = Array.from(
+      new Set(
+        unsubscribed
+          .map((item) => item.email.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+    );
+
+    const contactsWhere = {
+      contactListId: campaign.contactListId,
+      ...(blockedEmails.length > 0 ? { email: { notIn: blockedEmails } } : {}),
+    };
+
+    // 2. Load contacts count after suppression
+    const totalContacts = await prisma.contact.count({ where: contactsWhere });
+    if (totalContacts <= 0) {
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: {
+          status: "COMPLETED",
+          totalCount: 0,
+          sentCount: 0,
+          failedCount: 0,
+          startedAt: new Date(),
+          completedAt: new Date(),
+        },
+      });
+      return;
+    }
+
+    // 3. Mark as SENDING
     await prisma.campaign.update({
       where: { id: campaignId },
-      data: { status: "SENDING", startedAt: new Date() },
+      data: { status: "SENDING", startedAt: new Date(), totalCount: totalContacts },
     });
 
-    // 3. Load contacts in batches
-    const totalContacts = await prisma.contact.count({
-      where: { contactListId: campaign.contactListId },
+    // 4. Resolve SMTP config (user-specific first, env fallback)
+    const userSmtp = await prisma.desktopSmtpConfig.findUnique({
+      where: { desktopUserId },
+      select: {
+        host: true,
+        port: true,
+        secure: true,
+        username: true,
+        passwordEnc: true,
+        fromEmail: true,
+        fromName: true,
+        trackOpens: true,
+        trackClicks: true,
+      },
     });
 
-    // 4. Create SMTP transporter
-    const smtpHost = process.env.SMTP_HOST;
-    const smtpPort = parseInt(process.env.SMTP_PORT || "465", 10);
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
-    const smtpFrom = campaign.senderEmail || process.env.SMTP_FROM || smtpUser || "";
+    const smtpHost = userSmtp?.host || process.env.SMTP_HOST;
+    const smtpPort = userSmtp?.port || parseInt(process.env.SMTP_PORT || "465", 10);
+    const smtpUser = userSmtp?.username || process.env.SMTP_USER;
+    const smtpPass = userSmtp
+      ? decryptSecretValue(userSmtp.passwordEnc)
+      : process.env.SMTP_PASS;
+    const smtpSecure = userSmtp?.secure ?? smtpPort === 465;
+    const smtpFrom =
+      campaign.senderEmail ||
+      userSmtp?.fromEmail ||
+      process.env.SMTP_FROM ||
+      smtpUser ||
+      "";
 
     if (!smtpHost || !smtpUser || !smtpPass) {
-      throw new Error("SMTP not configured (SMTP_HOST, SMTP_USER, SMTP_PASS required)");
+      throw new Error("SMTP not configured for this account");
     }
 
     const transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: smtpPort === 465,
+      secure: smtpSecure,
       auth: { user: smtpUser, pass: smtpPass },
       connectionTimeout: SMTP_TIMEOUT_MS,
       socketTimeout: SMTP_TIMEOUT_MS,
     });
 
     // Tracking config
-    const trackOpens = process.env.TRACK_OPENS === "true";
+    const trackOpens = userSmtp?.trackOpens ?? process.env.TRACK_OPENS === "true";
     const trackingUrl = process.env.TRACKING_PIXEL_URL || "";
-    const trackClicks = process.env.TRACK_CLICKS === "true";
+    const trackClicks = userSmtp?.trackClicks ?? process.env.TRACK_CLICKS === "true";
     const clickTrackingUrl = process.env.CLICK_TRACKING_URL || "";
 
     const emailColumn = campaign.contactList?.emailColumn || "email";
-    const senderName = campaign.senderName || "";
+    const senderName = campaign.senderName || userSmtp?.fromName || "";
 
     let sentCount = 0;
     let failedCount = 0;
@@ -200,7 +253,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     // 5. Process contacts in batches
     while (offset < totalContacts) {
       const contacts = await prisma.contact.findMany({
-        where: { contactListId: campaign.contactListId },
+        where: contactsWhere,
         orderBy: { createdAt: "asc" },
         skip: offset,
         take: BATCH_SIZE,

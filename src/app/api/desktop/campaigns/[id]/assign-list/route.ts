@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { assignContactListSchema } from "@/lib/validation";
 import { errors, success } from "@/lib/api-response";
+import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -10,6 +11,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const { id } = await params;
 

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { updateCampaignSchema } from "@/lib/validation";
 import { errors, success, noContent } from "@/lib/api-response";
+import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -13,6 +14,7 @@ export async function GET(
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const { id } = await params;
 
@@ -58,6 +60,7 @@ export async function PATCH(
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const { id } = await params;
 
@@ -122,6 +125,7 @@ export async function DELETE(
   try {
     const auth = await requireDesktopAuth(req);
     if (auth.error) return auth.error;
+    ensureCampaignRuntimeStarted();
 
     const { id } = await params;
 
