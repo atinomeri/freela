@@ -26,6 +26,22 @@ interface TemplateOption {
   builtIn: boolean;
 }
 
+const HOURS_24 = Array.from({ length: 24 }, (_, idx) => String(idx).padStart(2, "0"));
+const MINUTES_60 = Array.from({ length: 60 }, (_, idx) => String(idx).padStart(2, "0"));
+
+function parseTimeParts(value: string): { hour: string; minute: string } {
+  const [hourRaw, minuteRaw] = value.split(":", 2);
+  const hour = HOURS_24.includes(hourRaw) ? hourRaw : "00";
+  const minute = MINUTES_60.includes(minuteRaw) ? minuteRaw : "00";
+  return { hour, minute };
+}
+
+function buildHHmm(hour: string, minute: string): string {
+  const safeHour = HOURS_24.includes(hour) ? hour : "00";
+  const safeMinute = MINUTES_60.includes(minute) ? minute : "00";
+  return `${safeHour}:${safeMinute}`;
+}
+
 function localDateAndTimeToIso(datePart: string, timePart: string): string | null {
   const date = datePart.trim();
   const time = timePart.trim();
@@ -36,6 +52,44 @@ function localDateAndTimeToIso(datePart: string, timePart: string): string | nul
   if (Number.isNaN(parsed.getTime())) return null;
 
   return parsed.toISOString();
+}
+
+function TimeSelect24({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const { hour, minute } = parseTimeParts(value);
+
+  return (
+    <div className="flex items-center gap-2">
+      <select
+        value={hour}
+        onChange={(e) => onChange(buildHHmm(e.target.value, minute))}
+        className="h-11 rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20"
+      >
+        {HOURS_24.map((h) => (
+          <option key={h} value={h}>
+            {h}
+          </option>
+        ))}
+      </select>
+      <span className="text-sm text-muted-foreground">:</span>
+      <select
+        value={minute}
+        onChange={(e) => onChange(buildHHmm(hour, e.target.value))}
+        className="h-11 rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20"
+      >
+        {MINUTES_60.map((m) => (
+          <option key={m} value={m}>
+            {m}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 }
 
 export default function NewCampaignPage() {
@@ -238,12 +292,9 @@ export default function NewCampaignPage() {
               </label>
               <label className="grid gap-1.5 text-sm">
                 <span className="font-medium">{t("newCampaign.scheduleTimeLabel")}</span>
-                <Input
-                  type="time"
-                  step={60}
-                  lang="ka-GE"
+                <TimeSelect24
                   value={scheduledTime}
-                  onChange={(e) => setScheduledTime(e.target.value)}
+                  onChange={setScheduledTime}
                 />
                 <span className="text-xs text-muted-foreground">
                   {t("newCampaign.scheduleTimeHelp")}
@@ -264,11 +315,9 @@ export default function NewCampaignPage() {
               </label>
               <label className="grid gap-1.5 text-sm">
                 <span className="font-medium">{t("newCampaign.dailySendTimeLabel")}</span>
-                <Input
-                  type="time"
+                <TimeSelect24
                   value={dailySendTime}
-                  onChange={(e) => setDailySendTime(e.target.value)}
-                  required
+                  onChange={setDailySendTime}
                 />
               </label>
             </div>
