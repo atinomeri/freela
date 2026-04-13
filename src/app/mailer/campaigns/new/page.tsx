@@ -26,6 +26,18 @@ interface TemplateOption {
   builtIn: boolean;
 }
 
+function localDateAndTimeToIso(datePart: string, timePart: string): string | null {
+  const date = datePart.trim();
+  const time = timePart.trim();
+  if (!date || !time) return null;
+
+  const localValue = `${date}T${time}`;
+  const parsed = new Date(localValue);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  return parsed.toISOString();
+}
+
 export default function NewCampaignPage() {
   const { user, apiFetch } = useMailerAuth();
   const router = useRouter();
@@ -37,7 +49,8 @@ export default function NewCampaignPage() {
   const [senderEmail, setSenderEmail] = useState("");
   const [html, setHtml] = useState("");
   const [scheduleMode, setScheduleMode] = useState<"ONCE" | "DAILY">("ONCE");
-  const [scheduledAt, setScheduledAt] = useState("");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("10:00");
   const [dailyLimit, setDailyLimit] = useState("100");
   const [dailySendTime, setDailySendTime] = useState("10:00");
   const [templates, setTemplates] = useState<TemplateOption[]>([]);
@@ -68,6 +81,15 @@ export default function NewCampaignPage() {
     setSaving(true);
 
     try {
+      const scheduledAtIso =
+        scheduleMode === "ONCE"
+          ? localDateAndTimeToIso(scheduledDate, scheduledTime)
+          : null;
+
+      if (scheduleMode === "ONCE" && (scheduledDate || scheduledTime) && !scheduledAtIso) {
+        throw new Error(t("errors.invalidScheduleDateTime"));
+      }
+
       const res = await apiFetch("/api/desktop/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,10 +100,7 @@ export default function NewCampaignPage() {
           senderName: senderName || undefined,
           senderEmail: senderEmail || undefined,
           scheduleMode,
-          scheduledAt:
-            scheduleMode === "ONCE" && scheduledAt
-              ? new Date(scheduledAt).toISOString()
-              : undefined,
+          scheduledAt: scheduleMode === "ONCE" ? scheduledAtIso || undefined : undefined,
           dailyLimit: scheduleMode === "DAILY" ? Number(dailyLimit) : undefined,
           dailySendTime: scheduleMode === "DAILY" ? dailySendTime : undefined,
         }),
@@ -207,14 +226,30 @@ export default function NewCampaignPage() {
           </label>
 
           {scheduleMode === "ONCE" ? (
-            <label className="grid gap-1.5 text-sm">
-              <span className="font-medium">{t("newCampaign.scheduleAtLabel")}</span>
-              <Input
-                type="datetime-local"
-                value={scheduledAt}
-                onChange={(e) => setScheduledAt(e.target.value)}
-              />
-            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-1.5 text-sm">
+                <span className="font-medium">{t("newCampaign.scheduleDateLabel")}</span>
+                <Input
+                  type="date"
+                  lang="ka-GE"
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                />
+              </label>
+              <label className="grid gap-1.5 text-sm">
+                <span className="font-medium">{t("newCampaign.scheduleTimeLabel")}</span>
+                <Input
+                  type="time"
+                  step={60}
+                  lang="ka-GE"
+                  value={scheduledTime}
+                  onChange={(e) => setScheduledTime(e.target.value)}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {t("newCampaign.scheduleTimeHelp")}
+                </span>
+              </label>
+            </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="grid gap-1.5 text-sm">

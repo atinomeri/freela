@@ -1328,6 +1328,7 @@
     "errors": {
       "loginFailed": "შესვლა ვერ მოხერხდა",
       "createCampaignFailed": "კამპანიის შექმნა ვერ მოხერხდა",
+      "invalidScheduleDateTime": "გთხოვთ მიუთითოთ სწორი თარიღი და დრო 24-საათიან ფორმატში",
       "createListFailed": "სიის შექმნა ვერ მოხერხდა",
       "uploadFailed": "ატვირთვა ვერ მოხერხდა",
       "failedToLoadCampaign": "კამპანიის ჩატვირთვა ვერ მოხერხდა",
@@ -1399,6 +1400,9 @@
       "scheduleModeOnce": "ერთჯერადი",
       "scheduleModeDaily": "ყოველდღიური",
       "scheduleAtLabel": "დაგეგმვის დრო (არასავალდებულო)",
+      "scheduleDateLabel": "დაგეგმვის თარიღი",
+      "scheduleTimeLabel": "დაგეგმვის დრო",
+      "scheduleTimeHelp": "გამოიყენე 24-საათიანი ფორმატი, მაგალითად 18:30",
       "dailyLimitLabel": "დღიური ლიმიტი",
       "dailySendTimeLabel": "ყოველდღიური გაგზავნის დრო"
     },

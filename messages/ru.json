@@ -1328,6 +1328,7 @@
     "errors": {
       "loginFailed": "Не удалось войти",
       "createCampaignFailed": "Не удалось создать кампанию",
+      "invalidScheduleDateTime": "Укажите корректные дату и время в 24-часовом формате",
       "createListFailed": "Не удалось создать список",
       "uploadFailed": "Ошибка загрузки",
       "failedToLoadCampaign": "Не удалось загрузить кампанию",
@@ -1399,6 +1400,9 @@
       "scheduleModeOnce": "Один раз",
       "scheduleModeDaily": "Ежедневно",
       "scheduleAtLabel": "Запланировать на (необязательно)",
+      "scheduleDateLabel": "Дата отправки",
+      "scheduleTimeLabel": "Время отправки",
+      "scheduleTimeHelp": "Используйте 24-часовой формат, например 18:30",
       "dailyLimitLabel": "Дневной лимит",
       "dailySendTimeLabel": "Время ежедневной отправки"
     },

@@ -1328,6 +1328,7 @@
     "errors": {
       "loginFailed": "Login failed",
       "createCampaignFailed": "Failed to create campaign",
+      "invalidScheduleDateTime": "Please enter a valid date and time in 24-hour format",
       "createListFailed": "Failed to create list",
       "uploadFailed": "Upload failed",
       "failedToLoadCampaign": "Failed to load campaign",
@@ -1399,6 +1400,9 @@
       "scheduleModeOnce": "Once",
       "scheduleModeDaily": "Daily",
       "scheduleAtLabel": "Schedule at (optional)",
+      "scheduleDateLabel": "Schedule date",
+      "scheduleTimeLabel": "Schedule time",
+      "scheduleTimeHelp": "Use 24-hour format, for example 18:30",
       "dailyLimitLabel": "Daily limit",
       "dailySendTimeLabel": "Daily send time"
     },
