@@ -134,6 +134,33 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isHardBounceError(message: string | null): boolean {
+  if (!message) return false;
+  const m = message.toLowerCase();
+
+  // SMTP 5xx and common permanent delivery statuses
+  if (
+    /\b5\d\d\b/.test(m) ||
+    /status:\s*5\.\d+\.\d+/.test(m) ||
+    /smtp;\s*5\.\d+\.\d+/.test(m)
+  ) {
+    return true;
+  }
+
+  // Common hard-bounce phrases
+  return (
+    m.includes("user unknown") ||
+    m.includes("unknown user") ||
+    m.includes("no such user") ||
+    m.includes("recipient address rejected") ||
+    m.includes("mailbox unavailable") ||
+    m.includes("invalid recipient") ||
+    m.includes("does not exist") ||
+    m.includes("account disabled") ||
+    m.includes("unrouteable address")
+  );
+}
+
 interface SmtpResolvedAccount {
   id: string;
   host: string;
@@ -623,7 +650,9 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           consecutiveFailures++;
           accountFailures.set(smtpAccount.id, (accountFailures.get(smtpAccount.id) ?? 0) + 1);
           const failedEmail = contact.email.trim().toLowerCase();
-          bouncedEmails.add(failedEmail);
+          if (isHardBounceError(lastErrorMessage)) {
+            bouncedEmails.add(failedEmail);
+          }
           failedRecipients.push({
             email: failedEmail,
             reason: lastErrorMessage?.slice(0, 500) || null,
