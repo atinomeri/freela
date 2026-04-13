@@ -134,6 +134,14 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function normalizeEmailAddress(value: string | null | undefined): string | null {
+  const raw = value?.trim();
+  if (!raw) return null;
+  const angleMatch = raw.match(/<\s*([^<>]+)\s*>/);
+  const email = (angleMatch?.[1] || raw).trim().toLowerCase();
+  return email.includes("@") ? email : null;
+}
+
 function isHardBounceError(message: string | null): boolean {
   if (!message) return false;
   const m = message.toLowerCase();
@@ -614,11 +622,20 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           break;
         }
         const senderName = campaign.senderName || smtpAccount.fromName || "";
+        const campaignSender = normalizeEmailAddress(campaign.senderEmail);
+        const accountFrom = normalizeEmailAddress(smtpAccount.fromEmail);
+        const accountUser = normalizeEmailAddress(smtpAccount.username);
+
+        const allowedAccountSenders = new Set<string>();
+        if (accountFrom) allowedAccountSenders.add(accountFrom);
+        if (accountUser) allowedAccountSenders.add(accountUser);
+
         const smtpFrom =
-          campaign.senderEmail ||
-          smtpAccount.fromEmail ||
-          process.env.SMTP_FROM ||
-          smtpAccount.username;
+          campaignSender && allowedAccountSenders.has(campaignSender)
+            ? campaignSender
+            : smtpAccount.fromEmail ||
+              process.env.SMTP_FROM ||
+              smtpAccount.username;
 
         let transporter = transporters.get(smtpAccount.id);
         if (!transporter) {
