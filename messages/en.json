@@ -1402,7 +1402,6 @@
       "scheduleAtLabel": "Schedule at (optional)",
       "scheduleDateLabel": "Schedule date",
       "scheduleTimeLabel": "Schedule time",
-      "scheduleTimeHelp": "Use 24-hour format, for example 18:30",
       "dailyLimitLabel": "Daily limit",
       "dailySendTimeLabel": "Daily send time"
     },

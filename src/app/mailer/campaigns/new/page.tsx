@@ -296,9 +296,6 @@ export default function NewCampaignPage() {
                   value={scheduledTime}
                   onChange={setScheduledTime}
                 />
-                <span className="text-xs text-muted-foreground">
-                  {t("newCampaign.scheduleTimeHelp")}
-                </span>
               </label>
             </div>
           ) : (

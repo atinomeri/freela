@@ -1402,7 +1402,6 @@
       "scheduleAtLabel": "დაგეგმვის დრო (არასავალდებულო)",
       "scheduleDateLabel": "დაგეგმვის თარიღი",
       "scheduleTimeLabel": "დაგეგმვის დრო",
-      "scheduleTimeHelp": "გამოიყენე 24-საათიანი ფორმატი, მაგალითად 18:30",
       "dailyLimitLabel": "დღიური ლიმიტი",
       "dailySendTimeLabel": "ყოველდღიური გაგზავნის დრო"
     },

@@ -1402,7 +1402,6 @@
       "scheduleAtLabel": "Запланировать на (необязательно)",
       "scheduleDateLabel": "Дата отправки",
       "scheduleTimeLabel": "Время отправки",
-      "scheduleTimeHelp": "Используйте 24-часовой формат, например 18:30",
       "dailyLimitLabel": "Дневной лимит",
       "dailySendTimeLabel": "Время ежедневной отправки"
     },
