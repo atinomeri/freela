@@ -14,6 +14,7 @@ const KA_MONTHS = [
 ] as const;
 
 const KA_LOCALE_24H = "ka-GE-u-hc-h23";
+const GEORGIA_TIMEZONE = "Asia/Tbilisi";
 
 function toValidDate(input: Date | string | number): Date | null {
   const date = input instanceof Date ? input : new Date(input);
@@ -51,6 +52,7 @@ export function formatGeorgianDate(input: Date | string | number): string {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
+    timeZone: GEORGIA_TIMEZONE,
   }).format(date);
 }
 
@@ -61,6 +63,7 @@ export function formatGeorgianTime(input: Date | string | number): string {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: GEORGIA_TIMEZONE,
   }).format(date);
 }
 
@@ -74,5 +77,6 @@ export function formatGeorgianDateTime(input: Date | string | number): string {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+    timeZone: GEORGIA_TIMEZONE,
   }).format(date);
 }

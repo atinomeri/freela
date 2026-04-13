@@ -1,3 +1,14 @@
+const TBILISI_OFFSET_MINUTES = 4 * 60;
+const TBILISI_OFFSET_MS = TBILISI_OFFSET_MINUTES * 60_000;
+
+function toTbilisiShifted(date: Date): Date {
+  return new Date(date.getTime() + TBILISI_OFFSET_MS);
+}
+
+function fromTbilisiShifted(shifted: Date): Date {
+  return new Date(shifted.getTime() - TBILISI_OFFSET_MS);
+}
+
 export function parseDailySendTime(value: string): { hour: number; minute: number } | null {
   const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value.trim());
   if (!match) return null;
@@ -8,8 +19,9 @@ export function parseDailySendTime(value: string): { hour: number; minute: numbe
 }
 
 export function deriveDailySendTimeFromDate(date: Date): string {
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mm = String(date.getMinutes()).padStart(2, "0");
+  const shifted = toTbilisiShifted(date);
+  const hh = String(shifted.getUTCHours()).padStart(2, "0");
+  const mm = String(shifted.getUTCMinutes()).padStart(2, "0");
   return `${hh}:${mm}`;
 }
 
@@ -21,26 +33,27 @@ export function nextDailyRunFrom(now: Date, dailySendTime: string): Date {
     return fallback;
   }
 
-  const candidate = new Date(now);
-  candidate.setHours(parsed.hour, parsed.minute, 0, 0);
-  if (candidate <= now) {
-    candidate.setDate(candidate.getDate() + 1);
+  const shiftedNow = toTbilisiShifted(now);
+  const candidateShifted = new Date(shiftedNow);
+  candidateShifted.setUTCHours(parsed.hour, parsed.minute, 0, 0);
+  if (candidateShifted <= shiftedNow) {
+    candidateShifted.setUTCDate(candidateShifted.getUTCDate() + 1);
   }
-  return candidate;
+  return fromTbilisiShifted(candidateShifted);
 }
 
 export function nextDailyRunAfter(currentScheduledAt: Date, dailySendTime?: string | null): Date {
-  const next = new Date(currentScheduledAt);
-  next.setDate(next.getDate() + 1);
+  const nextShifted = toTbilisiShifted(currentScheduledAt);
+  nextShifted.setUTCDate(nextShifted.getUTCDate() + 1);
 
   if (dailySendTime) {
     const parsed = parseDailySendTime(dailySendTime);
     if (parsed) {
-      next.setHours(parsed.hour, parsed.minute, 0, 0);
-      return next;
+      nextShifted.setUTCHours(parsed.hour, parsed.minute, 0, 0);
+      return fromTbilisiShifted(nextShifted);
     }
   }
 
-  next.setSeconds(0, 0);
-  return next;
+  nextShifted.setUTCSeconds(0, 0);
+  return fromTbilisiShifted(nextShifted);
 }

@@ -47,10 +47,22 @@ function localDateAndTimeToIso(datePart: string, timePart: string): string | nul
   const time = timePart.trim();
   if (!date || !time) return null;
 
-  const localValue = `${date}T${time}`;
-  const parsed = new Date(localValue);
-  if (Number.isNaN(parsed.getTime())) return null;
+  const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  const timeMatch = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
+  if (!dateMatch || !timeMatch) return null;
 
+  const year = Number(dateMatch[1]);
+  const month = Number(dateMatch[2]);
+  const day = Number(dateMatch[3]);
+  const hour = Number(timeMatch[1]);
+  const minute = Number(timeMatch[2]);
+
+  // Campaign scheduling is defined in Georgia time (Asia/Tbilisi, UTC+4).
+  // Convert local Tbilisi wall-clock to UTC ISO before sending to API.
+  const tbilisiOffsetHours = 4;
+  const utcMs = Date.UTC(year, month - 1, day, hour - tbilisiOffsetHours, minute, 0, 0);
+  const parsed = new Date(utcMs);
+  if (Number.isNaN(parsed.getTime())) return null;
   return parsed.toISOString();
 }
 
