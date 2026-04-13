@@ -1289,7 +1289,12 @@
       "contacts": "Contacts",
       "templates": "Templates",
       "smtpPool": "SMTP Pool",
-      "settings": "Settings"
+      "settings": "Settings",
+      "preflight": "Preflight",
+      "bounce": "Bounce Scan",
+      "warmup": "Warmup",
+      "history": "History",
+      "billing": "Billing"
     },
     "actions": {
       "logOut": "Log out",
@@ -1308,7 +1313,17 @@
       "change": "Change",
       "assign": "Assign",
       "sendCampaign": "Send Campaign",
-      "sendNow": "Send Now"
+      "sendNow": "Send Now",
+      "exportCsv": "Export CSV",
+      "deleteFromHistory": "Delete from history",
+      "exportFailedCsv": "Export failed CSV",
+      "retryFailed": "Retry failed",
+      "runSpamCheck": "Run Spam Check",
+      "runDeliverability": "Run Deliverability",
+      "runBounceScan": "Run Bounce Scan",
+      "resetAllWarmup": "Reset All",
+      "resetSenderWarmup": "Reset Sender",
+      "refresh": "Refresh"
     },
     "errors": {
       "loginFailed": "Login failed",
@@ -1318,7 +1333,21 @@
       "failedToLoadCampaign": "Failed to load campaign",
       "assignListFailed": "Failed to assign list",
       "sendCampaignFailed": "Failed to send campaign",
-      "deleteCampaignFailed": "Failed to delete campaign"
+      "deleteCampaignFailed": "Failed to delete campaign",
+      "historyLoadFailed": "Failed to load history",
+      "historyExportFailed": "Failed to export history",
+      "historyDeleteFailed": "Failed to delete campaign from history",
+      "failedRecipientsExportFailed": "Failed to export failed recipients",
+      "retryFailedRecipientsFailed": "Failed to create retry campaign",
+      "deleteHistoryFailed": "Failed to delete campaign history",
+      "preflightSpamFailed": "Spam check failed",
+      "preflightDeliverabilityFailed": "Deliverability check failed",
+      "bounceScanFailed": "Bounce scan failed",
+      "warmupLoadFailed": "Failed to load warmup data",
+      "warmupResetFailed": "Failed to reset warmup",
+      "billingLoadFailed": "Failed to load billing data",
+      "billingLedgerLoadFailed": "Failed to load ledger",
+      "billingPaymentsLoadFailed": "Failed to load payments"
     },
     "login": {
       "subtitle": "Sign in to manage your email campaigns",
@@ -1365,7 +1394,13 @@
       "htmlBodyLabel": "HTML Body *",
       "htmlBodyHelp": "Use [[column_name]] for personalization placeholders",
       "htmlBodyPlaceholder": "<p>Hello [[name]],</p><p>Your email content here...</p>",
-      "createCampaign": "Create Campaign"
+      "createCampaign": "Create Campaign",
+      "scheduleModeLabel": "Schedule Mode",
+      "scheduleModeOnce": "Once",
+      "scheduleModeDaily": "Daily",
+      "scheduleAtLabel": "Schedule at (optional)",
+      "dailyLimitLabel": "Daily limit",
+      "dailySendTimeLabel": "Daily send time"
     },
     "contacts": {
       "title": "Contacts",
@@ -1410,7 +1445,93 @@
       "sendTitle": "Send Campaign",
       "sendDescription": "This will send \"{name}\" to {count} recipients. This action cannot be undone.",
       "deleteTitle": "Delete Campaign",
-      "deleteDescription": "Are you sure you want to delete this campaign? This action cannot be undone."
+      "deleteDescription": "Are you sure you want to delete this campaign? This action cannot be undone.",
+      "retryCreated": "Retry campaign created.",
+      "openRetryCampaign": "Open retry campaign",
+      "failedRecipientsTitle": "Failed Recipients",
+      "noFailedRecipients": "No failed recipients found.",
+      "failedEmail": "Email",
+      "failedReason": "Reason",
+      "failedAt": "Failed at",
+      "deleteHistoryTitle": "Delete Campaign History",
+      "deleteHistoryDescription": "This will permanently remove this campaign and all related history data."
+    },
+    "history": {
+      "title": "Campaign History",
+      "description": "View completed campaigns, retry failed sends, and export reports",
+      "emptyTitle": "No campaign history yet",
+      "emptyDescription": "Your campaign activity will appear here",
+      "statsLine": "Sent: {sent}, Failed: {failed}, Total: {total}",
+      "createdAt": "Created",
+      "completedAt": "Completed",
+      "deleteTitle": "Delete From History",
+      "deleteDescription": "This permanently deletes campaign history and tracking data."
+    },
+    "preflight": {
+      "title": "Preflight Checks",
+      "description": "Run spam and deliverability checks before sending",
+      "spamTitle": "Spam Score Check",
+      "deliverabilityTitle": "Deliverability Check",
+      "subjectLabel": "Subject",
+      "htmlLabel": "HTML Body",
+      "targetLabel": "Sender email or domain",
+      "targetPlaceholder": "example@domain.com or domain.com",
+      "selectorLabel": "DKIM selectors (optional)",
+      "selectorPlaceholder": "default,selector1,selector2",
+      "scoreLabel": "Score: {score} / {max}",
+      "deliverabilitySummary": "{domain}: {score}/100 ({passed}/{total} passed)",
+      "risk": {
+        "low": "Low risk",
+        "medium": "Medium risk",
+        "high": "High risk"
+      }
+    },
+    "bounce": {
+      "title": "Bounce Scan",
+      "description": "Scan IMAP mailboxes and add hard bounces to suppression list",
+      "mailboxLabel": "Mailbox",
+      "maxMessagesLabel": "Max messages",
+      "markAsSeen": "Mark processed emails as seen",
+      "resultTitle": "Scan Result",
+      "checked": "Checked",
+      "hardBounces": "Hard bounces",
+      "addedToSuppression": "Added to suppression",
+      "summaryLine": "Soft: {soft}, Unknown: {unknown}, Detected hard addresses: {detected}",
+      "accountError": "Error",
+      "accountOk": "OK",
+      "accountStats": "Checked: {checked}, Hard: {hard}, Soft: {soft}, Unknown: {unknown}"
+    },
+    "warmup": {
+      "title": "Sender Warmup",
+      "description": "Monitor per-sender warmup limits and reset progress when needed",
+      "noData": "No warmup data available.",
+      "enabled": "Warmup status",
+      "enabledYes": "Enabled",
+      "enabledNo": "Disabled",
+      "startLimit": "Start limit",
+      "increment": "Daily increment",
+      "max": "Max limit",
+      "unlimited": "Unlimited",
+      "empty": "No warmup senders yet.",
+      "dayLine": "Day {day} • Limit {limit} • Sent today {sent} • Remaining {remaining} • Total sent {total}",
+      "firstSeenAt": "First seen",
+      "remaining": "Remaining today",
+      "doneForToday": "Done for today"
+    },
+    "billing": {
+      "title": "Billing",
+      "description": "Track your balance, ledger entries, and payment history",
+      "currentBalance": "Current balance",
+      "currency": "tetri",
+      "ledgerTitle": "Ledger",
+      "paymentsTitle": "Payments",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "ledgerEmpty": "No ledger entries",
+      "paymentsEmpty": "No payments",
+      "noDescription": "No description",
+      "balanceLine": "Balance: {before} -> {after}",
+      "paymentAmount": "Amount: {amount} {currency}"
     }
   }
 }

@@ -1289,7 +1289,12 @@
       "contacts": "Контакты",
       "templates": "Шаблоны",
       "smtpPool": "SMTP пул",
-      "settings": "Настройки"
+      "settings": "Настройки",
+      "preflight": "Preflight",
+      "bounce": "Bounce Scan",
+      "warmup": "Warmup",
+      "history": "История",
+      "billing": "Биллинг"
     },
     "actions": {
       "logOut": "Выйти",
@@ -1308,7 +1313,17 @@
       "change": "Изменить",
       "assign": "Привязать",
       "sendCampaign": "Отправить кампанию",
-      "sendNow": "Отправить сейчас"
+      "sendNow": "Отправить сейчас",
+      "exportCsv": "Экспорт CSV",
+      "deleteFromHistory": "Удалить из истории",
+      "exportFailedCsv": "CSV ошибок",
+      "retryFailed": "Повторить ошибки",
+      "runSpamCheck": "Проверить Spam",
+      "runDeliverability": "Проверить Deliverability",
+      "runBounceScan": "Запустить Bounce Scan",
+      "resetAllWarmup": "Сбросить всё",
+      "resetSenderWarmup": "Сбросить sender",
+      "refresh": "Обновить"
     },
     "errors": {
       "loginFailed": "Не удалось войти",
@@ -1318,7 +1333,21 @@
       "failedToLoadCampaign": "Не удалось загрузить кампанию",
       "assignListFailed": "Не удалось привязать список",
       "sendCampaignFailed": "Не удалось отправить кампанию",
-      "deleteCampaignFailed": "Не удалось удалить кампанию"
+      "deleteCampaignFailed": "Не удалось удалить кампанию",
+      "historyLoadFailed": "Не удалось загрузить историю",
+      "historyExportFailed": "Не удалось экспортировать историю",
+      "historyDeleteFailed": "Не удалось удалить кампанию из истории",
+      "failedRecipientsExportFailed": "Не удалось экспортировать неуспешных получателей",
+      "retryFailedRecipientsFailed": "Не удалось создать retry-кампанию",
+      "deleteHistoryFailed": "Не удалось удалить историю кампании",
+      "preflightSpamFailed": "Проверка spam не удалась",
+      "preflightDeliverabilityFailed": "Проверка deliverability не удалась",
+      "bounceScanFailed": "Bounce scan не удался",
+      "warmupLoadFailed": "Не удалось загрузить warmup данные",
+      "warmupResetFailed": "Не удалось сбросить warmup",
+      "billingLoadFailed": "Не удалось загрузить данные биллинга",
+      "billingLedgerLoadFailed": "Не удалось загрузить ledger",
+      "billingPaymentsLoadFailed": "Не удалось загрузить платежи"
     },
     "login": {
       "subtitle": "Войдите, чтобы управлять email-кампаниями",
@@ -1365,7 +1394,13 @@
       "htmlBodyLabel": "HTML-содержимое *",
       "htmlBodyHelp": "Используйте [[column_name]] для персонализации",
       "htmlBodyPlaceholder": "<p>Здравствуйте, [[name]],</p><p>Ваш контент письма...</p>",
-      "createCampaign": "Создать кампанию"
+      "createCampaign": "Создать кампанию",
+      "scheduleModeLabel": "Режим отправки",
+      "scheduleModeOnce": "Один раз",
+      "scheduleModeDaily": "Ежедневно",
+      "scheduleAtLabel": "Запланировать на (необязательно)",
+      "dailyLimitLabel": "Дневной лимит",
+      "dailySendTimeLabel": "Время ежедневной отправки"
     },
     "contacts": {
       "title": "Контакты",
@@ -1410,7 +1445,93 @@
       "sendTitle": "Отправить кампанию",
       "sendDescription": "Кампания \"{name}\" будет отправлена {count} получателям. Это действие нельзя отменить.",
       "deleteTitle": "Удалить кампанию",
-      "deleteDescription": "Вы уверены, что хотите удалить эту кампанию? Это действие нельзя отменить."
+      "deleteDescription": "Вы уверены, что хотите удалить эту кампанию? Это действие нельзя отменить.",
+      "retryCreated": "Retry-кампания создана.",
+      "openRetryCampaign": "Открыть retry-кампанию",
+      "failedRecipientsTitle": "Неуспешные получатели",
+      "noFailedRecipients": "Неуспешные получатели не найдены.",
+      "failedEmail": "Email",
+      "failedReason": "Причина",
+      "failedAt": "Время ошибки",
+      "deleteHistoryTitle": "Удалить историю кампании",
+      "deleteHistoryDescription": "Это действие навсегда удалит кампанию и связанные исторические данные."
+    },
+    "history": {
+      "title": "История кампаний",
+      "description": "Смотрите завершенные кампании, retry и экспорт отчетов",
+      "emptyTitle": "История пока пуста",
+      "emptyDescription": "Здесь появится активность кампаний",
+      "statsLine": "Отправлено: {sent}, Ошибок: {failed}, Всего: {total}",
+      "createdAt": "Создано",
+      "completedAt": "Завершено",
+      "deleteTitle": "Удалить из истории",
+      "deleteDescription": "Это действие удалит историю кампании и трекинг-данные безвозвратно."
+    },
+    "preflight": {
+      "title": "Preflight проверки",
+      "description": "Проверьте spam и deliverability перед отправкой",
+      "spamTitle": "Проверка Spam Score",
+      "deliverabilityTitle": "Проверка Deliverability",
+      "subjectLabel": "Тема",
+      "htmlLabel": "HTML тело",
+      "targetLabel": "Email отправителя или домен",
+      "targetPlaceholder": "example@domain.com или domain.com",
+      "selectorLabel": "DKIM selectors (необязательно)",
+      "selectorPlaceholder": "default,selector1,selector2",
+      "scoreLabel": "Оценка: {score} / {max}",
+      "deliverabilitySummary": "{domain}: {score}/100 ({passed}/{total} пройдено)",
+      "risk": {
+        "low": "Низкий риск",
+        "medium": "Средний риск",
+        "high": "Высокий риск"
+      }
+    },
+    "bounce": {
+      "title": "Bounce сканирование",
+      "description": "Сканирование IMAP и добавление hard bounce в suppression",
+      "mailboxLabel": "Mailbox",
+      "maxMessagesLabel": "Макс. сообщений",
+      "markAsSeen": "Отмечать обработанные письма как seen",
+      "resultTitle": "Результат сканирования",
+      "checked": "Проверено",
+      "hardBounces": "Hard bounce",
+      "addedToSuppression": "Добавлено в suppression",
+      "summaryLine": "Soft: {soft}, Unknown: {unknown}, Найдено hard адресов: {detected}",
+      "accountError": "Ошибка",
+      "accountOk": "OK",
+      "accountStats": "Проверено: {checked}, Hard: {hard}, Soft: {soft}, Unknown: {unknown}"
+    },
+    "warmup": {
+      "title": "Sender Warmup",
+      "description": "Контроль warmup лимитов и сброс прогресса при необходимости",
+      "noData": "Warmup данные отсутствуют.",
+      "enabled": "Статус warmup",
+      "enabledYes": "Включен",
+      "enabledNo": "Выключен",
+      "startLimit": "Стартовый лимит",
+      "increment": "Дневной прирост",
+      "max": "Максимум",
+      "unlimited": "Без лимита",
+      "empty": "Warmup senders пока нет.",
+      "dayLine": "День {day} • Лимит {limit} • Отправлено сегодня {sent} • Осталось {remaining} • Всего отправлено {total}",
+      "firstSeenAt": "Первое появление",
+      "remaining": "Осталось на сегодня",
+      "doneForToday": "На сегодня завершено"
+    },
+    "billing": {
+      "title": "Биллинг",
+      "description": "Баланс, ledger операции и история платежей",
+      "currentBalance": "Текущий баланс",
+      "currency": "тетри",
+      "ledgerTitle": "Ledger",
+      "paymentsTitle": "Платежи",
+      "allTypes": "Все типы",
+      "allStatuses": "Все статусы",
+      "ledgerEmpty": "Записей ledger нет",
+      "paymentsEmpty": "Платежей нет",
+      "noDescription": "Без описания",
+      "balanceLine": "Баланс: {before} -> {after}",
+      "paymentAmount": "Сумма: {amount} {currency}"
     }
   }
 }

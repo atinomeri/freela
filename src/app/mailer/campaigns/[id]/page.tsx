@@ -19,6 +19,10 @@ import {
   Clock,
   Eye,
   MousePointerClick,
+  Download,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { MailerLoginPage } from "../../login-page";
@@ -62,6 +66,19 @@ interface ApiErrorShape {
   message?: string;
 }
 
+interface FailedRecipient {
+  email: string;
+  reason: string | null;
+  createdAt: string;
+}
+
+interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+}
+
 const STATUS_BADGE: Record<
   string,
   { variant: "default" | "success" | "warning" | "destructive" | "secondary"; labelKey: string }
@@ -90,6 +107,17 @@ export default function CampaignDetailPage() {
   const [showSendConfirm, setShowSendConfirm] = useState(false);
   const [showAssignList, setShowAssignList] = useState(false);
   const [tracking, setTracking] = useState<TrackingStats | null>(null);
+  const [failedRecipients, setFailedRecipients] = useState<FailedRecipient[]>([]);
+  const [failedPagination, setFailedPagination] = useState<Pagination | null>(null);
+  const [failedPage, setFailedPage] = useState(1);
+  const [failedLoading, setFailedLoading] = useState(false);
+  const [retryingFailed, setRetryingFailed] = useState(false);
+  const [exportingFailed, setExportingFailed] = useState(false);
+  const [showDeleteHistoryConfirm, setShowDeleteHistoryConfirm] = useState(false);
+  const [deletingHistory, setDeletingHistory] = useState(false);
+  const [retrySuccessCampaignId, setRetrySuccessCampaignId] = useState<string | null>(null);
+  const campaignId = campaign?.id ?? null;
+  const campaignFailedCount = campaign?.failedCount ?? 0;
 
   function getApiError(body: ApiErrorShape | null, fallback: string): string {
     const apiError = body?.error;
@@ -97,6 +125,14 @@ export default function CampaignDetailPage() {
     if (typeof apiError?.message === "string") return apiError.message;
     if (typeof body?.message === "string") return body.message;
     return fallback;
+  }
+
+  function parseContentDispositionFilename(header: string | null): string | null {
+    if (!header) return null;
+    const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(header);
+    if (utf8Match?.[1]) return decodeURIComponent(utf8Match[1]);
+    const plainMatch = /filename="?([^"]+)"?/i.exec(header);
+    return plainMatch?.[1] ?? null;
   }
 
   const loadCampaign = useCallback(async () => {
@@ -145,6 +181,38 @@ export default function CampaignDetailPage() {
     }
   }, [apiFetch, params.id]);
 
+  const loadFailedRecipients = useCallback(async () => {
+    setFailedLoading(true);
+    try {
+      const res = await apiFetch(
+        `/api/desktop/campaigns/${params.id}/failed?page=${failedPage}&limit=20`,
+      );
+      if (!res.ok) {
+        setFailedRecipients([]);
+        setFailedPagination(null);
+        return;
+      }
+      const data = await res.json();
+      setFailedRecipients(data.data ?? []);
+      const meta = data.meta ?? data.pagination;
+      if (meta) {
+        setFailedPagination({
+          page: Number(meta.page ?? failedPage),
+          pageSize: Number(meta.pageSize ?? 20),
+          total: Number(meta.total ?? 0),
+          hasMore: Boolean(meta.hasMore),
+        });
+      } else {
+        setFailedPagination(null);
+      }
+    } catch {
+      setFailedRecipients([]);
+      setFailedPagination(null);
+    } finally {
+      setFailedLoading(false);
+    }
+  }, [apiFetch, failedPage, params.id]);
+
   useEffect(() => {
     if (user) {
       loadCampaign();
@@ -152,6 +220,21 @@ export default function CampaignDetailPage() {
       loadTracking();
     }
   }, [user, loadCampaign, loadContactLists, loadTracking]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (!campaignId || campaignFailedCount <= 0) {
+      setFailedRecipients([]);
+      setFailedPagination(null);
+      return;
+    }
+    void loadFailedRecipients();
+  }, [user, campaignId, campaignFailedCount, failedPage, loadFailedRecipients]);
+
+  useEffect(() => {
+    setFailedPage(1);
+    setRetrySuccessCampaignId(null);
+  }, [campaignId]);
 
   // Auto-refresh while sending
   useEffect(() => {
@@ -228,6 +311,85 @@ export default function CampaignDetailPage() {
     }
   }
 
+  async function handleExportFailed() {
+    setExportingFailed(true);
+    setError("");
+    try {
+      const res = await apiFetch(`/api/desktop/campaigns/${params.id}/failed?format=csv`);
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        throw new Error(getApiError(body, t("errors.failedRecipientsExportFailed")));
+      }
+
+      const blob = await res.blob();
+      const filename =
+        parseContentDispositionFilename(res.headers.get("content-disposition")) ??
+        `failed_${params.id}.csv`;
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : t("errors.failedRecipientsExportFailed"),
+      );
+    } finally {
+      setExportingFailed(false);
+    }
+  }
+
+  async function handleRetryFailed() {
+    setRetryingFailed(true);
+    setError("");
+    setRetrySuccessCampaignId(null);
+    try {
+      const res = await apiFetch(`/api/desktop/campaigns/${params.id}/retry`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ createNewList: true }),
+      });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        throw new Error(getApiError(body, t("errors.retryFailedRecipientsFailed")));
+      }
+      const body = (await res.json()) as { data?: { retryCampaign?: { id?: string } } };
+      const retryCampaignId = body.data?.retryCampaign?.id;
+      if (retryCampaignId) {
+        setRetrySuccessCampaignId(retryCampaignId);
+      }
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : t("errors.retryFailedRecipientsFailed"),
+      );
+    } finally {
+      setRetryingFailed(false);
+    }
+  }
+
+  async function handleDeleteHistory() {
+    setDeletingHistory(true);
+    setError("");
+    try {
+      const res = await apiFetch(`/api/desktop/campaigns/${params.id}/history`, {
+        method: "DELETE",
+      });
+      if (!res.ok && res.status !== 204) {
+        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
+        throw new Error(getApiError(body, t("errors.deleteHistoryFailed")));
+      }
+      router.push("/mailer/history");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t("errors.deleteHistoryFailed"));
+    } finally {
+      setDeletingHistory(false);
+      setShowDeleteHistoryConfirm(false);
+    }
+  }
+
   if (loading) return <PageSpinner />;
 
   if (!campaign) {
@@ -244,12 +406,17 @@ export default function CampaignDetailPage() {
   const badge = STATUS_BADGE[campaign.status] ?? STATUS_BADGE.DRAFT;
   const isDraft = campaign.status === "DRAFT";
   const isSending = campaign.status === "SENDING";
+  const isQueued = campaign.status === "QUEUED";
+  const isActive = isSending || isQueued;
   const isCompleted = campaign.status === "COMPLETED";
   const isFailed = campaign.status === "FAILED";
   const progress =
     campaign.totalCount > 0
       ? Math.round(((campaign.sentCount + campaign.failedCount) / campaign.totalCount) * 100)
       : 0;
+  const failedTotalPages = failedPagination
+    ? Math.max(1, Math.ceil(failedPagination.total / failedPagination.pageSize))
+    : 1;
 
   const assignedList = contactLists.find((l) => l.id === campaign.contactListId);
 
@@ -295,8 +462,8 @@ export default function CampaignDetailPage() {
             )}
           </div>
 
-          {isDraft && (
-            <div className="flex gap-2">
+          <div className="flex gap-2">
+            {isDraft && (
               <Button
                 variant="destructive"
                 size="sm"
@@ -304,8 +471,18 @@ export default function CampaignDetailPage() {
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          )}
+            )}
+            {!isDraft && !isActive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteHistoryConfirm(true)}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+                {t("actions.deleteFromHistory")}
+              </Button>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -366,7 +543,7 @@ export default function CampaignDetailPage() {
       </Card>
 
       {/* Progress (for sending/completed/failed) */}
-      {(isSending || isCompleted || isFailed) && (
+      {(isActive || isCompleted || isFailed) && (
         <Card className="mt-4 p-6" hover={false}>
           <h2 className="mb-4 text-sm font-semibold">{t("campaignDetail.sendingProgress")}</h2>
 
@@ -446,6 +623,93 @@ export default function CampaignDetailPage() {
         </Card>
       )}
 
+      {retrySuccessCampaignId && (
+        <div className="mt-4 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm text-success">
+          {t("campaignDetail.retryCreated")}{" "}
+          <Link href={`/mailer/campaigns/${retrySuccessCampaignId}`} className="underline">
+            {t("campaignDetail.openRetryCampaign")}
+          </Link>
+        </div>
+      )}
+
+      {campaign.failedCount > 0 && (
+        <Card className="mt-4 p-6" hover={false}>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold">{t("campaignDetail.failedRecipientsTitle")}</h2>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportFailed}
+                loading={exportingFailed}
+              >
+                <Download className="h-4 w-4" />
+                {t("actions.exportFailedCsv")}
+              </Button>
+              <Button size="sm" onClick={handleRetryFailed} loading={retryingFailed}>
+                <RotateCcw className="h-4 w-4" />
+                {t("actions.retryFailed")}
+              </Button>
+            </div>
+          </div>
+
+          {failedLoading ? (
+            <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
+          ) : failedRecipients.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("campaignDetail.noFailedRecipients")}</p>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left">
+                      <th className="pb-2 pr-4 font-medium text-muted-foreground">{t("campaignDetail.failedEmail")}</th>
+                      <th className="pb-2 pr-4 font-medium text-muted-foreground">{t("campaignDetail.failedReason")}</th>
+                      <th className="pb-2 pr-4 font-medium text-muted-foreground">{t("campaignDetail.failedAt")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {failedRecipients.map((item, index) => (
+                      <tr key={`${item.email}-${index}`} className="border-b border-border/50">
+                        <td className="py-2 pr-4">{item.email}</td>
+                        <td className="py-2 pr-4 text-muted-foreground">{item.reason || "—"}</td>
+                        <td className="py-2 pr-4 text-muted-foreground">
+                          {new Date(item.createdAt).toLocaleString(locale)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {failedPagination && failedTotalPages > 1 && (
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={failedPage <= 1}
+                    onClick={() => setFailedPage((prev) => prev - 1)}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {t("campaigns.pageInfo", { page: failedPage, pages: failedTotalPages })}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={failedPage >= failedTotalPages}
+                    onClick={() => setFailedPage((prev) => prev + 1)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </Card>
+      )}
+
       {/* Send button */}
       {isDraft && campaign.contactListId && (
         <div className="mt-6 flex justify-end">
@@ -479,6 +743,17 @@ export default function CampaignDetailPage() {
         confirmText={t("actions.delete")}
         variant="destructive"
         loading={actionLoading}
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteHistoryConfirm}
+        onClose={() => setShowDeleteHistoryConfirm(false)}
+        onConfirm={handleDeleteHistory}
+        title={t("campaignDetail.deleteHistoryTitle")}
+        description={t("campaignDetail.deleteHistoryDescription")}
+        confirmText={t("actions.delete")}
+        variant="destructive"
+        loading={deletingHistory}
       />
     </div>
   );

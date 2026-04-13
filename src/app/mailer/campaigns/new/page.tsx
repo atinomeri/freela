@@ -36,7 +36,10 @@ export default function NewCampaignPage() {
   const [senderName, setSenderName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [html, setHtml] = useState("");
+  const [scheduleMode, setScheduleMode] = useState<"ONCE" | "DAILY">("ONCE");
   const [scheduledAt, setScheduledAt] = useState("");
+  const [dailyLimit, setDailyLimit] = useState("100");
+  const [dailySendTime, setDailySendTime] = useState("10:00");
   const [templates, setTemplates] = useState<TemplateOption[]>([]);
   const [templateId, setTemplateId] = useState("");
   const [error, setError] = useState("");
@@ -74,7 +77,13 @@ export default function NewCampaignPage() {
           html: html || `<p>${subject}</p>`,
           senderName: senderName || undefined,
           senderEmail: senderEmail || undefined,
-          scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
+          scheduleMode,
+          scheduledAt:
+            scheduleMode === "ONCE" && scheduledAt
+              ? new Date(scheduledAt).toISOString()
+              : undefined,
+          dailyLimit: scheduleMode === "DAILY" ? Number(dailyLimit) : undefined,
+          dailySendTime: scheduleMode === "DAILY" ? dailySendTime : undefined,
         }),
       });
 
@@ -186,13 +195,49 @@ export default function NewCampaignPage() {
           </div>
 
           <label className="grid gap-1.5 text-sm">
-            <span className="font-medium">Schedule at (optional)</span>
-            <Input
-              type="datetime-local"
-              value={scheduledAt}
-              onChange={(e) => setScheduledAt(e.target.value)}
-            />
+            <span className="font-medium">{t("newCampaign.scheduleModeLabel")}</span>
+            <select
+              value={scheduleMode}
+              onChange={(e) => setScheduleMode(e.target.value as "ONCE" | "DAILY")}
+              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20"
+            >
+              <option value="ONCE">{t("newCampaign.scheduleModeOnce")}</option>
+              <option value="DAILY">{t("newCampaign.scheduleModeDaily")}</option>
+            </select>
           </label>
+
+          {scheduleMode === "ONCE" ? (
+            <label className="grid gap-1.5 text-sm">
+              <span className="font-medium">{t("newCampaign.scheduleAtLabel")}</span>
+              <Input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+              />
+            </label>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-1.5 text-sm">
+                <span className="font-medium">{t("newCampaign.dailyLimitLabel")}</span>
+                <Input
+                  type="number"
+                  min={1}
+                  value={dailyLimit}
+                  onChange={(e) => setDailyLimit(e.target.value)}
+                  required
+                />
+              </label>
+              <label className="grid gap-1.5 text-sm">
+                <span className="font-medium">{t("newCampaign.dailySendTimeLabel")}</span>
+                <Input
+                  type="time"
+                  value={dailySendTime}
+                  onChange={(e) => setDailySendTime(e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+          )}
 
           <label className="grid gap-1.5 text-sm">
             <span className="font-medium">{t("newCampaign.htmlBodyLabel")}</span>

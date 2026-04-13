@@ -1289,7 +1289,12 @@
       "contacts": "კონტაქტები",
       "templates": "შაბლონები",
       "smtpPool": "SMTP პული",
-      "settings": "პარამეტრები"
+      "settings": "პარამეტრები",
+      "preflight": "Preflight",
+      "bounce": "Bounce Scan",
+      "warmup": "Warmup",
+      "history": "ისტორია",
+      "billing": "ბილინგი"
     },
     "actions": {
       "logOut": "გასვლა",
@@ -1308,7 +1313,17 @@
       "change": "შეცვლა",
       "assign": "მიბმა",
       "sendCampaign": "კამპანიის გაგზავნა",
-      "sendNow": "ახლავე გაგზავნა"
+      "sendNow": "ახლავე გაგზავნა",
+      "exportCsv": "CSV ექსპორტი",
+      "deleteFromHistory": "ისტორიიდან წაშლა",
+      "exportFailedCsv": "ჩავარდნილების CSV",
+      "retryFailed": "ჩავარდნილების ხელახლა გაგზავნა",
+      "runSpamCheck": "Spam შემოწმება",
+      "runDeliverability": "Deliverability შემოწმება",
+      "runBounceScan": "Bounce Scan გაშვება",
+      "resetAllWarmup": "ყველას Reset",
+      "resetSenderWarmup": "Sender Reset",
+      "refresh": "განახლება"
     },
     "errors": {
       "loginFailed": "შესვლა ვერ მოხერხდა",
@@ -1318,7 +1333,21 @@
       "failedToLoadCampaign": "კამპანიის ჩატვირთვა ვერ მოხერხდა",
       "assignListFailed": "სიის მიბმა ვერ მოხერხდა",
       "sendCampaignFailed": "კამპანიის გაგზავნა ვერ მოხერხდა",
-      "deleteCampaignFailed": "კამპანიის წაშლა ვერ მოხერხდა"
+      "deleteCampaignFailed": "კამპანიის წაშლა ვერ მოხერხდა",
+      "historyLoadFailed": "ისტორიის ჩატვირთვა ვერ მოხერხდა",
+      "historyExportFailed": "ისტორიის ექსპორტი ვერ მოხერხდა",
+      "historyDeleteFailed": "ისტორიიდან კამპანიის წაშლა ვერ მოხერხდა",
+      "failedRecipientsExportFailed": "ჩავარდნილი მიმღებების ექსპორტი ვერ მოხერხდა",
+      "retryFailedRecipientsFailed": "Retry კამპანიის შექმნა ვერ მოხერხდა",
+      "deleteHistoryFailed": "კამპანიის ისტორიის წაშლა ვერ მოხერხდა",
+      "preflightSpamFailed": "Spam შემოწმება ვერ შესრულდა",
+      "preflightDeliverabilityFailed": "Deliverability შემოწმება ვერ შესრულდა",
+      "bounceScanFailed": "Bounce scan ვერ შესრულდა",
+      "warmupLoadFailed": "Warmup მონაცემების ჩატვირთვა ვერ მოხერხდა",
+      "warmupResetFailed": "Warmup reset ვერ შესრულდა",
+      "billingLoadFailed": "ბილინგის მონაცემების ჩატვირთვა ვერ მოხერხდა",
+      "billingLedgerLoadFailed": "Ledger ჩატვირთვა ვერ მოხერხდა",
+      "billingPaymentsLoadFailed": "გადახდების ჩატვირთვა ვერ მოხერხდა"
     },
     "login": {
       "subtitle": "შედით თქვენი ელფოსტის კამპანიების სამართავად",
@@ -1365,7 +1394,13 @@
       "htmlBodyLabel": "HTML შიგთავსი *",
       "htmlBodyHelp": "პერსონალიზაციისთვის გამოიყენე [[column_name]]",
       "htmlBodyPlaceholder": "<p>გამარჯობა [[name]],</p><p>შენი წერილის კონტენტი აქ...</p>",
-      "createCampaign": "კამპანიის შექმნა"
+      "createCampaign": "კამპანიის შექმნა",
+      "scheduleModeLabel": "გაგზავნის რეჟიმი",
+      "scheduleModeOnce": "ერთჯერადი",
+      "scheduleModeDaily": "ყოველდღიური",
+      "scheduleAtLabel": "დაგეგმვის დრო (არასავალდებულო)",
+      "dailyLimitLabel": "დღიური ლიმიტი",
+      "dailySendTimeLabel": "ყოველდღიური გაგზავნის დრო"
     },
     "contacts": {
       "title": "კონტაქტები",
@@ -1410,7 +1445,93 @@
       "sendTitle": "კამპანიის გაგზავნა",
       "sendDescription": "ეს გააგზავნის \"{name}\" კამპანიას {count} მიმღებთან. მოქმედების დაბრუნება შეუძლებელია.",
       "deleteTitle": "კამპანიის წაშლა",
-      "deleteDescription": "დარწმუნებული ხარ, რომ ამ კამპანიის წაშლა გინდა? მოქმედების დაბრუნება შეუძლებელია."
+      "deleteDescription": "დარწმუნებული ხარ, რომ ამ კამპანიის წაშლა გინდა? მოქმედების დაბრუნება შეუძლებელია.",
+      "retryCreated": "Retry კამპანია შეიქმნა.",
+      "openRetryCampaign": "Retry კამპანიის გახსნა",
+      "failedRecipientsTitle": "ჩავარდნილი მიმღებები",
+      "noFailedRecipients": "ჩავარდნილი მიმღებები ვერ მოიძებნა.",
+      "failedEmail": "ელფოსტა",
+      "failedReason": "მიზეზი",
+      "failedAt": "ჩავარდნის დრო",
+      "deleteHistoryTitle": "კამპანიის ისტორიის წაშლა",
+      "deleteHistoryDescription": "ეს სამუდამოდ წაშლის ამ კამპანიას და დაკავშირებულ ისტორიულ მონაცემებს."
+    },
+    "history": {
+      "title": "კამპანიების ისტორია",
+      "description": "ნახე დასრულებული კამპანიები, retry ქმედებები და ექსპორტი",
+      "emptyTitle": "ისტორია ჯერ ცარიელია",
+      "emptyDescription": "კამპანიის აქტივობა აქ გამოჩნდება",
+      "statsLine": "გაგზავნილი: {sent}, ჩავარდნილი: {failed}, სულ: {total}",
+      "createdAt": "შექმნილია",
+      "completedAt": "დასრულდა",
+      "deleteTitle": "ისტორიიდან წაშლა",
+      "deleteDescription": "ეს ქმედება სამუდამოდ წაშლის კამპანიის ისტორიას და ტრეკინგის მონაცემებს."
+    },
+    "preflight": {
+      "title": "Preflight შემოწმებები",
+      "description": "გაგზავნამდე შეამოწმე spam და deliverability",
+      "spamTitle": "Spam ქულის შემოწმება",
+      "deliverabilityTitle": "Deliverability შემოწმება",
+      "subjectLabel": "თემა",
+      "htmlLabel": "HTML შიგთავსი",
+      "targetLabel": "გამგზავნის ელფოსტა ან დომენი",
+      "targetPlaceholder": "example@domain.com ან domain.com",
+      "selectorLabel": "DKIM selectors (არასავალდებულო)",
+      "selectorPlaceholder": "default,selector1,selector2",
+      "scoreLabel": "ქულა: {score} / {max}",
+      "deliverabilitySummary": "{domain}: {score}/100 ({passed}/{total} გავლილი)",
+      "risk": {
+        "low": "დაბალი რისკი",
+        "medium": "საშუალო რისკი",
+        "high": "მაღალი რისკი"
+      }
+    },
+    "bounce": {
+      "title": "Bounce სკანი",
+      "description": "IMAP ყუთის სკანი და hard bounce-ების suppression სიაში დამატება",
+      "mailboxLabel": "Mailbox",
+      "maxMessagesLabel": "მაქს. შეტყობინება",
+      "markAsSeen": "დამუშავებული წერილები მონიშნე როგორც seen",
+      "resultTitle": "სკანის შედეგი",
+      "checked": "შემოწმებული",
+      "hardBounces": "Hard bounce",
+      "addedToSuppression": "დამატებული suppression-ში",
+      "summaryLine": "Soft: {soft}, Unknown: {unknown}, აღმოჩენილი hard მისამართები: {detected}",
+      "accountError": "შეცდომა",
+      "accountOk": "OK",
+      "accountStats": "შემოწმებული: {checked}, Hard: {hard}, Soft: {soft}, Unknown: {unknown}"
+    },
+    "warmup": {
+      "title": "Sender Warmup",
+      "description": "აკონტროლე warmup ლიმიტები და საჭიროებისას გააკეთე reset",
+      "noData": "Warmup მონაცემები არ არის.",
+      "enabled": "Warmup სტატუსი",
+      "enabledYes": "ჩართულია",
+      "enabledNo": "გამორთულია",
+      "startLimit": "საწყისი ლიმიტი",
+      "increment": "დღიური ზრდა",
+      "max": "მაქსიმუმი",
+      "unlimited": "უსასრულო",
+      "empty": "Warmup sender-ები ჯერ არ არის.",
+      "dayLine": "დღე {day} • ლიმიტი {limit} • დღეს გაგზავნილი {sent} • დარჩენილი {remaining} • ჯამში {total}",
+      "firstSeenAt": "პირველად დაფიქსირდა",
+      "remaining": "დარჩენილი დღეს",
+      "doneForToday": "დღისთვის დასრულებულია"
+    },
+    "billing": {
+      "title": "ბილინგი",
+      "description": "ბალანსი, ledger ოპერაციები და გადახდების ისტორია",
+      "currentBalance": "მიმდინარე ბალანსი",
+      "currency": "თეთრი",
+      "ledgerTitle": "Ledger",
+      "paymentsTitle": "გადახდები",
+      "allTypes": "ყველა ტიპი",
+      "allStatuses": "ყველა სტატუსი",
+      "ledgerEmpty": "Ledger ჩანაწერები არ არის",
+      "paymentsEmpty": "გადახდები არ არის",
+      "noDescription": "აღწერა არ არის",
+      "balanceLine": "ბალანსი: {before} -> {after}",
+      "paymentAmount": "თანხა: {amount} {currency}"
     }
   }
 }

@@ -15,6 +15,11 @@ import {
   FileText,
   Settings,
   Server,
+  ShieldCheck,
+  History,
+  RefreshCcw,
+  Activity,
+  Wallet,
 } from "lucide-react";
 import { useState } from "react";
 import { PageSpinner } from "@/components/ui/spinner";
@@ -25,6 +30,11 @@ const NAV_ITEMS = [
   { href: "/mailer/contacts", key: "nav.contacts", icon: Users },
   { href: "/mailer/templates", key: "nav.templates", icon: FileText },
   { href: "/mailer/smtp-pool", key: "nav.smtpPool", icon: Server },
+  { href: "/mailer/preflight", key: "nav.preflight", icon: ShieldCheck },
+  { href: "/mailer/bounce", key: "nav.bounce", icon: Activity },
+  { href: "/mailer/warmup", key: "nav.warmup", icon: RefreshCcw },
+  { href: "/mailer/history", key: "nav.history", icon: History },
+  { href: "/mailer/billing", key: "nav.billing", icon: Wallet },
   { href: "/mailer/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
