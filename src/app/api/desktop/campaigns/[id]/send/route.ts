@@ -21,6 +21,10 @@ export async function POST(req: Request, { params }: RouteContext) {
       select: {
         desktopUserId: true,
         status: true,
+        scheduleMode: true,
+        dailyLimit: true,
+        dailySentOffset: true,
+        dailyTotalCount: true,
         contactListId: true,
         contactList: {
           select: { contactCount: true },
@@ -75,17 +79,43 @@ export async function POST(req: Request, { params }: RouteContext) {
       );
     }
 
+    const isDaily = campaign.scheduleMode === "DAILY";
+    const dailyOffset = isDaily ? campaign.dailySentOffset : 0;
+    const dailyLimit = isDaily ? Math.max(1, campaign.dailyLimit ?? 1) : eligibleCount;
+    const recipientsThisRun = isDaily
+      ? Math.max(0, Math.min(dailyLimit, eligibleCount - dailyOffset))
+      : eligibleCount;
+
+    if (isDaily && recipientsThisRun <= 0) {
+      return errors.badRequest(
+        "Daily schedule is already complete for all eligible contacts.",
+      );
+    }
+
     // Move to QUEUED status
     await prisma.campaign.update({
       where: { id },
       data: {
         status: "QUEUED",
         totalCount: eligibleCount,
+        ...(isDaily && campaign.dailyTotalCount == null
+          ? { dailyTotalCount: eligibleCount }
+          : {}),
       },
     });
 
     // Enqueue the job
-    const jobId = await enqueueCampaignSend(id, auth.user.id);
+    const jobId = await enqueueCampaignSend(
+      id,
+      auth.user.id,
+      isDaily
+        ? {
+            dailyBatch: true,
+            sliceOffset: dailyOffset,
+            sliceLimit: recipientsThisRun,
+          }
+        : undefined,
+    );
 
     if (!jobId) {
       // Queue not available — revert status
@@ -102,7 +132,9 @@ export async function POST(req: Request, { params }: RouteContext) {
       campaignId: id,
       status: "QUEUED",
       jobId,
-      totalRecipients: eligibleCount,
+      totalRecipients: recipientsThisRun,
+      eligibleRecipients: eligibleCount,
+      scheduleMode: campaign.scheduleMode,
       suppressed: Math.max(0, campaign.contactList.contactCount - eligibleCount),
     });
   } catch (err) {

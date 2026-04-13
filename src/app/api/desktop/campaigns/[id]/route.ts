@@ -3,6 +3,10 @@ import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { updateCampaignSchema } from "@/lib/validation";
 import { errors, success, noContent } from "@/lib/api-response";
 import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
+import {
+  deriveDailySendTimeFromDate,
+  nextDailyRunFrom,
+} from "@/lib/campaign-schedule";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -28,7 +32,13 @@ export async function GET(
         senderEmail: true,
         html: true,
         status: true,
+        contactListId: true,
+        scheduleMode: true,
         scheduledAt: true,
+        dailyLimit: true,
+        dailySendTime: true,
+        dailySentOffset: true,
+        dailyTotalCount: true,
         startedAt: true,
         completedAt: true,
         totalCount: true,
@@ -75,7 +85,14 @@ export async function PATCH(
     // Verify ownership and status
     const existing = await prisma.campaign.findUnique({
       where: { id },
-      select: { desktopUserId: true, status: true },
+      select: {
+        desktopUserId: true,
+        status: true,
+        scheduleMode: true,
+        scheduledAt: true,
+        dailyLimit: true,
+        dailySendTime: true,
+      },
     });
 
     if (!existing) return errors.notFound("Campaign");
@@ -84,15 +101,73 @@ export async function PATCH(
       return errors.badRequest("Only DRAFT campaigns can be edited");
     }
 
-    const { scheduledAt, ...rest } = parsed.data;
+    const {
+      scheduleMode,
+      scheduledAt,
+      dailyLimit,
+      dailySendTime,
+      ...rest
+    } = parsed.data;
+
+    const targetScheduleMode = scheduleMode ?? existing.scheduleMode;
+    let nextScheduledAt: Date | null | undefined;
+    if (scheduledAt !== undefined) {
+      nextScheduledAt = scheduledAt ? new Date(scheduledAt) : null;
+    }
+
+    let nextDailyLimit: number | null = null;
+    let nextDailySendTime: string | null = null;
+
+    if (targetScheduleMode === "DAILY") {
+      nextDailyLimit = dailyLimit ?? existing.dailyLimit;
+      if (!nextDailyLimit || nextDailyLimit < 1) {
+        return errors.badRequest("dailyLimit is required for DAILY schedule mode");
+      }
+
+      nextDailySendTime =
+        dailySendTime ??
+        existing.dailySendTime ??
+        (nextScheduledAt
+          ? deriveDailySendTimeFromDate(nextScheduledAt)
+          : existing.scheduledAt
+            ? deriveDailySendTimeFromDate(existing.scheduledAt)
+            : "10:00");
+
+      if (nextScheduledAt === undefined) {
+        if (!existing.scheduledAt) {
+          nextScheduledAt = nextDailyRunFrom(new Date(), nextDailySendTime);
+        }
+      } else if (nextScheduledAt === null) {
+        nextScheduledAt = nextDailyRunFrom(new Date(), nextDailySendTime);
+      }
+    }
 
     const campaign = await prisma.campaign.update({
       where: { id },
       data: {
         ...rest,
-        ...(scheduledAt !== undefined
-          ? { scheduledAt: scheduledAt ? new Date(scheduledAt) : null }
-          : {}),
+        ...(scheduleMode !== undefined ? { scheduleMode: targetScheduleMode } : {}),
+        ...(nextScheduledAt !== undefined ? { scheduledAt: nextScheduledAt } : {}),
+        ...(targetScheduleMode === "DAILY"
+          ? {
+              dailyLimit: nextDailyLimit,
+              dailySendTime: nextDailySendTime,
+              ...(scheduleMode === "DAILY" && existing.scheduleMode !== "DAILY"
+                ? {
+                    dailySentOffset: 0,
+                    dailyTotalCount: null,
+                    sentCount: 0,
+                    failedCount: 0,
+                    totalCount: 0,
+                  }
+                : {}),
+            }
+          : {
+              dailyLimit: null,
+              dailySendTime: null,
+              dailySentOffset: 0,
+              dailyTotalCount: null,
+            }),
       },
       select: {
         id: true,
@@ -101,7 +176,13 @@ export async function PATCH(
         senderName: true,
         senderEmail: true,
         status: true,
+        contactListId: true,
+        scheduleMode: true,
         scheduledAt: true,
+        dailyLimit: true,
+        dailySendTime: true,
+        dailySentOffset: true,
+        dailyTotalCount: true,
         totalCount: true,
         sentCount: true,
         failedCount: true,

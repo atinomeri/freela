@@ -15,6 +15,9 @@ import { logInfo, logDebug } from "./logger";
 export interface CampaignSendJobData {
   campaignId: string;
   desktopUserId: string;
+  dailyBatch?: boolean;
+  sliceOffset?: number;
+  sliceLimit?: number;
 }
 
 // ============================================
@@ -70,13 +73,14 @@ export function getCampaignQueue(): Queue<CampaignSendJobData> | null {
 export async function enqueueCampaignSend(
   campaignId: string,
   desktopUserId: string,
+  options?: Pick<CampaignSendJobData, "dailyBatch" | "sliceOffset" | "sliceLimit">,
 ): Promise<string | null> {
   const q = getCampaignQueue();
   if (!q) return null;
 
   const job = await q.add(
     "send-campaign",
-    { campaignId, desktopUserId },
+    { campaignId, desktopUserId, ...options },
     { jobId: `campaign-${campaignId}` }, // prevent duplicate jobs
   );
 

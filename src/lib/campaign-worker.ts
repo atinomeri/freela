@@ -18,6 +18,7 @@ import {
   type CampaignSendJobData,
 } from "./campaign-queue";
 import { decryptSecretValue } from "./secret-crypto";
+import { nextDailyRunAfter } from "./campaign-schedule";
 
 // ── Prisma (dynamic import to avoid "server-only" issues in worker process) ──
 
@@ -40,6 +41,10 @@ const DELAY_MAX_MS = parseInt(process.env.CAMPAIGN_DELAY_MAX_MS || "1000", 10);
 const BATCH_PAUSE_MS = parseInt(process.env.CAMPAIGN_BATCH_PAUSE_MS || "5000", 10);
 const MAX_CONSECUTIVE_FAILURES = 5;
 const SMTP_TIMEOUT_MS = 15_000;
+const WARMUP_ENABLED = (process.env.CAMPAIGN_WARMUP_ENABLED || "false").toLowerCase() === "true";
+const WARMUP_START = Math.max(1, parseInt(process.env.CAMPAIGN_WARMUP_START || "10", 10));
+const WARMUP_INCREMENT = Math.max(0, parseInt(process.env.CAMPAIGN_WARMUP_INCREMENT || "10", 10));
+const WARMUP_MAX = Math.max(0, parseInt(process.env.CAMPAIGN_WARMUP_MAX || "0", 10));
 
 // ============================================
 // Personalization + Tracking (ported from Python)
@@ -136,6 +141,7 @@ interface SmtpResolvedAccount {
   secure: boolean;
   username: string;
   password: string;
+  senderKey: string;
   fromEmail?: string | null;
   fromName?: string | null;
   proxyType?: string | null;
@@ -143,6 +149,14 @@ interface SmtpResolvedAccount {
   proxyPort?: number | null;
   proxyUsername?: string | null;
   proxyPassword?: string | null;
+}
+
+interface WarmupSenderState {
+  senderKey: string;
+  firstSeenAt: Date;
+  lastSentDate: string | null;
+  sentToday: number;
+  totalSent: number;
 }
 
 function buildProxyUrl(account: SmtpResolvedAccount): string | null {
@@ -157,12 +171,40 @@ function buildProxyUrl(account: SmtpResolvedAccount): string | null {
   return `${account.proxyType}://${auth}${account.proxyHost}:${account.proxyPort}`;
 }
 
+function localDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function calcWarmupLimit(firstSeenAt: Date, now: Date): number {
+  const firstDay = new Date(
+    firstSeenAt.getFullYear(),
+    firstSeenAt.getMonth(),
+    firstSeenAt.getDate(),
+  );
+  const currentDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = Math.max(
+    1,
+    Math.floor((currentDay.getTime() - firstDay.getTime()) / 86_400_000) + 1,
+  );
+  const limit = WARMUP_START + (days - 1) * WARMUP_INCREMENT;
+  return WARMUP_MAX > 0 ? Math.min(limit, WARMUP_MAX) : limit;
+}
+
 // ============================================
 // Job Processor
 // ============================================
 
 async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void> {
-  const { campaignId, desktopUserId } = job.data;
+  const {
+    campaignId,
+    desktopUserId,
+    dailyBatch,
+    sliceOffset: jobSliceOffset,
+    sliceLimit: jobSliceLimit,
+  } = job.data;
   const prisma = await getPrisma();
 
   try {
@@ -199,8 +241,15 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     };
 
     // 2. Load contacts count after suppression
-    const totalContacts = await prisma.contact.count({ where: contactsWhere });
-    if (totalContacts <= 0) {
+    const totalEligibleContacts = await prisma.contact.count({ where: contactsWhere });
+    const isDailyCampaign = campaign.scheduleMode === "DAILY";
+    const isDailyRun =
+      isDailyCampaign &&
+      (dailyBatch === true ||
+        typeof jobSliceOffset === "number" ||
+        typeof jobSliceLimit === "number");
+
+    if (totalEligibleContacts <= 0) {
       await prisma.campaign.update({
         where: { id: campaignId },
         data: {
@@ -215,10 +264,47 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       return;
     }
 
+    const runSliceOffset = isDailyRun
+      ? Math.max(0, jobSliceOffset ?? campaign.dailySentOffset)
+      : 0;
+    const runSliceLimit = isDailyRun
+      ? Math.max(1, jobSliceLimit ?? campaign.dailyLimit ?? totalEligibleContacts)
+      : totalEligibleContacts;
+    const runTotalContacts = isDailyRun
+      ? Math.max(0, Math.min(runSliceLimit, totalEligibleContacts - runSliceOffset))
+      : totalEligibleContacts;
+
+    if (runTotalContacts <= 0) {
+      if (isDailyRun) {
+        await prisma.campaign.update({
+          where: { id: campaignId },
+          data: {
+            status: "COMPLETED",
+            totalCount: campaign.dailyTotalCount ?? totalEligibleContacts,
+            sentCount: campaign.sentCount,
+            failedCount: campaign.failedCount,
+            dailySentOffset: totalEligibleContacts,
+            scheduledAt: null,
+            completedAt: new Date(),
+          },
+        });
+      }
+      return;
+    }
+
     // 3. Mark as SENDING
     await prisma.campaign.update({
       where: { id: campaignId },
-      data: { status: "SENDING", startedAt: new Date(), totalCount: totalContacts },
+      data: {
+        status: "SENDING",
+        startedAt: campaign.startedAt ?? new Date(),
+        totalCount: isDailyCampaign
+          ? campaign.dailyTotalCount ?? totalEligibleContacts
+          : totalEligibleContacts,
+        ...(isDailyCampaign && campaign.dailyTotalCount == null
+          ? { dailyTotalCount: totalEligibleContacts }
+          : {}),
+      },
     });
 
     // 4. Resolve SMTP config (pool -> user config -> env fallback)
@@ -263,6 +349,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       secure: item.secure,
       username: item.username,
       password: decryptSecretValue(item.passwordEnc),
+      senderKey: (item.fromEmail || item.username).trim().toLowerCase(),
       fromEmail: item.fromEmail,
       fromName: item.fromName,
       proxyType: item.proxyType,
@@ -289,6 +376,15 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
             password: userSmtp
               ? decryptSecretValue(userSmtp.passwordEnc)
               : process.env.SMTP_PASS || "",
+            senderKey: (
+              userSmtp?.fromEmail ||
+              process.env.SMTP_FROM ||
+              userSmtp?.username ||
+              process.env.SMTP_USER ||
+              ""
+            )
+              .trim()
+              .toLowerCase(),
             fromEmail: userSmtp?.fromEmail || process.env.SMTP_FROM || null,
             fromName: userSmtp?.fromName || null,
           }
@@ -301,7 +397,57 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     const smtpAccounts = resolvedPool.length > 0 ? resolvedPool : [fallbackAccount!];
     const transporters = new Map<string, nodemailer.Transporter>();
     const accountFailures = new Map<string, number>();
+    const warmupState = new Map<string, WarmupSenderState>();
+    const warmupTouched = new Set<string>();
     let rotationIndex = 0;
+
+    if (WARMUP_ENABLED && smtpAccounts.length > 0) {
+      const senderKeys = Array.from(
+        new Set(
+          smtpAccounts
+            .map((item) => item.senderKey)
+            .filter(Boolean),
+        ),
+      );
+
+      if (senderKeys.length > 0) {
+        const existingWarmup = await prisma.desktopWarmupSender.findMany({
+          where: {
+            desktopUserId,
+            senderKey: { in: senderKeys },
+          },
+          select: {
+            senderKey: true,
+            firstSeenAt: true,
+            lastSentDate: true,
+            sentToday: true,
+            totalSent: true,
+          },
+        });
+
+        for (const state of existingWarmup) {
+          warmupState.set(state.senderKey, {
+            senderKey: state.senderKey,
+            firstSeenAt: state.firstSeenAt,
+            lastSentDate: state.lastSentDate,
+            sentToday: state.sentToday,
+            totalSent: state.totalSent,
+          });
+        }
+
+        const now = new Date();
+        for (const senderKey of senderKeys) {
+          if (warmupState.has(senderKey)) continue;
+          warmupState.set(senderKey, {
+            senderKey,
+            firstSeenAt: now,
+            lastSentDate: null,
+            sentToday: 0,
+            totalSent: 0,
+          });
+        }
+      }
+    }
 
     // Tracking config
     const trackOpens = userSmtp?.trackOpens ?? process.env.TRACK_OPENS === "true";
@@ -311,19 +457,61 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
     const emailColumn = campaign.contactList?.emailColumn || "email";
 
-    let sentCount = 0;
-    let failedCount = 0;
+    let sentCount = campaign.sentCount;
+    let failedCount = campaign.failedCount;
+    let processedInRun = 0;
     let consecutiveFailures = 0;
-    let offset = 0;
+    let offset = isDailyRun ? runSliceOffset : 0;
+    const runEndOffset = isDailyRun
+      ? runSliceOffset + runTotalContacts
+      : totalEligibleContacts;
+    let stoppedByWarmup = false;
     const bouncedEmails = new Set<string>();
+    const failedRecipients: Array<{ email: string; reason: string | null }> = [];
+
+    const getWarmupRemaining = (senderKey: string): number => {
+      if (!WARMUP_ENABLED || !senderKey) return Number.POSITIVE_INFINITY;
+      const state = warmupState.get(senderKey);
+      if (!state) return Number.POSITIVE_INFINITY;
+      const now = new Date();
+      const today = localDateKey(now);
+      const sentToday = state.lastSentDate === today ? state.sentToday : 0;
+      return Math.max(0, calcWarmupLimit(state.firstSeenAt, now) - sentToday);
+    };
+
+    const markWarmupSent = (senderKey: string): void => {
+      if (!WARMUP_ENABLED || !senderKey) return;
+      const state = warmupState.get(senderKey);
+      if (!state) return;
+      const today = localDateKey(new Date());
+      if (state.lastSentDate !== today) {
+        state.lastSentDate = today;
+        state.sentToday = 0;
+      }
+      state.sentToday += 1;
+      state.totalSent += 1;
+      warmupTouched.add(senderKey);
+    };
+
+    const pickNextSmtpAccount = (): SmtpResolvedAccount | null => {
+      if (smtpAccounts.length === 0) return null;
+      for (let i = 0; i < smtpAccounts.length; i++) {
+        const candidate = smtpAccounts[rotationIndex % smtpAccounts.length];
+        rotationIndex++;
+        if (!WARMUP_ENABLED || getWarmupRemaining(candidate.senderKey) > 0) {
+          return candidate;
+        }
+      }
+      return null;
+    };
 
     // 5. Process contacts in batches
-    while (offset < totalContacts) {
+    while (offset < runEndOffset) {
       const contacts = await prisma.contact.findMany({
         where: contactsWhere,
         orderBy: { createdAt: "asc" },
         skip: offset,
-        take: BATCH_SIZE,
+        take: Math.min(BATCH_SIZE, runEndOffset - offset),
       });
 
       if (contacts.length === 0) break;
@@ -370,8 +558,11 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
         const plainText = htmlToPlainText(htmlBody);
 
-        const smtpAccount = smtpAccounts[rotationIndex % smtpAccounts.length];
-        rotationIndex++;
+        const smtpAccount = pickNextSmtpAccount();
+        if (!smtpAccount) {
+          stoppedByWarmup = true;
+          break;
+        }
         const senderName = campaign.senderName || smtpAccount.fromName || "";
         const smtpFrom =
           campaign.senderEmail ||
@@ -399,6 +590,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
         // Send with retry
         let sent = false;
+        let lastErrorMessage: string | null = null;
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             await transporter.sendMail({
@@ -411,6 +603,8 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
             sent = true;
             break;
           } catch (err) {
+            lastErrorMessage =
+              err instanceof Error ? err.message : String(err);
             if (attempt < 2) {
               await sleep(1000 * (attempt + 1));
             }
@@ -419,23 +613,31 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
         if (sent) {
           sentCount++;
+          processedInRun++;
+          markWarmupSent(smtpAccount.senderKey);
           consecutiveFailures = 0;
           accountFailures.set(smtpAccount.id, Math.max(0, (accountFailures.get(smtpAccount.id) ?? 0) - 1));
         } else {
           failedCount++;
+          processedInRun++;
           consecutiveFailures++;
           accountFailures.set(smtpAccount.id, (accountFailures.get(smtpAccount.id) ?? 0) + 1);
-          bouncedEmails.add(contact.email.trim().toLowerCase());
+          const failedEmail = contact.email.trim().toLowerCase();
+          bouncedEmails.add(failedEmail);
+          failedRecipients.push({
+            email: failedEmail,
+            reason: lastErrorMessage?.slice(0, 500) || null,
+          });
         }
 
         // Update progress every 10 emails
-        if ((sentCount + failedCount) % 10 === 0) {
+        if (processedInRun % 10 === 0 || processedInRun === runTotalContacts) {
           await prisma.campaign.update({
             where: { id: campaignId },
             data: { sentCount, failedCount },
           });
           await job.updateProgress(
-            Math.round(((sentCount + failedCount) / totalContacts) * 100),
+            Math.round((processedInRun / runTotalContacts) * 100),
           );
         }
 
@@ -458,10 +660,13 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         await sleep(randomDelay(DELAY_MIN_MS, DELAY_MAX_MS));
       }
 
+      if (stoppedByWarmup) {
+        break;
+      }
       offset += contacts.length;
 
       // Batch pause
-      if (offset < totalContacts) {
+      if (offset < runEndOffset) {
         await sleep(BATCH_PAUSE_MS);
       }
     }
@@ -492,19 +697,95 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       });
     }
 
-    // 6. Mark as COMPLETED
-    await prisma.campaign.update({
-      where: { id: campaignId },
-      data: {
-        status: "COMPLETED",
-        sentCount,
-        failedCount,
-        completedAt: new Date(),
-      },
-    });
+    if (failedRecipients.length > 0) {
+      await prisma.campaignFailedRecipient.createMany({
+        data: failedRecipients.map((item) => ({
+          campaignId,
+          email: item.email,
+          reason: item.reason,
+        })),
+        skipDuplicates: true,
+      });
+    }
+
+    if (WARMUP_ENABLED && warmupTouched.size > 0) {
+      for (const senderKey of warmupTouched) {
+        const state = warmupState.get(senderKey);
+        if (!state) continue;
+        await prisma.desktopWarmupSender.upsert({
+          where: {
+            desktopUserId_senderKey: {
+              desktopUserId,
+              senderKey,
+            },
+          },
+          update: {
+            firstSeenAt: state.firstSeenAt,
+            lastSentDate: state.lastSentDate,
+            sentToday: state.sentToday,
+            totalSent: state.totalSent,
+          },
+          create: {
+            desktopUserId,
+            senderKey,
+            firstSeenAt: state.firstSeenAt,
+            lastSentDate: state.lastSentDate,
+            sentToday: state.sentToday,
+            totalSent: state.totalSent,
+          },
+        });
+      }
+    }
+
+    // 6. Finalize campaign status
+    if (isDailyRun) {
+      const newOffset = Math.min(totalEligibleContacts, runSliceOffset + processedInRun);
+      const isFinished = newOffset >= totalEligibleContacts;
+      if (isFinished) {
+        await prisma.campaign.update({
+          where: { id: campaignId },
+          data: {
+            status: "COMPLETED",
+            totalCount: campaign.dailyTotalCount ?? totalEligibleContacts,
+            sentCount,
+            failedCount,
+            dailySentOffset: newOffset,
+            scheduledAt: null,
+            completedAt: new Date(),
+          },
+        });
+      } else {
+        const nextRunAt = nextDailyRunAfter(
+          campaign.scheduledAt ?? new Date(),
+          campaign.dailySendTime,
+        );
+        await prisma.campaign.update({
+          where: { id: campaignId },
+          data: {
+            status: "DRAFT",
+            totalCount: campaign.dailyTotalCount ?? totalEligibleContacts,
+            sentCount,
+            failedCount,
+            dailySentOffset: newOffset,
+            scheduledAt: nextRunAt,
+            completedAt: null,
+          },
+        });
+      }
+    } else {
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: {
+          status: stoppedByWarmup ? "FAILED" : "COMPLETED",
+          sentCount,
+          failedCount,
+          completedAt: new Date(),
+        },
+      });
+    }
 
     console.log(
-      `[Worker] Campaign ${campaignId} completed: ${sentCount} sent, ${failedCount} failed`,
+      `[Worker] Campaign ${campaignId} completed run: ${processedInRun} processed, ${sentCount} sent total, ${failedCount} failed total`,
     );
   } catch (err) {
     console.error(`[Worker] Campaign ${campaignId} error:`, err);

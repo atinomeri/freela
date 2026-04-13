@@ -333,13 +333,29 @@ export const campaignStatusSchema = z.enum([
   "FAILED",
 ]);
 
+export const campaignScheduleModeSchema = z.enum(["ONCE", "DAILY"]);
+
 export const createCampaignSchema = z.object({
   name: z.string().min(1, "Campaign name is required").max(200),
   subject: z.string().min(1, "Subject is required").max(998),
   senderName: z.string().max(200).optional(),
   senderEmail: z.string().email("Invalid sender email").optional(),
   html: z.string().min(1, "HTML body is required"),
+  scheduleMode: campaignScheduleModeSchema.default("ONCE"),
   scheduledAt: z.string().datetime().optional(),
+  dailyLimit: z.coerce.number().int().min(1).max(1_000_000).optional(),
+  dailySendTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "dailySendTime must be HH:MM")
+    .optional(),
+}).superRefine((data, ctx) => {
+  if (data.scheduleMode === "DAILY" && !data.dailyLimit) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["dailyLimit"],
+      message: "dailyLimit is required for DAILY schedule mode",
+    });
+  }
 });
 
 export const updateCampaignSchema = z.object({
@@ -348,7 +364,14 @@ export const updateCampaignSchema = z.object({
   senderName: z.string().max(200).nullable().optional(),
   senderEmail: z.string().email("Invalid sender email").nullable().optional(),
   html: z.string().min(1).optional(),
+  scheduleMode: campaignScheduleModeSchema.optional(),
   scheduledAt: z.string().datetime().nullable().optional(),
+  dailyLimit: z.coerce.number().int().min(1).max(1_000_000).nullable().optional(),
+  dailySendTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "dailySendTime must be HH:MM")
+    .nullable()
+    .optional(),
 });
 
 export const listCampaignsSchema = z.object({
@@ -359,6 +382,17 @@ export const listCampaignsSchema = z.object({
 
 export const assignContactListSchema = z.object({
   contactListId: z.string().min(1, "Contact list ID is required"),
+});
+
+export const listCampaignFailedRecipientsSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(500).default(100),
+  format: z.enum(["json", "csv"]).default("json"),
+});
+
+export const retryCampaignFailedSchema = z.object({
+  newCampaignName: z.string().min(1).max(200).optional(),
+  createNewList: z.boolean().default(true),
 });
 
 export const createCampaignTemplateSchema = z.object({

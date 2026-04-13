@@ -493,6 +493,7 @@ model DesktopUser {
   smtpConfig        DesktopSmtpConfig?
   smtpPoolAccounts  DesktopSmtpPoolAccount[]
   campaignTemplates CampaignTemplate[]
+  warmupSenders     DesktopWarmupSender[]
 
   @@index([email])
 }
@@ -664,6 +665,11 @@ enum CampaignStatus {
   FAILED
 }
 
+enum CampaignScheduleMode {
+  ONCE
+  DAILY
+}
+
 model Campaign {
   id              String         @id @default(cuid())
   desktopUserId   String
@@ -675,11 +681,16 @@ model Campaign {
   senderEmail     String?        // "From" email override
   html            String         @db.Text  // email HTML body
   status          CampaignStatus @default(DRAFT)
+  scheduleMode    CampaignScheduleMode @default(ONCE)
 
   contactListId   String?
   contactList     ContactList?   @relation(fields: [contactListId], references: [id], onDelete: SetNull)
 
   scheduledAt     DateTime?      // optional future send time
+  dailyLimit      Int?
+  dailySendTime   String?
+  dailySentOffset Int            @default(0)
+  dailyTotalCount Int?
   startedAt       DateTime?      // actual sending start
   completedAt     DateTime?      // sending finished
 
@@ -690,8 +701,41 @@ model Campaign {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
+  failedRecipients CampaignFailedRecipient[]
+
   @@index([desktopUserId, createdAt])
   @@index([status])
+}
+
+model CampaignFailedRecipient {
+  id          String   @id @default(cuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  email       String
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  @@unique([campaignId, email])
+  @@index([campaignId, createdAt])
+}
+
+model DesktopWarmupSender {
+  id            String      @id @default(cuid())
+  desktopUserId String
+  desktopUser   DesktopUser @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  senderKey     String
+  firstSeenAt   DateTime    @default(now())
+  lastSentDate  String?
+  sentToday     Int         @default(0)
+  totalSent     Int         @default(0)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([desktopUserId, senderKey])
+  @@index([desktopUserId, senderKey])
 }
 
 // ════════════════════════════════════════════

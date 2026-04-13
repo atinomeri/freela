@@ -31,6 +31,11 @@ async function queueDueCampaigns(): Promise<void> {
       select: {
         id: true,
         desktopUserId: true,
+        scheduleMode: true,
+        dailyLimit: true,
+        dailySentOffset: true,
+        dailyTotalCount: true,
+        contactListId: true,
         contactList: { select: { contactCount: true } },
       },
     });
@@ -40,8 +45,61 @@ async function queueDueCampaigns(): Promise<void> {
     ensureCampaignWorkerStarted();
 
     for (const campaign of dueCampaigns) {
-      const contactCount = campaign.contactList?.contactCount ?? 0;
-      if (contactCount <= 0) continue;
+      if (!campaign.contactListId) continue;
+
+      const unsubscribed = await prisma.unsubscribedEmail.findMany({
+        where: { desktopUserId: campaign.desktopUserId },
+        select: { email: true },
+      });
+      const blockedEmails = Array.from(
+        new Set(
+          unsubscribed
+            .map((item) => item.email.trim().toLowerCase())
+            .filter(Boolean),
+        ),
+      );
+
+      const eligibleCount = await prisma.contact.count({
+        where: {
+          contactListId: campaign.contactListId,
+          ...(blockedEmails.length > 0 ? { email: { notIn: blockedEmails } } : {}),
+        },
+      });
+
+      if (eligibleCount <= 0) {
+        await prisma.campaign.updateMany({
+          where: { id: campaign.id, status: "DRAFT" },
+          data: {
+            status: "COMPLETED",
+            totalCount: 0,
+            sentCount: 0,
+            failedCount: 0,
+            startedAt: new Date(),
+            completedAt: new Date(),
+            scheduledAt: null,
+          },
+        });
+        continue;
+      }
+
+      const isDaily = campaign.scheduleMode === "DAILY";
+      const sliceOffset = isDaily ? campaign.dailySentOffset : 0;
+      const sliceLimit = isDaily
+        ? Math.max(0, Math.min(Math.max(1, campaign.dailyLimit ?? 1), eligibleCount - sliceOffset))
+        : eligibleCount;
+
+      if (isDaily && sliceLimit <= 0) {
+        await prisma.campaign.updateMany({
+          where: { id: campaign.id, status: "DRAFT" },
+          data: {
+            status: "COMPLETED",
+            totalCount: eligibleCount,
+            completedAt: new Date(),
+            scheduledAt: null,
+          },
+        });
+        continue;
+      }
 
       const updated = await prisma.campaign.updateMany({
         where: {
@@ -50,12 +108,25 @@ async function queueDueCampaigns(): Promise<void> {
         },
         data: {
           status: "QUEUED",
-          totalCount: contactCount,
+          totalCount: eligibleCount,
+          ...(isDaily && campaign.dailyTotalCount == null
+            ? { dailyTotalCount: eligibleCount }
+            : {}),
         },
       });
       if (updated.count === 0) continue;
 
-      const jobId = await enqueueCampaignSend(campaign.id, campaign.desktopUserId);
+      const jobId = await enqueueCampaignSend(
+        campaign.id,
+        campaign.desktopUserId,
+        isDaily
+          ? {
+              dailyBatch: true,
+              sliceOffset,
+              sliceLimit,
+            }
+          : undefined,
+      );
       if (!jobId) {
         await prisma.campaign.updateMany({
           where: { id: campaign.id, status: "QUEUED" },
@@ -82,4 +153,3 @@ export function ensureCampaignSchedulerStarted(): boolean {
   console.log(`[Campaign Scheduler] Started (poll ${POLL_MS}ms)`);
   return true;
 }
-

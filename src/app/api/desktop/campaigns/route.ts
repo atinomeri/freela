@@ -7,6 +7,10 @@ import {
 } from "@/lib/validation";
 import { errors, created, successWithPagination } from "@/lib/api-response";
 import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
+import {
+  deriveDailySendTimeFromDate,
+  nextDailyRunFrom,
+} from "@/lib/campaign-schedule";
 import type { CampaignStatus } from "@prisma/client";
 
 // ── POST /api/desktop/campaigns — create campaign ────────────
@@ -24,8 +28,32 @@ export async function POST(req: Request) {
       return errors.validationError(parsed.error.issues);
     }
 
-    const { name, subject, senderName, senderEmail, html, scheduledAt } =
+    const {
+      name,
+      subject,
+      senderName,
+      senderEmail,
+      html,
+      scheduleMode,
+      scheduledAt,
+      dailyLimit,
+      dailySendTime,
+    } =
       parsed.data;
+
+    let scheduledDate = scheduledAt ? new Date(scheduledAt) : null;
+    let normalizedDailyLimit: number | null = null;
+    let normalizedDailySendTime: string | null = null;
+
+    if (scheduleMode === "DAILY") {
+      normalizedDailyLimit = dailyLimit ?? null;
+      normalizedDailySendTime =
+        dailySendTime ||
+        (scheduledDate ? deriveDailySendTimeFromDate(scheduledDate) : "10:00");
+      if (!scheduledDate) {
+        scheduledDate = nextDailyRunFrom(new Date(), normalizedDailySendTime);
+      }
+    }
 
     const campaign = await prisma.campaign.create({
       data: {
@@ -35,7 +63,12 @@ export async function POST(req: Request) {
         senderName: senderName ?? null,
         senderEmail: senderEmail ?? null,
         html,
-        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+        scheduleMode,
+        scheduledAt: scheduledDate,
+        dailyLimit: normalizedDailyLimit,
+        dailySendTime: normalizedDailySendTime,
+        dailySentOffset: 0,
+        dailyTotalCount: null,
       },
       select: {
         id: true,
@@ -44,7 +77,12 @@ export async function POST(req: Request) {
         senderName: true,
         senderEmail: true,
         status: true,
+        scheduleMode: true,
         scheduledAt: true,
+        dailyLimit: true,
+        dailySendTime: true,
+        dailySentOffset: true,
+        dailyTotalCount: true,
         totalCount: true,
         sentCount: true,
         failedCount: true,
@@ -93,13 +131,18 @@ export async function GET(req: Request) {
         take: limit,
         select: {
           id: true,
-          name: true,
-          subject: true,
-          status: true,
-          scheduledAt: true,
-          startedAt: true,
-          completedAt: true,
-          totalCount: true,
+        name: true,
+        subject: true,
+        status: true,
+        scheduleMode: true,
+        scheduledAt: true,
+        dailyLimit: true,
+        dailySendTime: true,
+        dailySentOffset: true,
+        dailyTotalCount: true,
+        startedAt: true,
+        completedAt: true,
+        totalCount: true,
           sentCount: true,
           failedCount: true,
           createdAt: true,

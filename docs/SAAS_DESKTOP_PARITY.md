@@ -26,6 +26,7 @@ UI/visual parity is intentionally out of scope.
 - `DONE` Placeholder personalization (`[[Column]]`)
 - `DONE` Server-side queue + worker sending
 - `DONE` Scheduled send (`scheduledAt`, one-time)
+- `DONE` Daily batch scheduling mode (`scheduleMode=DAILY`, `dailyLimit`, `dailySendTime`, offset-based continuation)
 
 ## SMTP
 - `DONE` Per-user SMTP configuration (encrypted password)
@@ -49,8 +50,16 @@ UI/visual parity is intentionally out of scope.
 - `DONE` Apply template on campaign create
 - `PARTIAL` Desktop rich-text editor tools are not 1:1 mirrored; SaaS currently stores HTML payload and templates.
 
-## Outstanding parity gaps
-- `MISSING` Daily batch scheduling mode (desktop supports recurring daily chunk sends)
-- `MISSING` Dedicated campaign retry/export history workflows equivalent to desktop dialogs
-- `PARTIAL` Warmup tracker: desktop has module but it is not strongly wired into main send path; SaaS also does not enforce warmup policy.
+## Campaign history parity
+- `DONE` Campaign history export endpoint (`GET /api/desktop/campaigns/history/export`)
+- `DONE` Failed-recipient export endpoint (`GET /api/desktop/campaigns/:id/failed?format=csv`)
+- `DONE` Retry-from-failed workflow (`POST /api/desktop/campaigns/:id/retry`)
+- `DONE` Delete campaign history entry (`DELETE /api/desktop/campaigns/:id/history`)
 
+## Warmup
+- `DONE` Sender warmup tracker persistence (`DesktopWarmupSender`)
+- `DONE` Optional warmup-aware send limits in worker (`CAMPAIGN_WARMUP_*`)
+- `DONE` Warmup inspection/reset API (`GET/POST /api/desktop/warmup`)
+
+## Outstanding parity gaps
+- `PARTIAL` Desktop-only local GUI tooling (rich editor widgets, local dialogs, and window-native UX) intentionally not mirrored in SaaS backend scope.
