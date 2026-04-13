@@ -19,6 +19,12 @@ import {
 } from "./campaign-queue";
 import { decryptSecretValue } from "./secret-crypto";
 import { nextDailyRunAfter } from "./campaign-schedule";
+import {
+  isHardBounceError,
+  isSenderPolicyError,
+  normalizeEmailAddress,
+  resolvePreferredFromAddress,
+} from "./mailer-sender";
 
 // ── Prisma (dynamic import to avoid "server-only" issues in worker process) ──
 
@@ -132,64 +138,6 @@ function randomDelay(minMs: number, maxMs: number): number {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function normalizeEmailAddress(value: string | null | undefined): string | null {
-  const raw = value?.trim();
-  if (!raw) return null;
-  const angleMatch = raw.match(/<\s*([^<>]+)\s*>/);
-  const email = (angleMatch?.[1] || raw).trim().toLowerCase();
-  return email.includes("@") ? email : null;
-}
-
-function isHardBounceError(message: string | null): boolean {
-  if (!message) return false;
-  const m = message.toLowerCase();
-
-  // Sender/auth/policy failures are not recipient hard-bounces.
-  if (
-    m.includes("sender address rejected") ||
-    m.includes("not owned by user") ||
-    m.includes("authentication") ||
-    m.includes("auth failed") ||
-    m.includes("invalid login") ||
-    m.includes("relay access denied") ||
-    m.includes("unauthorized sender") ||
-    m.includes("sender rejected") ||
-    m.includes("spf") ||
-    m.includes("dkim") ||
-    m.includes("dmarc")
-  ) {
-    return false;
-  }
-
-  // Common hard-bounce phrases
-  if (
-    m.includes("user unknown") ||
-    m.includes("unknown user") ||
-    m.includes("no such user") ||
-    m.includes("recipient address rejected") ||
-    m.includes("mailbox unavailable") ||
-    m.includes("invalid recipient") ||
-    m.includes("does not exist") ||
-    m.includes("account disabled") ||
-    m.includes("unrouteable address")
-  ) {
-    return true;
-  }
-
-  // SMTP permanent recipient failures (mainly 5.1.x)
-  if (
-    /status:\s*5\.1\.\d+/.test(m) ||
-    /smtp;\s*5\.1\.\d+/.test(m) ||
-    (/\b(550|551|552|553)\b/.test(m) &&
-      /(recipient|mailbox|user|address)/.test(m) &&
-      !m.includes("sender"))
-  ) {
-    return true;
-  }
-
-  return false;
 }
 
 interface SmtpResolvedAccount {
@@ -622,20 +570,15 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           break;
         }
         const senderName = campaign.senderName || smtpAccount.fromName || "";
-        const campaignSender = normalizeEmailAddress(campaign.senderEmail);
-        const accountFrom = normalizeEmailAddress(smtpAccount.fromEmail);
         const accountUser = normalizeEmailAddress(smtpAccount.username);
-
-        const allowedAccountSenders = new Set<string>();
-        if (accountFrom) allowedAccountSenders.add(accountFrom);
-        if (accountUser) allowedAccountSenders.add(accountUser);
-
-        const smtpFrom =
-          campaignSender && allowedAccountSenders.has(campaignSender)
-            ? campaignSender
-            : smtpAccount.fromEmail ||
-              process.env.SMTP_FROM ||
-              smtpAccount.username;
+        const smtpFrom = resolvePreferredFromAddress({
+          campaignSenderEmail: campaign.senderEmail,
+          accountFromEmail: smtpAccount.fromEmail,
+          accountUsername: smtpAccount.username,
+          envFromEmail: process.env.SMTP_FROM,
+        });
+        let activeFrom = smtpFrom;
+        let switchedToAccountUser = false;
 
         let transporter = transporters.get(smtpAccount.id);
         if (!transporter) {
@@ -661,7 +604,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             await transporter.sendMail({
-              from: senderName ? `"${senderName}" <${smtpFrom}>` : smtpFrom,
+              from: senderName ? `"${senderName}" <${activeFrom}>` : activeFrom,
               to: contact.email,
               subject,
               text: plainText,
@@ -672,6 +615,18 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           } catch (err) {
             lastErrorMessage =
               err instanceof Error ? err.message : String(err);
+
+            if (
+              !switchedToAccountUser &&
+              accountUser &&
+              normalizeEmailAddress(activeFrom) !== accountUser &&
+              isSenderPolicyError(lastErrorMessage)
+            ) {
+              activeFrom = accountUser;
+              switchedToAccountUser = true;
+              continue;
+            }
+
             if (attempt < 2) {
               await sleep(1000 * (attempt + 1));
             }
