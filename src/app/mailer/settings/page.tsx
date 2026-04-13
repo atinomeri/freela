@@ -25,6 +25,25 @@ interface ApiErrorShape {
   message?: string;
 }
 
+function parseFromAddress(raw: string | null | undefined): {
+  email: string;
+  name: string;
+} {
+  const value = raw?.trim() || "";
+  if (!value) return { email: "", name: "" };
+
+  const angleMatch = value.match(/^(?:"?([^"]*)"?\s*)?<\s*([^<>]+)\s*>$/);
+  if (angleMatch) {
+    const maybeEmail = angleMatch[2]?.trim() || "";
+    const maybeName = angleMatch[1]?.trim() || "";
+    if (maybeEmail.includes("@")) {
+      return { email: maybeEmail, name: maybeName };
+    }
+  }
+
+  return { email: value, name: "" };
+}
+
 export default function MailerSettingsPage() {
   const { user, apiFetch } = useMailerAuth();
   const [loading, setLoading] = useState(true);
@@ -58,8 +77,9 @@ export default function MailerSettingsPage() {
         setPort(String(data.port || 465));
         setSecure(Boolean(data.secure));
         setUsername(data.username || "");
-        setFromEmail(data.fromEmail || "");
-        setFromName(data.fromName || "");
+        const parsedFrom = parseFromAddress(data.fromEmail || "");
+        setFromEmail(parsedFrom.email);
+        setFromName(data.fromName || parsedFrom.name || "");
         setTrackOpens(data.trackOpens ?? true);
         setTrackClicks(data.trackClicks ?? true);
         setHasPassword(Boolean(data.hasPassword));
@@ -78,7 +98,17 @@ export default function MailerSettingsPage() {
   function parseError(body: ApiErrorShape | null, fallback: string): string {
     const apiErr = body?.error;
     if (typeof apiErr === "string") return apiErr;
-    if (typeof apiErr?.message === "string") return apiErr.message;
+    if (typeof apiErr?.message === "string") {
+      const details = (apiErr as { details?: Array<{ message?: string }> }).details;
+      if (Array.isArray(details) && details.length > 0) {
+        const msg = details
+          .map((item) => item?.message)
+          .filter((item): item is string => typeof item === "string" && item.length > 0)
+          .join(", ");
+        if (msg) return `${apiErr.message}: ${msg}`;
+      }
+      return apiErr.message;
+    }
     if (typeof body?.message === "string") return body.message;
     return fallback;
   }
@@ -90,6 +120,7 @@ export default function MailerSettingsPage() {
     setSuccess("");
 
     try {
+      const normalizedFrom = parseFromAddress(fromEmail);
       const res = await apiFetch("/api/desktop/smtp-config", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -99,8 +130,8 @@ export default function MailerSettingsPage() {
           secure,
           username,
           password: password || undefined,
-          fromEmail: fromEmail || null,
-          fromName: fromName || null,
+          fromEmail: normalizedFrom.email || null,
+          fromName: (fromName || normalizedFrom.name || "").trim() || null,
           trackOpens,
           trackClicks,
         }),
@@ -225,4 +256,3 @@ export default function MailerSettingsPage() {
     </div>
   );
 }
-

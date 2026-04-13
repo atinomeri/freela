@@ -4,17 +4,65 @@ import { errors, success } from "@/lib/api-response";
 import { upsertDesktopSmtpConfigSchema } from "@/lib/validation";
 import { encryptSecretValue } from "@/lib/secret-crypto";
 
+function parseFromAddress(raw: string | null | undefined): {
+  email: string | null;
+  name: string | null;
+} {
+  const value = raw?.trim();
+  if (!value) return { email: null, name: null };
+
+  const angleMatch = value.match(/^(?:"?([^"]*)"?\s*)?<\s*([^<>]+)\s*>$/);
+  if (angleMatch) {
+    const maybeEmail = angleMatch[2]?.trim() || "";
+    const maybeName = angleMatch[1]?.trim() || "";
+    if (maybeEmail.includes("@")) {
+      return {
+        email: maybeEmail,
+        name: maybeName || null,
+      };
+    }
+  }
+
+  if (value.includes("@")) {
+    return { email: value, name: null };
+  }
+
+  return { email: null, name: value };
+}
+
+function normalizeSmtpBody(body: unknown): unknown {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+  const next = { ...(body as Record<string, unknown>) };
+  const rawFromEmail = typeof next.fromEmail === "string" ? next.fromEmail : null;
+  if (!rawFromEmail) return next;
+
+  const parsed = parseFromAddress(rawFromEmail);
+  if (parsed.email) {
+    next.fromEmail = parsed.email;
+    const hasName =
+      typeof next.fromName === "string" ? next.fromName.trim().length > 0 : false;
+    if (!hasName && parsed.name) {
+      next.fromName = parsed.name;
+    }
+  }
+
+  return next;
+}
+
 function envDefaults() {
   const port = parseInt(process.env.SMTP_PORT || "465", 10);
   const secure =
     (process.env.SMTP_SECURE || "").toLowerCase() === "true" || port === 465;
+  const parsedDefaultFrom = parseFromAddress(
+    process.env.SMTP_FROM || process.env.SMTP_USER || "",
+  );
   return {
     host: process.env.SMTP_HOST || "",
     port,
     secure,
     username: process.env.SMTP_USER || "",
-    fromEmail: process.env.SMTP_FROM || process.env.SMTP_USER || "",
-    fromName: "",
+    fromEmail: parsedDefaultFrom.email || process.env.SMTP_USER || "",
+    fromName: parsedDefaultFrom.name || "",
     trackOpens: process.env.TRACK_OPENS === "true",
     trackClicks: process.env.TRACK_CLICKS === "true",
   };
@@ -68,7 +116,8 @@ export async function PATCH(req: Request) {
     const body = await req.json().catch(() => null);
     if (!body) return errors.badRequest("Invalid JSON body");
 
-    const parsed = upsertDesktopSmtpConfigSchema.safeParse(body);
+    const normalizedBody = normalizeSmtpBody(body);
+    const parsed = upsertDesktopSmtpConfigSchema.safeParse(normalizedBody);
     if (!parsed.success) return errors.validationError(parsed.error.issues);
 
     const data = parsed.data;
@@ -131,4 +180,3 @@ export async function PATCH(req: Request) {
     return errors.serverError();
   }
 }
-
