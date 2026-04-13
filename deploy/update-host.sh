@@ -102,10 +102,10 @@ if ! git show-ref --verify --quiet "refs/remotes/${UPSTREAM_REF}"; then
   exit 1
 fi
 
-read -r BEHIND_COUNT AHEAD_COUNT <<<"$(git rev-list --left-right --count HEAD...${UPSTREAM_REF})"
+read -r LOCAL_AHEAD_COUNT LOCAL_BEHIND_COUNT <<<"$(git rev-list --left-right --count HEAD...${UPSTREAM_REF})"
 
-if (( AHEAD_COUNT > 0 )); then
-  echo "[update-host] local branch is ahead of ${UPSTREAM_REF} by ${AHEAD_COUNT} commit(s)." >&2
+if (( LOCAL_AHEAD_COUNT > 0 )); then
+  echo "[update-host] local branch is ahead of ${UPSTREAM_REF} by ${LOCAL_AHEAD_COUNT} commit(s)." >&2
   echo "[update-host] push commits to GitHub first, then run update-host.sh again." >&2
   exit 1
 fi
@@ -114,8 +114,8 @@ if [[ "${RUN_PULL}" == "true" ]]; then
   echo "[update-host] pulling latest changes for branch: ${DEPLOY_BRANCH}"
   git pull --ff-only origin "${DEPLOY_BRANCH}"
 else
-  if (( BEHIND_COUNT > 0 )); then
-    echo "[update-host] skipping git pull (branch is behind ${UPSTREAM_REF} by ${BEHIND_COUNT} commit(s))"
+  if (( LOCAL_BEHIND_COUNT > 0 )); then
+    echo "[update-host] skipping git pull (branch is behind ${UPSTREAM_REF} by ${LOCAL_BEHIND_COUNT} commit(s))"
   else
     echo "[update-host] skipping git pull"
   fi
