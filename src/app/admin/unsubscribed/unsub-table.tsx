@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { formatGeorgianDateTime } from "@/lib/date";
 
 type UnsubItem = {
   id: string;
@@ -102,13 +103,7 @@ export function UnsubscribedTable({ initialItems }: { initialItems: UnsubItem[] 
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {new Date(item.createdAt).toLocaleString("ka-GE", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatGeorgianDateTime(item.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

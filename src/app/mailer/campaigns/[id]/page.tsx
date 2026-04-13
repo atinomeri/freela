@@ -26,7 +26,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { MailerLoginPage } from "../../login-page";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { formatGeorgianDateTime } from "@/lib/date";
 
 interface Campaign {
   id: string;
@@ -94,7 +95,6 @@ const STATUS_BADGE: Record<
 export default function CampaignDetailPage() {
   const { user, apiFetch } = useMailerAuth();
   const t = useTranslations("mailer");
-  const locale = useLocale();
   const params = useParams<{ id: string }>();
   const router = useRouter();
 
@@ -451,7 +451,7 @@ export default function CampaignDetailPage() {
             <p className="mt-1 text-sm text-muted-foreground">{campaign.subject}</p>
             {campaign.scheduledAt && campaign.status === "DRAFT" && (
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Scheduled: {new Date(campaign.scheduledAt).toLocaleString(locale)}
+                Scheduled: {formatGeorgianDateTime(campaign.scheduledAt)}
               </p>
             )}
             {campaign.senderName && (
@@ -577,12 +577,12 @@ export default function CampaignDetailPage() {
 
           {campaign.startedAt && (
             <p className="mt-4 text-xs text-muted-foreground">
-              {t("campaignDetail.started")}: {new Date(campaign.startedAt).toLocaleString(locale)}
+              {t("campaignDetail.started")}: {formatGeorgianDateTime(campaign.startedAt)}
             </p>
           )}
           {campaign.completedAt && (
             <p className="text-xs text-muted-foreground">
-              {t("campaignDetail.completed")}: {new Date(campaign.completedAt).toLocaleString(locale)}
+              {t("campaignDetail.completed")}: {formatGeorgianDateTime(campaign.completedAt)}
             </p>
           )}
         </Card>
@@ -674,7 +674,7 @@ export default function CampaignDetailPage() {
                         <td className="py-2 pr-4">{item.email}</td>
                         <td className="py-2 pr-4 text-muted-foreground">{item.reason || "—"}</td>
                         <td className="py-2 pr-4 text-muted-foreground">
-                          {new Date(item.createdAt).toLocaleString(locale)}
+                          {formatGeorgianDateTime(item.createdAt)}
                         </td>
                       </tr>
                     ))}

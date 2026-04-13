@@ -7,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { proposalStatusLabel } from "@/lib/proposal-status";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { formatGeorgianDate } from "@/lib/date";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboardProposals");
@@ -16,7 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MyProposalsPage() {
-  const locale = await getLocale();
   const t = await getTranslations("dashboardProposals");
   const tStatuses = await getTranslations("proposalStatus");
 
@@ -56,9 +56,7 @@ export default async function MyProposalsPage() {
                   <div className="font-medium">{p.project.title}</div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {t("sent")}:{" "}
-                    {new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(
-                      new Date(p.createdAt)
-                    )}
+                    {formatGeorgianDate(p.createdAt)}
                   </div>
                 </div>
                 <Badge>{proposalStatusLabel(p.status, tStatuses)}</Badge>

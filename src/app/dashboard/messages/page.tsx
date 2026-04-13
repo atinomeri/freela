@@ -5,8 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { formatGeorgianDate } from "@/lib/date";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("dashboardMessages");
@@ -14,7 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MessagesPage() {
-  const locale = await getLocale();
   const t = await getTranslations("dashboardMessages");
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/auth/login");
@@ -74,9 +74,7 @@ export default async function MessagesPage() {
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(
-                        new Date(last?.createdAt ?? thread.updatedAt)
-                      )}
+                      {formatGeorgianDate(last?.createdAt ?? thread.updatedAt)}
                     </div>
                   </div>
                   <div className="mt-2 text-sm text-muted-foreground">

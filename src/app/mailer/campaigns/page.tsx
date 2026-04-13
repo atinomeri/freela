@@ -10,7 +10,8 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { Plus, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MailerLoginPage } from "../login-page";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { formatGeorgianDate } from "@/lib/date";
 
 interface Campaign {
   id: string;
@@ -42,7 +43,6 @@ const STATUS_BADGE: Record<string, { variant: "default" | "success" | "warning" 
 export default function CampaignsPage() {
   const { user, apiFetch } = useMailerAuth();
   const t = useTranslations("mailer");
-  const locale = useLocale();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,7 +146,7 @@ export default function CampaignsPage() {
                             )}
                           </div>
                         ) : (
-                          <div>{new Date(campaign.createdAt).toLocaleDateString(locale)}</div>
+                          <div>{formatGeorgianDate(campaign.createdAt)}</div>
                         )}
                       </div>
                     </div>

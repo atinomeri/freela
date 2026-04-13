@@ -2,13 +2,14 @@
 
 import { useMailerAuth } from "@/lib/mailer-auth";
 import { useCallback, useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { MailerLoginPage } from "../login-page";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageSpinner } from "@/components/ui/spinner";
 import { ChevronLeft, ChevronRight, Wallet } from "lucide-react";
+import { formatGeorgianDateTime } from "@/lib/date";
 
 interface Pagination {
   page: number;
@@ -49,7 +50,6 @@ interface ApiErrorShape {
 export default function MailerBillingPage() {
   const { user, apiFetch } = useMailerAuth();
   const t = useTranslations("mailer");
-  const locale = useLocale();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -294,7 +294,7 @@ export default function MailerBillingPage() {
                     })}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {new Date(entry.createdAt).toLocaleString(locale)}
+                    {formatGeorgianDateTime(entry.createdAt)}
                   </p>
                 </div>
               ))}
@@ -371,7 +371,7 @@ export default function MailerBillingPage() {
                     </p>
                   )}
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {new Date(payment.createdAt).toLocaleString(locale)}
+                    {formatGeorgianDateTime(payment.createdAt)}
                   </p>
                 </div>
               ))}

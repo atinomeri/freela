@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { NotificationsList } from "@/app/dashboard/notifications/notifications-list";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NotificationsPage() {
-  const locale = await getLocale();
   const t = await getTranslations("dashboardNotifications");
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/auth/login");
@@ -52,7 +51,6 @@ export default async function NotificationsPage() {
         <div className="mt-6">
           <div className="mb-3 text-sm text-muted-foreground">{t("unread", { count: unreadCount })}</div>
           <NotificationsList
-            locale={locale}
             initial={notifications.map((n) => ({
               ...n,
               readAt: n.readAt ? n.readAt.toISOString() : null,

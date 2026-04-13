@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
+import { formatGeorgianDate } from "@/lib/date";
 
 type NotificationItem = {
   id: string;
@@ -16,7 +17,7 @@ type NotificationItem = {
   createdAt: string;
 };
 
-export function NotificationsList({ initial, locale }: { initial: NotificationItem[]; locale: string }) {
+export function NotificationsList({ initial }: { initial: NotificationItem[] }) {
   const t = useTranslations("dashboardNotificationsList");
   const tNotifications = useTranslations("notifications");
   const tApiErrors = useTranslations("apiErrors");
@@ -99,7 +100,7 @@ export function NotificationsList({ initial, locale }: { initial: NotificationIt
                 })()}
               </div>
               <div className="text-xs text-muted-foreground">
-                {new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(n.createdAt))}
+                {formatGeorgianDate(n.createdAt)}
               </div>
             </div>
           </Card>

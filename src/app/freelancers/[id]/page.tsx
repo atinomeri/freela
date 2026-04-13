@@ -9,6 +9,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
 import { Briefcase, MessageSquare, Star, Calendar, BadgeCheck } from "lucide-react";
+import { formatGeorgianDate } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,7 @@ export default async function FreelancerDetailPage({ params }: Props) {
   const reviewsCount = reviewStats._count._all;
 
   // Use a fallback date if createdAt is missing or invalid (though schema says it's required)
-  const joinDate = profile.user.createdAt ? new Date(profile.user.createdAt).toLocaleDateString() : "";
+  const joinDate = profile.user.createdAt ? formatGeorgianDate(profile.user.createdAt) : "";
 
   return (
     <div className="min-h-screen bg-muted/30">

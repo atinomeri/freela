@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { formatGeorgianLongDate, formatLongDate } from "./date";
+import {
+  formatGeorgianDate,
+  formatGeorgianDateTime,
+  formatGeorgianLongDate,
+  formatGeorgianTime,
+  formatLongDate,
+} from "./date";
 
 describe("formatGeorgianLongDate", () => {
   it("formats Date object correctly", () => {
@@ -141,5 +147,25 @@ describe("formatLongDate", () => {
       
       expect(result).toContain("January");
     });
+  });
+});
+
+describe("Georgian short date/time formatters", () => {
+  it("formats Georgian date as numeric date", () => {
+    const result = formatGeorgianDate("2026-04-13T14:08:00.000Z");
+    expect(result).toMatch(/13.*04.*2026|04.*13.*2026|2026.*04.*13/);
+  });
+
+  it("formats Georgian time in 24-hour format", () => {
+    const result = formatGeorgianTime("2026-04-13T14:08:00.000Z");
+    expect(result).toContain(":");
+    expect(result).not.toMatch(/AM|PM/i);
+  });
+
+  it("formats Georgian date-time in 24-hour format", () => {
+    const result = formatGeorgianDateTime("2026-04-13T14:08:00.000Z");
+    expect(result).toContain(":");
+    expect(result).toMatch(/2026/);
+    expect(result).not.toMatch(/AM|PM/i);
   });
 });

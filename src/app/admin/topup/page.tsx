@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { TopupForm } from "./topup-form";
+import { formatGeorgianDate } from "@/lib/date";
 
 export const metadata: Metadata = {
   title: "Top Up Balance",
@@ -97,7 +98,7 @@ export default async function AdminTopupPage() {
                       {(u.balance / 100).toFixed(2)}
                     </td>
                     <td className="py-2.5 text-muted-foreground">
-                      {u.createdAt.toLocaleDateString("en-GB")}
+                      {formatGeorgianDate(u.createdAt)}
                     </td>
                   </tr>
                 ))}

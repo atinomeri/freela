@@ -2,13 +2,14 @@
 
 import { useMailerAuth } from "@/lib/mailer-auth";
 import { useCallback, useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { MailerLoginPage } from "../login-page";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageSpinner } from "@/components/ui/spinner";
 import { RefreshCcw } from "lucide-react";
+import { formatGeorgianDateTime } from "@/lib/date";
 
 interface WarmupSender {
   senderKey: string;
@@ -40,7 +41,6 @@ interface ApiErrorShape {
 export default function MailerWarmupPage() {
   const { user, apiFetch } = useMailerAuth();
   const t = useTranslations("mailer");
-  const locale = useLocale();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -193,7 +193,7 @@ export default function MailerWarmupPage() {
                           })}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {t("warmup.firstSeenAt")}: {new Date(sender.firstSeenAt).toLocaleString(locale)}
+                          {t("warmup.firstSeenAt")}: {formatGeorgianDateTime(sender.firstSeenAt)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">

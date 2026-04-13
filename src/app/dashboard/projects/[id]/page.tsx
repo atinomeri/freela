@@ -11,7 +11,7 @@ import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { formatLongDate } from "@/lib/date";
+import { formatGeorgianDate, formatLongDate } from "@/lib/date";
 import { ProjectStatusButton } from "@/app/dashboard/projects/project-status-button";
 import { CompleteProjectButton } from "@/app/dashboard/projects/complete-project-button";
 import { ReviewForm } from "@/app/dashboard/projects/[id]/review-form";
@@ -108,9 +108,7 @@ export default async function EmployerProjectDetailPage({ params }: Props) {
                       {proposal.freelancer.name}
                     </Link>
                     <div className="text-xs text-muted-foreground">
-                      {new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(
-                        new Date(proposal.createdAt)
-                      )}
+                      {formatGeorgianDate(proposal.createdAt)}
                     </div>
                   </div>
                   <div className="mt-2">

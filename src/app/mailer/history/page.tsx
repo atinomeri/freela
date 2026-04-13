@@ -2,7 +2,7 @@
 
 import { useMailerAuth } from "@/lib/mailer-auth";
 import { useCallback, useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button, ButtonLink } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
+import { formatGeorgianDateTime } from "@/lib/date";
 
 interface CampaignHistoryItem {
   id: string;
@@ -69,7 +70,6 @@ function parseContentDispositionFilename(header: string | null): string | null {
 export default function MailerHistoryPage() {
   const { user, apiFetch } = useMailerAuth();
   const t = useTranslations("mailer");
-  const locale = useLocale();
 
   const [items, setItems] = useState<CampaignHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -238,9 +238,9 @@ export default function MailerHistoryPage() {
                         })}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t("history.createdAt")}: {new Date(campaign.createdAt).toLocaleString(locale)}
+                        {t("history.createdAt")}: {formatGeorgianDateTime(campaign.createdAt)}
                         {campaign.completedAt
-                          ? ` · ${t("history.completedAt")}: ${new Date(campaign.completedAt).toLocaleString(locale)}`
+                          ? ` · ${t("history.completedAt")}: ${formatGeorgianDateTime(campaign.completedAt)}`
                           : ""}
                       </p>
                     </div>

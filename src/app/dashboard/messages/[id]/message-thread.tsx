@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { formatGeorgianTime } from "@/lib/date";
 
 type Sender = { id: string; name: string };
 type Attachment = { id: string; originalName: string; mimeType: string | null; sizeBytes: number };
@@ -34,7 +35,6 @@ export function MessageThread({
   initial: Message[];
 }) {
   const t = useTranslations("messageThread");
-  const locale = useLocale();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<Message[]>(initial);
   const idsRef = useRef<Set<string>>(new Set(initial.map((m) => m.id)));
@@ -211,7 +211,7 @@ export function MessageThread({
               ) : null}
               <div className="mt-1 flex items-center justify-between gap-2 text-[10px] opacity-70">
                 <span>
-                  {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date(m.createdAt))}
+                  {formatGeorgianTime(m.createdAt)}
                 </span>
                 {statusText ? <span>{statusText}</span> : null}
               </div>

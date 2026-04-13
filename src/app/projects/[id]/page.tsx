@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { proposalStatusLabel } from "@/lib/proposal-status";
 import { StartChatButton } from "@/app/projects/[id]/start-chat-button";
 import { getFreelancerCategoryLabel } from "@/lib/categories";
-import { formatLongDate } from "@/lib/date";
+import { formatGeorgianDate, formatLongDate } from "@/lib/date";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/button";
@@ -207,9 +207,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                 <Badge>{proposalStatusLabel(proposal.status, tStatuses)}</Badge>
                 <div className="text-xs text-muted-foreground">
                   {t("sent")}:{" "}
-                  {new Intl.DateTimeFormat(locale, { year: "numeric", month: "2-digit", day: "2-digit" }).format(
-                    new Date(proposal.createdAt)
-                  )}
+                  {formatGeorgianDate(proposal.createdAt)}
                 </div>
               </div>
               <div className="mt-3 text-sm text-muted-foreground">{t("alreadySent")}</div>
