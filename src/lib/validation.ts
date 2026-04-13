@@ -431,6 +431,28 @@ export const updateDesktopSmtpPoolAccountSchema = z.object({
   priority: z.coerce.number().int().min(-1000).max(1000).optional(),
 });
 
+export const mailerSpamCheckSchema = z.object({
+  subject: z.string().max(998).default(""),
+  html: z.string().max(1_000_000).default(""),
+});
+
+export const mailerDeliverabilitySchema = z.object({
+  senderEmail: z.string().email("Invalid sender email").optional(),
+  domain: z
+    .string()
+    .min(1)
+    .max(255)
+    .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+    .optional(),
+  dkimSelectors: z.array(z.string().min(1).max(64)).max(20).optional(),
+});
+
+export const mailerBounceScanSchema = z.object({
+  mailbox: z.string().min(1).max(255).default("INBOX"),
+  maxMessages: z.coerce.number().int().min(1).max(500).default(100),
+  markAsSeen: z.boolean().default(true),
+});
+
 // ============================================
 // Contact list schemas
 // ============================================
