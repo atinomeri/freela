@@ -140,6 +140,22 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function normalizeBaseUrl(baseUrl: string | null | undefined): string {
+  return (baseUrl || "").trim().replace(/\/+$/, "");
+}
+
+function resolveTrackingUrl(
+  explicitEnvUrl: string | undefined,
+  fallbackPath: "/api/tracking/pixel" | "/api/tracking/click",
+): string {
+  const explicit = (explicitEnvUrl || "").trim();
+  if (explicit) return explicit;
+  const base = normalizeBaseUrl(
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL,
+  );
+  return base ? `${base}${fallbackPath}` : "";
+}
+
 interface SmtpResolvedAccount {
   id: string;
   host: string;
@@ -457,9 +473,21 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
     // Tracking config
     const trackOpens = userSmtp?.trackOpens ?? process.env.TRACK_OPENS === "true";
-    const trackingUrl = process.env.TRACKING_PIXEL_URL || "";
+    const trackingUrl = resolveTrackingUrl(
+      process.env.TRACKING_PIXEL_URL,
+      "/api/tracking/pixel",
+    );
     const trackClicks = userSmtp?.trackClicks ?? process.env.TRACK_CLICKS === "true";
-    const clickTrackingUrl = process.env.CLICK_TRACKING_URL || "";
+    const clickTrackingUrl = resolveTrackingUrl(
+      process.env.CLICK_TRACKING_URL,
+      "/api/tracking/click",
+    );
+    if (trackOpens && !trackingUrl) {
+      console.warn("[Worker] Open tracking enabled but tracking pixel URL is empty.");
+    }
+    if (trackClicks && !clickTrackingUrl) {
+      console.warn("[Worker] Click tracking enabled but click tracking URL is empty.");
+    }
 
     const emailColumn = campaign.contactList?.emailColumn || "email";
 
