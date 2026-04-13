@@ -25,6 +25,7 @@ import {
   normalizeEmailAddress,
   resolvePreferredFromAddress,
 } from "./mailer-sender";
+import { createUnsubscribeToken } from "./unsubscribe-token";
 
 // ── Prisma (dynamic import to avoid "server-only" issues in worker process) ──
 
@@ -154,6 +155,62 @@ function resolveTrackingUrl(
     process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL,
   );
   return base ? `${base}${fallbackPath}` : "";
+}
+
+function createUnsubscribeTokenSafe(
+  recipientEmail: string,
+  desktopUserId: string,
+): string {
+  try {
+    return createUnsubscribeToken(recipientEmail, desktopUserId);
+  } catch (error) {
+    const normalized = recipientEmail.trim().toLowerCase();
+    console.warn(
+      `[Worker] Failed to create signed unsubscribe token for ${normalized}; using legacy fallback token.`,
+      error,
+    );
+    return Buffer.from(normalized, "utf-8").toString("base64url");
+  }
+}
+
+function resolveUnsubscribeUrl(token: string): string {
+  const configured = (process.env.UNSUBSCRIBE_PAGE_URL || "").trim();
+  if (configured) {
+    if (/\[\[\s*Email_B64\s*\]\]/i.test(configured)) {
+      return configured.replace(
+        /\[\[\s*Email_B64\s*\]\]/gi,
+        encodeURIComponent(token),
+      );
+    }
+    const separator = configured.includes("?") ? "&" : "?";
+    return `${configured}${separator}email=${encodeURIComponent(token)}`;
+  }
+
+  const base = normalizeBaseUrl(
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL,
+  );
+  return base ? `${base}/unsub?email=${encodeURIComponent(token)}` : "";
+}
+
+export function buildRecipientTemplateData(params: {
+  emailColumn: string;
+  recipientEmail: string;
+  contactData?: Record<string, string>;
+  desktopUserId: string;
+}): Record<string, string> {
+  const token = createUnsubscribeTokenSafe(
+    params.recipientEmail,
+    params.desktopUserId,
+  );
+  const unsubscribeUrl = resolveUnsubscribeUrl(token);
+
+  return {
+    [params.emailColumn]: params.recipientEmail,
+    ...(params.contactData || {}),
+    Email_B64: token,
+    UNSUBSCRIBE_TOKEN: token,
+    ...(unsubscribeUrl ? { UNSUBSCRIBE_URL: unsubscribeUrl } : {}),
+  };
 }
 
 interface SmtpResolvedAccount {
@@ -562,10 +619,12 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         }
 
         // Build personalization data
-        const rowData: Record<string, string> = {
-          [emailColumn]: contact.email,
-          ...(contact.data as Record<string, string> || {}),
-        };
+        const rowData = buildRecipientTemplateData({
+          emailColumn,
+          recipientEmail: contact.email,
+          contactData: (contact.data as Record<string, string>) || {},
+          desktopUserId,
+        });
 
         // Personalize subject and body
         const subject = personalize(campaign.subject, rowData);
