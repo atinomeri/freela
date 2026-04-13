@@ -78,7 +78,11 @@ describe('GET /api/tracking/stats', () => {
     expect(body.open_rate).toBe(2);
     expect(body.click_rate).toBe(1);
     expect(prisma.unsubscribedEmail.count).toHaveBeenCalledWith({
-      where: { createdAt: { gte: startedAt }, desktopUserId: 'desktop-user-1' },
+      where: {
+        createdAt: { gte: startedAt },
+        desktopUserId: 'desktop-user-1',
+        source: { not: 'bounce' },
+      },
     });
   });
 
