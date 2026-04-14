@@ -417,6 +417,36 @@ export default function CampaignDetailPage() {
   const failedTotalPages = failedPagination
     ? Math.max(1, Math.ceil(failedPagination.total / failedPagination.pageSize))
     : 1;
+  const topFailedReason = failedRecipients
+    .map((item) => (item.reason || "").trim())
+    .filter(Boolean)
+    .reduce(
+      (acc, reason) => {
+        const count = (acc.counts.get(reason) ?? 0) + 1;
+        acc.counts.set(reason, count);
+        if (!acc.topReason || count > acc.topCount) {
+          acc.topReason = reason;
+          acc.topCount = count;
+        }
+        return acc;
+      },
+      {
+        counts: new Map<string, number>(),
+        topReason: "" as string,
+        topCount: 0,
+      },
+    );
+  const failureHint =
+    campaign.status === "FAILED"
+      ? topFailedReason.topReason
+        ? t("campaignDetail.failedStopHintWithReason", {
+            reason: topFailedReason.topReason.slice(0, 200),
+            count: topFailedReason.topCount,
+          })
+        : campaign.failedCount > 0
+          ? t("campaignDetail.failedStopHint")
+          : t("campaignDetail.failedWarmupHint")
+      : null;
 
   const assignedList = contactLists.find((l) => l.id === campaign.contactListId);
 
@@ -435,6 +465,11 @@ export default function CampaignDetailPage() {
       {error && (
         <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {error}
+        </div>
+      )}
+      {failureHint && (
+        <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          {failureHint}
         </div>
       )}
 

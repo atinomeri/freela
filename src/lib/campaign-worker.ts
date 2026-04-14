@@ -557,6 +557,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       ? runSliceOffset + runTotalContacts
       : totalEligibleContacts;
     let stoppedByWarmup = false;
+    let stoppedByConsecutiveFailures = false;
     const bouncedEmails = new Set<string>();
     const failedRecipients: Array<{ email: string; reason: string | null }> = [];
 
@@ -755,16 +756,8 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         // Abort on too many consecutive failures
         if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
           console.error(`[Worker] Campaign ${campaignId}: ${MAX_CONSECUTIVE_FAILURES} consecutive failures, aborting`);
-          await prisma.campaign.update({
-            where: { id: campaignId },
-            data: {
-              status: "FAILED",
-              sentCount,
-              failedCount,
-              completedAt: new Date(),
-            },
-          });
-          return;
+          stoppedByConsecutiveFailures = true;
+          break;
         }
 
         // Throttle delay between emails
@@ -772,6 +765,9 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
       }
 
       if (stoppedByWarmup) {
+        break;
+      }
+      if (stoppedByConsecutiveFailures) {
         break;
       }
       offset += contacts.length;
@@ -849,7 +845,17 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
     }
 
     // 6. Finalize campaign status
-    if (isDailyRun) {
+    if (stoppedByConsecutiveFailures) {
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: {
+          status: "FAILED",
+          sentCount,
+          failedCount,
+          completedAt: new Date(),
+        },
+      });
+    } else if (isDailyRun) {
       const newOffset = Math.min(totalEligibleContacts, runSliceOffset + processedInRun);
       const isFinished = newOffset >= totalEligibleContacts;
       if (isFinished) {
