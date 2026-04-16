@@ -465,6 +465,45 @@ export const updateDesktopSmtpPoolAccountSchema = z.object({
   priority: z.coerce.number().int().min(-1000).max(1000).optional(),
 });
 
+export const testDesktopSmtpPoolConnectionSchema = z.object({
+  accountId: z.string().cuid().optional(),
+  host: z.string().min(1).max(255).optional(),
+  port: z.coerce.number().int().min(1).max(65535).optional(),
+  secure: z.boolean().optional(),
+  username: z.string().min(1).max(255).optional(),
+  password: z.string().min(1).max(1000).optional(),
+}).superRefine((data, ctx) => {
+  if (data.accountId) return;
+  if (!data.host) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["host"],
+      message: "SMTP host is required",
+    });
+  }
+  if (!data.port) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["port"],
+      message: "SMTP port is required",
+    });
+  }
+  if (!data.username) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["username"],
+      message: "SMTP username is required",
+    });
+  }
+  if (!data.password) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["password"],
+      message: "SMTP password is required",
+    });
+  }
+});
+
 export const mailerSpamCheckSchema = z.object({
   subject: z.string().max(998).default(""),
   html: z.string().max(1_000_000).default(""),

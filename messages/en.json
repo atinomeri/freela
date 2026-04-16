@@ -1288,7 +1288,7 @@
       "campaigns": "Campaigns",
       "contacts": "Contacts",
       "templates": "Templates",
-      "smtpPool": "SMTP Pool",
+      "smtpPool": "Sending Accounts",
       "settings": "Settings",
       "preflight": "Preflight",
       "bounce": "Bounce Scan",

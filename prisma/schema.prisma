@@ -459,6 +459,22 @@ enum DesktopPaymentProvider {
   BOG
 }
 
+enum DesktopSendingAccountProvider {
+  GMAIL
+  OUTLOOK
+  YAHOO
+  CUSTOM
+}
+
+enum DesktopSendingAccountStatus {
+  NOT_TESTED
+  CONNECTED
+  FAILED
+  NEEDS_ATTENTION
+  PAUSED
+  TESTING
+}
+
 model DesktopUser {
   id            String          @id @default(cuid())
   userType      DesktopUserType
@@ -492,6 +508,7 @@ model DesktopUser {
   unsubscribedEmails UnsubscribedEmail[]
   smtpConfig        DesktopSmtpConfig?
   smtpPoolAccounts  DesktopSmtpPoolAccount[]
+  sendingAccounts   DesktopSendingAccount[]
   campaignTemplates CampaignTemplate[]
   warmupSenders     DesktopWarmupSender[]
 
@@ -557,6 +574,36 @@ model DesktopSmtpPoolAccount {
   updatedAt        DateTime    @updatedAt
 
   @@index([desktopUserId, active, priority, createdAt])
+}
+
+model DesktopSendingAccount {
+  id               String                       @id @default(cuid())
+  desktopUserId    String
+  desktopUser      DesktopUser                  @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+
+  provider         DesktopSendingAccountProvider
+  host             String
+  port             Int                          @default(465)
+  secure           Boolean                      @default(true)
+  username         String
+  passwordEnc      String
+  senderEmail      String?
+  senderName       String?
+  rotationEnabled  Boolean                      @default(true)
+  status           DesktopSendingAccountStatus  @default(NOT_TESTED)
+  active           Boolean                      @default(true)
+  failCount        Int                          @default(0)
+  lastTestedAt     DateTime?
+  lastTestSuccess  Boolean?
+  lastTestError    String?
+  lastTestLatencyMs Int?
+
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+
+  @@unique([desktopUserId, provider, host, port, username])
+  @@index([desktopUserId, status, rotationEnabled, createdAt])
+  @@index([desktopUserId, active, createdAt])
 }
 
 model DesktopQuota {
