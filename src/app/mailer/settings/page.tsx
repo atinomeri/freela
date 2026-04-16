@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MailerLoginPage } from "../login-page";
+import { Link } from "@/i18n/navigation";
 
 interface SmtpConfig {
   host: string;
@@ -52,16 +53,14 @@ export default function MailerSettingsPage() {
   const [success, setSuccess] = useState("");
 
   const [host, setHost] = useState("");
-  const [port, setPort] = useState("465");
+  const [port, setPort] = useState(465);
   const [secure, setSecure] = useState(true);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [fromEmail, setFromEmail] = useState("");
   const [fromName, setFromName] = useState("");
   const [trackOpens, setTrackOpens] = useState(true);
   const [trackClicks, setTrackClicks] = useState(true);
-  const [hasPassword, setHasPassword] = useState(false);
-  const [source, setSource] = useState<"env" | "user">("env");
+  const [source, setSource] = useState<"env" | "user">("user");
 
   useEffect(() => {
     if (!user) return;
@@ -74,7 +73,7 @@ export default function MailerSettingsPage() {
         const body = (await res.json()) as { data: SmtpConfig };
         const data = body.data;
         setHost(data.host || "");
-        setPort(String(data.port || 465));
+        setPort(data.port || 465);
         setSecure(Boolean(data.secure));
         setUsername(data.username || "");
         const parsedFrom = parseFromAddress(data.fromEmail || "");
@@ -82,10 +81,9 @@ export default function MailerSettingsPage() {
         setFromName(data.fromName || parsedFrom.name || "");
         setTrackOpens(data.trackOpens ?? true);
         setTrackClicks(data.trackClicks ?? true);
-        setHasPassword(Boolean(data.hasPassword));
         setSource(data.source);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load SMTP config");
+        setError(err instanceof Error ? err.message : "Failed to load settings");
       } finally {
         setLoading(false);
       }
@@ -125,11 +123,11 @@ export default function MailerSettingsPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // Keep SMTP transport fields unchanged in backend config while this page edits only general defaults.
           host,
-          port: Number(port),
+          port,
           secure,
           username,
-          password: password || undefined,
           fromEmail: normalizedFrom.email || null,
           fromName: (fromName || normalizedFrom.name || "").trim() || null,
           trackOpens,
@@ -139,15 +137,13 @@ export default function MailerSettingsPage() {
 
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
-        throw new Error(parseError(body, "Failed to save SMTP config"));
+        throw new Error(parseError(body, "Failed to save settings"));
       }
 
-      setHasPassword(true);
       setSource("user");
-      setPassword("");
-      setSuccess("SMTP settings saved");
+      setSuccess("General settings saved");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save SMTP config");
+      setError(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -156,10 +152,18 @@ export default function MailerSettingsPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">SMTP Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">General Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Current source: <span className="font-medium">{source === "user" ? "User config" : "Environment defaults"}</span>
+          Configure default sender details and campaign tracking behavior.
         </p>
+      </div>
+
+      <div className="mb-4 rounded-lg border border-border/70 bg-muted/25 px-3 py-2 text-sm text-muted-foreground">
+        Email accounts are managed in{" "}
+        <Link href="/mailer/smtp-pool" className="font-medium text-foreground underline-offset-4 hover:underline">
+          Sending Accounts
+        </Link>
+        .
       </div>
 
       {error && (
@@ -177,72 +181,66 @@ export default function MailerSettingsPage() {
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading...</p>
         ) : (
-          <form className="grid gap-4" onSubmit={handleSave}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">SMTP host</span>
-                <Input value={host} onChange={(e) => setHost(e.target.value)} required />
-              </label>
-              <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">Port</span>
-                <Input value={port} onChange={(e) => setPort(e.target.value)} required />
-              </label>
-            </div>
+          <form className="grid gap-8" onSubmit={handleSave}>
+            <section className="space-y-4">
+              <div>
+                <h2 className="text-base font-semibold">Sender Defaults</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Used when a sending account does not define its own sender details.
+                </p>
+              </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">Username</span>
-                <Input value={username} onChange={(e) => setUsername(e.target.value)} required />
-              </label>
-              <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">
-                  Password {hasPassword ? "(leave blank to keep current)" : ""}
-                </span>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required={!hasPassword}
-                />
-              </label>
-            </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-1.5 text-sm">
+                  <span className="font-medium">Default From Email</span>
+                  <Input
+                    value={fromEmail}
+                    onChange={(e) => setFromEmail(e.target.value)}
+                    placeholder="sender@company.com"
+                  />
+                </label>
+                <label className="grid gap-1.5 text-sm">
+                  <span className="font-medium">Default From Name</span>
+                  <Input
+                    value={fromName}
+                    onChange={(e) => setFromName(e.target.value)}
+                    placeholder="Your team or brand name"
+                  />
+                </label>
+              </div>
+            </section>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">From email</span>
-                <Input value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} />
-              </label>
-              <label className="grid gap-1.5 text-sm">
-                <span className="font-medium">From name</span>
-                <Input value={fromName} onChange={(e) => setFromName(e.target.value)} />
-              </label>
-            </div>
+            <section className="space-y-4 border-t border-border/70 pt-6">
+              <div>
+                <h2 className="text-base font-semibold">Tracking Settings</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Controls tracking behavior for all campaigns.
+                </p>
+              </div>
 
-            <div className="grid gap-2 text-sm">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={secure}
-                  onChange={(e) => setSecure(e.target.checked)}
-                />
-                Use secure connection (TLS/SSL)
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={trackOpens}
-                  onChange={(e) => setTrackOpens(e.target.checked)}
-                />
-                Enable open tracking
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={trackClicks}
-                  onChange={(e) => setTrackClicks(e.target.checked)}
-                />
-                Enable click tracking
-              </label>
+              <div className="grid gap-2 text-sm">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={trackOpens}
+                    onChange={(e) => setTrackOpens(e.target.checked)}
+                  />
+                  Enable open tracking
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={trackClicks}
+                    onChange={(e) => setTrackClicks(e.target.checked)}
+                  />
+                  Enable click tracking
+                </label>
+              </div>
+            </section>
+
+            <div className="border-t border-border/70 pt-4 text-xs text-muted-foreground">
+              Settings source:{" "}
+              <span className="font-medium">{source === "user" ? "User config" : "Environment defaults"}</span>
             </div>
 
             <div className="flex justify-end">
