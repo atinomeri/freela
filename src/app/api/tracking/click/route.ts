@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createHash } from 'crypto';
+import { recordClickForRecipient } from '@/lib/report-activity';
 
 const getBaseUrl = (): string => {
   return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'https://freela.ge';
@@ -72,6 +73,13 @@ export async function GET(request: NextRequest) {
           ipAddress: ipHash,
         },
       });
+      if (campaignId) {
+        await recordClickForRecipient({
+          campaignId,
+          emailHash,
+          url: finalUrl,
+        });
+      }
     } catch (error) {
       console.error('[Click Tracking] Database error:', error);
     }

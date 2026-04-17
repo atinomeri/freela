@@ -334,13 +334,21 @@ export const campaignStatusSchema = z.enum([
 ]);
 
 export const campaignScheduleModeSchema = z.enum(["ONCE", "DAILY"]);
+export const campaignPreflightStatusSchema = z.enum(["GOOD", "WARNING", "CRITICAL"]);
 
 export const createCampaignSchema = z.object({
   name: z.string().min(1, "Campaign name is required").max(200),
   subject: z.string().min(1, "Subject is required").max(998),
+  previewText: z.string().max(255).optional(),
   senderName: z.string().max(200).optional(),
   senderEmail: z.string().email("Invalid sender email").optional(),
   html: z.string().min(1, "HTML body is required"),
+  contactListId: z.string().min(1).optional(),
+  preflight: z.object({
+    status: campaignPreflightStatusSchema,
+    recommendations: z.array(z.string().min(1).max(300)).max(5),
+    checkedAt: z.string().datetime(),
+  }).optional(),
   scheduleMode: campaignScheduleModeSchema.default("ONCE"),
   scheduledAt: z.string().datetime().optional(),
   dailyLimit: z.coerce.number().int().min(1).max(1_000_000).optional(),
@@ -361,6 +369,7 @@ export const createCampaignSchema = z.object({
 export const updateCampaignSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   subject: z.string().min(1).max(998).optional(),
+  previewText: z.string().max(255).nullable().optional(),
   senderName: z.string().max(200).nullable().optional(),
   senderEmail: z.string().email("Invalid sender email").nullable().optional(),
   html: z.string().min(1).optional(),
@@ -378,10 +387,32 @@ export const listCampaignsSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   status: campaignStatusSchema.optional(),
+  campaignId: z.string().min(1).optional(),
+  dateFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "dateFrom must be YYYY-MM-DD")
+    .optional(),
+  dateTo: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "dateTo must be YYYY-MM-DD")
+    .optional(),
 });
 
 export const assignContactListSchema = z.object({
   contactListId: z.string().min(1, "Contact list ID is required"),
+});
+
+export const mergeContactListsSchema = z.object({
+  listIds: z.array(z.string().min(1)).min(1).max(25),
+  name: z.string().min(1).max(200).optional(),
+});
+
+export const campaignPreflightRequestSchema = z.object({
+  senderEmail: z.string().email("Invalid sender email").optional(),
+  subject: z.string().min(1).max(998),
+  previewText: z.string().max(255).optional(),
+  html: z.string().min(1).max(1_000_000),
+  recipientsCount: z.coerce.number().int().min(0),
 });
 
 export const listCampaignFailedRecipientsSchema = z.object({

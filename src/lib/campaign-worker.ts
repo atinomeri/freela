@@ -12,6 +12,7 @@
 
 import { Worker, type Job } from "bullmq";
 import nodemailer from "nodemailer";
+import { createHash } from "crypto";
 import {
   CAMPAIGN_QUEUE_NAME,
   getRedisConnection,
@@ -255,6 +256,10 @@ function localDateKey(date: Date): string {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
+}
+
+function hashRecipientEmail(email: string): string {
+  return createHash("sha256").update(email.toLowerCase().trim()).digest("hex");
 }
 
 function calcWarmupLimit(firstSeenAt: Date, now: Date): number {
@@ -550,6 +555,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
 
     let sentCount = campaign.sentCount;
     let failedCount = campaign.failedCount;
+    let bounceCount = campaign.bounceCount ?? 0;
     let processedInRun = 0;
     let consecutiveFailures = 0;
     let offset = isDailyRun ? runSliceOffset : 0;
@@ -724,6 +730,27 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         if (sent) {
           sentCount++;
           processedInRun++;
+          const recipientEmail = contact.email.trim().toLowerCase();
+          await prisma.campaignRecipientActivity.upsert({
+            where: {
+              campaignId_emailHash: {
+                campaignId,
+                emailHash: hashRecipientEmail(recipientEmail),
+              },
+            },
+            update: {
+              email: recipientEmail,
+              sender: normalizeEmailAddress(activeFrom),
+              sentAt: new Date(),
+            },
+            create: {
+              campaignId,
+              email: recipientEmail,
+              emailHash: hashRecipientEmail(recipientEmail),
+              sender: normalizeEmailAddress(activeFrom),
+              sentAt: new Date(),
+            },
+          });
           markWarmupSent(smtpAccount.senderKey);
           consecutiveFailures = 0;
           accountFailures.set(smtpAccount.id, Math.max(0, (accountFailures.get(smtpAccount.id) ?? 0) - 1));
@@ -734,7 +761,10 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           accountFailures.set(smtpAccount.id, (accountFailures.get(smtpAccount.id) ?? 0) + 1);
           const failedEmail = contact.email.trim().toLowerCase();
           if (isHardBounceError(lastErrorMessage)) {
-            bouncedEmails.add(failedEmail);
+            if (!bouncedEmails.has(failedEmail)) {
+              bouncedEmails.add(failedEmail);
+              bounceCount++;
+            }
           }
           failedRecipients.push({
             email: failedEmail,
@@ -746,7 +776,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
         if (processedInRun % 10 === 0 || processedInRun === runTotalContacts) {
           await prisma.campaign.update({
             where: { id: campaignId },
-            data: { sentCount, failedCount },
+            data: { sentCount, failedCount, bounceCount },
           });
           await job.updateProgress(
             Math.round((processedInRun / runTotalContacts) * 100),
@@ -852,6 +882,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           status: "FAILED",
           sentCount,
           failedCount,
+          bounceCount,
           completedAt: new Date(),
         },
       });
@@ -866,6 +897,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
             totalCount: campaign.dailyTotalCount ?? totalEligibleContacts,
             sentCount,
             failedCount,
+            bounceCount,
             dailySentOffset: newOffset,
             scheduledAt: null,
             completedAt: new Date(),
@@ -883,6 +915,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
             totalCount: campaign.dailyTotalCount ?? totalEligibleContacts,
             sentCount,
             failedCount,
+            bounceCount,
             dailySentOffset: newOffset,
             scheduledAt: nextRunAt,
             completedAt: null,
@@ -896,6 +929,7 @@ async function processCampaignSend(job: Job<CampaignSendJobData>): Promise<void>
           status: stoppedByWarmup ? "FAILED" : "COMPLETED",
           sentCount,
           failedCount,
+          bounceCount,
           completedAt: new Date(),
         },
       });

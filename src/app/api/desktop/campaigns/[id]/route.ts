@@ -3,6 +3,7 @@ import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { updateCampaignSchema } from "@/lib/validation";
 import { errors, success, noContent } from "@/lib/api-response";
 import { ensureCampaignRuntimeStarted } from "@/lib/campaign-runtime-init";
+import { Prisma } from "@prisma/client";
 import {
   deriveDailySendTimeFromDate,
   nextDailyRunFrom,
@@ -28,6 +29,7 @@ export async function GET(
         id: true,
         name: true,
         subject: true,
+        previewText: true,
         senderName: true,
         senderEmail: true,
         html: true,
@@ -44,6 +46,9 @@ export async function GET(
         totalCount: true,
         sentCount: true,
         failedCount: true,
+        preflightStatus: true,
+        preflightRecommendations: true,
+        preflightCheckedAt: true,
         createdAt: true,
         updatedAt: true,
         desktopUserId: true,
@@ -109,6 +114,12 @@ export async function PATCH(
       ...rest
     } = parsed.data;
 
+    const shouldResetPreflight =
+      parsed.data.subject !== undefined ||
+      parsed.data.previewText !== undefined ||
+      parsed.data.senderEmail !== undefined ||
+      parsed.data.html !== undefined;
+
     const targetScheduleMode = scheduleMode ?? existing.scheduleMode;
     let nextScheduledAt: Date | null | undefined;
     if (scheduledAt !== undefined) {
@@ -168,11 +179,19 @@ export async function PATCH(
               dailySentOffset: 0,
               dailyTotalCount: null,
             }),
+        ...(shouldResetPreflight
+          ? {
+              preflightStatus: null,
+              preflightRecommendations: Prisma.DbNull,
+              preflightCheckedAt: null,
+            }
+          : {}),
       },
       select: {
         id: true,
         name: true,
         subject: true,
+        previewText: true,
         senderName: true,
         senderEmail: true,
         status: true,
@@ -186,6 +205,9 @@ export async function PATCH(
         totalCount: true,
         sentCount: true,
         failedCount: true,
+        preflightStatus: true,
+        preflightRecommendations: true,
+        preflightCheckedAt: true,
         createdAt: true,
         updatedAt: true,
       },

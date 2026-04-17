@@ -35,6 +35,8 @@ async function queueDueCampaigns(): Promise<void> {
         dailyLimit: true,
         dailySentOffset: true,
         dailyTotalCount: true,
+        preflightStatus: true,
+        preflightCheckedAt: true,
         contactListId: true,
         contactList: { select: { contactCount: true } },
       },
@@ -46,6 +48,16 @@ async function queueDueCampaigns(): Promise<void> {
 
     for (const campaign of dueCampaigns) {
       if (!campaign.contactListId) continue;
+      if (!campaign.preflightCheckedAt || !campaign.preflightStatus || campaign.preflightStatus === "CRITICAL") {
+        await prisma.campaign.updateMany({
+          where: { id: campaign.id, status: "DRAFT" },
+          data: {
+            status: "FAILED",
+            completedAt: new Date(),
+          },
+        });
+        continue;
+      }
 
       const unsubscribed = await prisma.unsubscribedEmail.findMany({
         where: { desktopUserId: campaign.desktopUserId },

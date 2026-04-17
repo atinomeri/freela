@@ -12,6 +12,11 @@ type ScopedReport = {
   hwid: string;
 };
 
+type UniqueEventCounts = {
+  opened: number;
+  clicked: number;
+};
+
 function isMissingCampaignDesktopUserColumn(error: unknown): boolean {
   const candidate = error as {
     code?: string;
@@ -66,35 +71,6 @@ async function getOwnedCampaignIds(
   }
 }
 
-async function getOwnedAggregate(
-  desktopUserId: string,
-  desktopUserEmail: string | null,
-): Promise<{ sent: number; failed: number }> {
-  try {
-    const aggregate = await prisma.campaignReport.aggregate({
-      where: { desktopUserId },
-      _sum: { sent: true, failed: true },
-    });
-    return {
-      sent: aggregate._sum.sent ?? 0,
-      failed: aggregate._sum.failed ?? 0,
-    };
-  } catch (error) {
-    if (!isMissingCampaignDesktopUserColumn(error) || !desktopUserEmail) {
-      throw error;
-    }
-
-    const legacyAggregate = await prisma.campaignReport.aggregate({
-      where: { hwid: desktopUserEmail },
-      _sum: { sent: true, failed: true },
-    });
-    return {
-      sent: legacyAggregate._sum.sent ?? 0,
-      failed: legacyAggregate._sum.failed ?? 0,
-    };
-  }
-}
-
 async function getOwnedCampaignIdsFromCampaignTable(
   desktopUserId: string,
 ): Promise<string[]> {
@@ -103,6 +79,32 @@ async function getOwnedCampaignIdsFromCampaignTable(
     select: { id: true },
   });
   return campaigns.map((campaign) => campaign.id);
+}
+
+async function getUniqueEventCountsForCampaign(campaignId: string): Promise<UniqueEventCounts> {
+  const [opens, clicks] = await Promise.all([
+    prisma.emailTrackingEvent.findMany({
+      where: {
+        campaignId,
+        eventType: "OPEN",
+        emailHash: { not: null },
+      },
+      select: { emailHash: true },
+    }),
+    prisma.emailTrackingEvent.findMany({
+      where: {
+        campaignId,
+        eventType: "CLICK",
+        emailHash: { not: null },
+      },
+      select: { emailHash: true },
+    }),
+  ]);
+
+  return {
+    opened: new Set(opens.map((item) => item.emailHash).filter(Boolean)).size,
+    clicked: new Set(clicks.map((item) => item.emailHash).filter(Boolean)).size,
+  };
 }
 
 export async function GET(request: Request) {
@@ -167,12 +169,8 @@ export async function GET(request: Request) {
       }
     }
 
-    const where: Record<string, unknown> = {};
     let ownedCampaignIds: string[] = [];
-
-    if (campaignId) {
-      where.campaignId = campaignId;
-    } else if (isDesktopUser && desktopUserId) {
+    if (!campaignId && isDesktopUser && desktopUserId) {
       ownedCampaignIds = await getOwnedCampaignIds(desktopUserId, desktopUserEmail);
       if (ownedCampaignIds.length === 0) {
         ownedCampaignIds = await getOwnedCampaignIdsFromCampaignTable(desktopUserId);
@@ -190,47 +188,50 @@ export async function GET(request: Request) {
           click_rate: 0,
         });
       }
-      where.campaignId = { in: ownedCampaignIds };
     }
 
-    // Deduplicate: count distinct emailHash values
-    const openedDistinct = await prisma.emailTrackingEvent.findMany({
-      where: { ...where, eventType: 'OPEN' },
-      distinct: ['emailHash'],
-      select: { emailHash: true },
-    });
-
-    const clickedDistinct = await prisma.emailTrackingEvent.findMany({
-      where: { ...where, eventType: 'CLICK' },
-      distinct: ['emailHash'],
-      select: { emailHash: true },
-    });
-
-    const opened = openedDistinct.length;
-    const clicked = clickedDistinct.length;
-
     let total_sent = 0;
+    let opened = 0;
+    let clicked = 0;
     let bounced = 0;
     let unsubscribed = 0;
     let open_rate = 0;
     let click_rate = 0;
 
     if (campaignId && scopedReport) {
-      total_sent = scopedReport.sent;
-      bounced = scopedReport.failed;
-    } else if (!campaignId && isDesktopUser && desktopUserId) {
-      const aggregate = await getOwnedAggregate(desktopUserId, desktopUserEmail);
-      if (aggregate.sent === 0 && aggregate.failed === 0) {
-        const campaignAggregate = await prisma.campaign.aggregate({
-          where: { desktopUserId },
-          _sum: { sentCount: true, failedCount: true },
-        });
-        total_sent = campaignAggregate._sum.sentCount ?? 0;
-        bounced = campaignAggregate._sum.failedCount ?? 0;
-      } else {
-        total_sent = aggregate.sent;
-        bounced = aggregate.failed;
+      const campaignStats = await prisma.campaign.findUnique({
+        where: { id: campaignId },
+        select: {
+          sentCount: true,
+          openCount: true,
+          clickCount: true,
+          bounceCount: true,
+        },
+      });
+      total_sent = campaignStats?.sentCount ?? scopedReport.sent;
+      opened = campaignStats?.openCount ?? 0;
+      clicked = campaignStats?.clickCount ?? 0;
+      bounced = campaignStats?.bounceCount ?? scopedReport.failed;
+
+      if (!campaignStats || (opened === 0 && clicked === 0)) {
+        const uniqueEvents = await getUniqueEventCountsForCampaign(campaignId);
+        opened = Math.max(opened, uniqueEvents.opened);
+        clicked = Math.max(clicked, uniqueEvents.clicked);
       }
+    } else if (!campaignId && isDesktopUser && desktopUserId) {
+      const campaignAggregate = await prisma.campaign.aggregate({
+        where: { desktopUserId },
+        _sum: {
+          sentCount: true,
+          openCount: true,
+          clickCount: true,
+          bounceCount: true,
+        },
+      });
+      total_sent = campaignAggregate._sum.sentCount ?? 0;
+      opened = campaignAggregate._sum.openCount ?? 0;
+      clicked = campaignAggregate._sum.clickCount ?? 0;
+      bounced = campaignAggregate._sum.bounceCount ?? 0;
     }
 
     if (total_sent > 0) {

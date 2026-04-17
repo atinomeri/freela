@@ -511,6 +511,7 @@ model DesktopUser {
   sendingAccounts   DesktopSendingAccount[]
   campaignTemplates CampaignTemplate[]
   warmupSenders     DesktopWarmupSender[]
+  reportExports     ReportExportJob[]
 
   @@index([email])
 }
@@ -717,6 +718,31 @@ enum CampaignScheduleMode {
   DAILY
 }
 
+enum CampaignPreflightStatus {
+  GOOD
+  WARNING
+  CRITICAL
+}
+
+enum ReportExportSection {
+  SENT
+  OPENED
+  CLICKED
+  ALL
+}
+
+enum ReportExportFormat {
+  CSV
+  XLSX
+}
+
+enum ReportExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 model Campaign {
   id              String         @id @default(cuid())
   desktopUserId   String
@@ -724,6 +750,7 @@ model Campaign {
 
   name            String         // internal campaign name
   subject         String         // email subject line
+  previewText     String?        // inbox preview text
   senderName      String?        // "From" display name
   senderEmail     String?        // "From" email override
   html            String         @db.Text  // email HTML body
@@ -744,11 +771,19 @@ model Campaign {
   totalCount      Int            @default(0)  // total recipients
   sentCount       Int            @default(0)  // successfully sent
   failedCount     Int            @default(0)  // failed deliveries
+  openCount       Int            @default(0)
+  clickCount      Int            @default(0)
+  bounceCount     Int            @default(0)
+  preflightStatus CampaignPreflightStatus?
+  preflightRecommendations Json?
+  preflightCheckedAt DateTime?
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
   failedRecipients CampaignFailedRecipient[]
+  recipientActivity CampaignRecipientActivity[]
+  reportExports     ReportExportJob[]
 
   @@index([desktopUserId, createdAt])
   @@index([status])
@@ -765,6 +800,56 @@ model CampaignFailedRecipient {
 
   @@unique([campaignId, email])
   @@index([campaignId, createdAt])
+}
+
+model CampaignRecipientActivity {
+  id             String   @id @default(cuid())
+  campaignId     String
+  campaign       Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  email          String
+  emailHash      String
+  sender         String?
+  sentAt         DateTime
+
+  firstOpenedAt  DateTime?
+  lastOpenedAt   DateTime?
+  opensCount     Int      @default(0)
+
+  firstClickedAt DateTime?
+  lastClickedAt  DateTime?
+  clicksCount    Int      @default(0)
+  lastClickedUrl String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([campaignId, emailHash])
+  @@index([campaignId, sentAt])
+  @@index([campaignId, firstOpenedAt])
+  @@index([campaignId, firstClickedAt])
+}
+
+model ReportExportJob {
+  id            String             @id @default(cuid())
+  desktopUserId String
+  desktopUser   DesktopUser        @relation(fields: [desktopUserId], references: [id], onDelete: Cascade)
+  campaignId    String?
+  campaign      Campaign?          @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  section       ReportExportSection
+  format        ReportExportFormat
+  status        ReportExportStatus  @default(PENDING)
+  dateFrom      DateTime?
+  dateTo        DateTime?
+  rowCount      Int                 @default(0)
+  filePath      String?
+  fileName      String?
+  error         String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([desktopUserId, status, createdAt])
 }
 
 model DesktopWarmupSender {

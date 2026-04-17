@@ -42,9 +42,9 @@ export function success<T>(data: T, status = 200): NextResponse<ApiSuccessRespon
 }
 
 export function successWithPagination<T>(
-  data: T[],
+  data: T,
   pagination: { page: number; pageSize: number; total: number }
-): NextResponse<ApiSuccessResponse<T[]>> {
+): NextResponse<ApiSuccessResponse<T>> {
   return NextResponse.json({
     ok: true,
     data,

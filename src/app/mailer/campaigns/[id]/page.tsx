@@ -113,8 +113,6 @@ export default function CampaignDetailPage() {
   const [failedLoading, setFailedLoading] = useState(false);
   const [retryingFailed, setRetryingFailed] = useState(false);
   const [exportingFailed, setExportingFailed] = useState(false);
-  const [showDeleteHistoryConfirm, setShowDeleteHistoryConfirm] = useState(false);
-  const [deletingHistory, setDeletingHistory] = useState(false);
   const [retrySuccessCampaignId, setRetrySuccessCampaignId] = useState<string | null>(null);
   const campaignId = campaign?.id ?? null;
   const campaignFailedCount = campaign?.failedCount ?? 0;
@@ -370,26 +368,6 @@ export default function CampaignDetailPage() {
     }
   }
 
-  async function handleDeleteHistory() {
-    setDeletingHistory(true);
-    setError("");
-    try {
-      const res = await apiFetch(`/api/desktop/campaigns/${params.id}/history`, {
-        method: "DELETE",
-      });
-      if (!res.ok && res.status !== 204) {
-        const body = (await res.json().catch(() => null)) as ApiErrorShape | null;
-        throw new Error(getApiError(body, t("errors.deleteHistoryFailed")));
-      }
-      router.push("/mailer/history");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("errors.deleteHistoryFailed"));
-    } finally {
-      setDeletingHistory(false);
-      setShowDeleteHistoryConfirm(false);
-    }
-  }
-
   if (loading) return <PageSpinner />;
 
   if (!campaign) {
@@ -498,6 +476,16 @@ export default function CampaignDetailPage() {
           </div>
 
           <div className="flex gap-2">
+            {!isDraft && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push(`/mailer/reports?campaignId=${campaign.id}`)}
+              >
+                <Download className="h-4 w-4" />
+                Export report
+              </Button>
+            )}
             {isDraft && (
               <Button
                 variant="destructive"
@@ -505,16 +493,6 @@ export default function CampaignDetailPage() {
                 onClick={() => setShowDeleteConfirm(true)}
               >
                 <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-            {!isDraft && !isActive && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowDeleteHistoryConfirm(true)}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-                {t("actions.deleteFromHistory")}
               </Button>
             )}
           </div>
@@ -623,31 +601,54 @@ export default function CampaignDetailPage() {
         </Card>
       )}
 
-      {/* Tracking stats */}
+      {/* Campaign activity */}
       {tracking && (
         <Card className="mt-4 p-6" hover={false}>
-          <h2 className="mb-4 text-sm font-semibold">{t("campaignDetail.trackingStats")}</h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="mb-2 text-sm font-semibold">{t("campaignDetail.campaignActivity")}</h2>
+          <p className="mb-4 text-xs text-muted-foreground">
+            {t("campaignDetail.activitySummary", {
+              opens: tracking.opened,
+              clicks: tracking.clicked,
+              bounces: tracking.bounced,
+            })}
+          </p>
+
+          <div className="mb-3 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg border border-border p-3">
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.opens", { count: tracking.opened })}</div>
+              <div className="mt-1 flex items-center gap-1 text-base font-semibold">
+                <Eye className="h-4 w-4 text-primary" />
+                {tracking.opened}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.clicks", { count: tracking.clicked })}</div>
+              <div className="mt-1 flex items-center gap-1 text-base font-semibold">
+                <MousePointerClick className="h-4 w-4 text-primary" />
+                {tracking.clicked}
+              </div>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <div className="text-xs text-muted-foreground">{t("campaignDetail.bounced")}</div>
+              <div className="mt-1 text-base font-semibold text-destructive">
+                {tracking.bounced}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg border border-border p-3">
               <div className="text-xs text-muted-foreground">{t("campaignDetail.openRate")}</div>
               <div className="mt-1 flex items-center gap-1 text-base font-semibold">
                 <Eye className="h-4 w-4 text-primary" />
                 {tracking.open_rate}%
               </div>
-              <div className="text-xs text-muted-foreground">{t("campaignDetail.opens", { count: tracking.opened })}</div>
             </div>
             <div className="rounded-lg border border-border p-3">
               <div className="text-xs text-muted-foreground">{t("campaignDetail.clickRate")}</div>
               <div className="mt-1 flex items-center gap-1 text-base font-semibold">
                 <MousePointerClick className="h-4 w-4 text-primary" />
                 {tracking.click_rate}%
-              </div>
-              <div className="text-xs text-muted-foreground">{t("campaignDetail.clicks", { count: tracking.clicked })}</div>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <div className="text-xs text-muted-foreground">{t("campaignDetail.bounced")}</div>
-              <div className="mt-1 text-base font-semibold text-destructive">
-                {tracking.bounced}
               </div>
             </div>
             <div className="rounded-lg border border-border p-3">
@@ -780,16 +781,6 @@ export default function CampaignDetailPage() {
         loading={actionLoading}
       />
 
-      <ConfirmModal
-        isOpen={showDeleteHistoryConfirm}
-        onClose={() => setShowDeleteHistoryConfirm(false)}
-        onConfirm={handleDeleteHistory}
-        title={t("campaignDetail.deleteHistoryTitle")}
-        description={t("campaignDetail.deleteHistoryDescription")}
-        confirmText={t("actions.delete")}
-        variant="destructive"
-        loading={deletingHistory}
-      />
     </div>
   );
 }

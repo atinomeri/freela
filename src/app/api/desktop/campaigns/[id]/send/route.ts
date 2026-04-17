@@ -25,6 +25,8 @@ export async function POST(req: Request, { params }: RouteContext) {
         dailyLimit: true,
         dailySentOffset: true,
         dailyTotalCount: true,
+        preflightStatus: true,
+        preflightCheckedAt: true,
         contactListId: true,
         contactList: {
           select: { contactCount: true },
@@ -46,6 +48,14 @@ export async function POST(req: Request, { params }: RouteContext) {
       return errors.badRequest(
         "Campaign has no contact list assigned. Use PATCH /campaigns/:id/assign-list first.",
       );
+    }
+
+    if (!campaign.preflightCheckedAt || !campaign.preflightStatus) {
+      return errors.badRequest("Run preflight before sending this campaign.");
+    }
+
+    if (campaign.preflightStatus === "CRITICAL") {
+      return errors.badRequest("Fix critical preflight issues before sending.");
     }
 
     if (campaign.contactList.contactCount === 0) {

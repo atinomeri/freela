@@ -1,5 +1,6 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { errors, success } from "@/lib/api-response";
 
 const WARMUP_ENABLED = (process.env.CAMPAIGN_WARMUP_ENABLED || "false").toLowerCase() === "true";
@@ -31,13 +32,18 @@ function calcWarmupLimit(firstSeenAt: Date, now: Date): number {
 
 export async function GET(req: Request) {
   try {
-    const auth = await requireDesktopAuth(req);
-    if (auth.error) return auth.error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return errors.unauthorized();
+    if (session.user.role !== "ADMIN") return errors.forbidden();
+
+    const url = new URL(req.url);
+    const desktopUserId = url.searchParams.get("desktopUserId")?.trim() ?? "";
+    if (!desktopUserId) return errors.badRequest("desktopUserId is required");
 
     const now = new Date();
     const today = localDateKey(now);
     const senders = await prisma.desktopWarmupSender.findMany({
-      where: { desktopUserId: auth.user.id },
+      where: { desktopUserId },
       orderBy: { updatedAt: "desc" },
       select: {
         senderKey: true,
@@ -83,24 +89,29 @@ export async function GET(req: Request) {
       }),
     });
   } catch (err) {
-    console.error("[Warmup GET] Error:", err);
+    console.error("[Internal Warmup GET] Error:", err);
     return errors.serverError();
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const auth = await requireDesktopAuth(req);
-    if (auth.error) return auth.error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return errors.unauthorized();
+    if (session.user.role !== "ADMIN") return errors.forbidden();
 
     const body = (await req.json().catch(() => ({}))) as {
+      desktopUserId?: string;
       senderKey?: string;
     };
+    const desktopUserId = body.desktopUserId?.trim() ?? "";
+    if (!desktopUserId) return errors.badRequest("desktopUserId is required");
+
     const senderKey = body.senderKey?.trim().toLowerCase();
 
     if (senderKey) {
       await prisma.desktopWarmupSender.updateMany({
-        where: { desktopUserId: auth.user.id, senderKey },
+        where: { desktopUserId, senderKey },
         data: {
           firstSeenAt: new Date(),
           lastSentDate: null,
@@ -110,7 +121,7 @@ export async function POST(req: Request) {
       });
     } else {
       await prisma.desktopWarmupSender.updateMany({
-        where: { desktopUserId: auth.user.id },
+        where: { desktopUserId },
         data: {
           firstSeenAt: new Date(),
           lastSentDate: null,
@@ -123,9 +134,10 @@ export async function POST(req: Request) {
     return success({
       reset: senderKey ? "single" : "all",
       senderKey: senderKey ?? null,
+      desktopUserId,
     });
   } catch (err) {
-    console.error("[Warmup POST] Error:", err);
+    console.error("[Internal Warmup POST] Error:", err);
     return errors.serverError();
   }
 }

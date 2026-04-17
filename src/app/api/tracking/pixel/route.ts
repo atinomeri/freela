@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createHash } from 'crypto';
+import { recordOpenForRecipient } from '@/lib/report-activity';
 
 // 1x1 transparent GIF
 const TRANSPARENT_GIF_BUFFER = Buffer.from(
@@ -65,6 +66,9 @@ export async function GET(request: NextRequest) {
           ipAddress: ipHash,
         },
       });
+      if (campaignId) {
+        await recordOpenForRecipient({ campaignId, emailHash });
+      }
     } catch (error) {
       console.error('[Pixel Tracking] Database error:', error);
     }

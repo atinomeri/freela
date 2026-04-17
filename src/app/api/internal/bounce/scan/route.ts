@@ -1,21 +1,26 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requireDesktopAuth } from "@/lib/desktop-auth";
 import { errors, success } from "@/lib/api-response";
 import { mailerBounceScanSchema } from "@/lib/validation";
 import { scanBouncesForAccount, type ImapScanAccount } from "@/lib/imap-bounce";
 
 export async function POST(req: Request) {
   try {
-    const auth = await requireDesktopAuth(req);
-    if (auth.error) return auth.error;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return errors.unauthorized();
+    if (session.user.role !== "ADMIN") return errors.forbidden();
 
     const body = await req.json().catch(() => ({}));
+    const desktopUserId = typeof body?.desktopUserId === "string" ? body.desktopUserId.trim() : "";
+    if (!desktopUserId) return errors.badRequest("desktopUserId is required");
+
     const parsed = mailerBounceScanSchema.safeParse(body);
     if (!parsed.success) return errors.validationError(parsed.error.issues);
     const opts = parsed.data;
 
     const poolAccounts = await prisma.desktopSmtpPoolAccount.findMany({
-      where: { desktopUserId: auth.user.id, active: true },
+      where: { desktopUserId, active: true },
       orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
       select: {
         id: true,
@@ -35,7 +40,7 @@ export async function POST(req: Request) {
       accounts.push(...poolAccounts);
     } else {
       const single = await prisma.desktopSmtpConfig.findUnique({
-        where: { desktopUserId: auth.user.id },
+        where: { desktopUserId },
         select: {
           id: true,
           host: true,
@@ -118,7 +123,7 @@ export async function POST(req: Request) {
         data: Array.from(hardAddresses).map((email) => ({
           email,
           source: "bounce",
-          desktopUserId: auth.user.id,
+          desktopUserId,
         })),
         skipDuplicates: true,
       });
@@ -135,7 +140,7 @@ export async function POST(req: Request) {
       accounts: accountResults,
     });
   } catch (err) {
-    console.error("[Bounce Scan] Error:", err);
+    console.error("[Internal Bounce Scan] Error:", err);
     return errors.serverError();
   }
 }
