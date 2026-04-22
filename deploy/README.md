@@ -83,6 +83,40 @@ docker compose -f docker-compose.prod.yml exec app npm run prisma:migrate:deploy
   - `https://<DOMAIN>/api/health`
   - Full details (optional): `curl -H "x-health-secret: $HEALTH_CHECK_TOKEN" https://<DOMAIN>/api/health`
 
+## Launch `mailer.freela.ge` (Phase 4 split)
+
+1. Prepare overlay env:
+
+```bash
+cp deploy/env.phase4.example deploy/.env.phase4
+nano deploy/.env.phase4
+```
+
+2. Bring up mailer services (keeps current freela services running):
+
+```bash
+docker compose -f deploy/docker-compose.prod.yml -f deploy/docker-compose.phase4.yml up -d mailer-db mailer-redis mailer-app mailer-worker
+```
+
+3. Run migrations against mailer DB:
+
+```bash
+docker compose -f deploy/docker-compose.prod.yml -f deploy/docker-compose.phase4.yml exec -e DATABASE_URL="$MAILER_DATABASE_URL" mailer-app npm run prisma:migrate:deploy
+```
+
+4. Verify mailer app health:
+
+```bash
+docker exec freela-mailer-app wget -qO- http://127.0.0.1:3000/api/health
+```
+
+5. Add DNS record: `A mailer.freela.ge -> <VPS_IP>`, then reload Caddy (this repository already enables the `mailer.freela.ge` vhost in `deploy/Caddyfile`):
+
+```bash
+docker compose -f deploy/docker-compose.prod.yml exec caddy caddy reload --config /etc/caddy/Caddyfile
+curl -I https://mailer.freela.ge/api/health
+```
+
 ## Updates
 
 One-command update (recommended):

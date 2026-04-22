@@ -7,22 +7,178 @@
   header X-Frame-Options "SAMEORIGIN"
   header Referrer-Policy "strict-origin-when-cross-origin"
 
-  reverse_proxy app:3000 {
-    # Active health checks — Caddy polls /api/health every 15s.
-    # If the container is unhealthy Caddy stops sending traffic
-    # until it recovers ("fail_duration 30s" = 2 consecutive failures).
+  # ═══════════════════════════════════════════════════════════════════════
+  # Legacy compatibility allowlist (FROZEN — do not add paths without review)
+  #
+  # Every path listed here is baked into artifacts we cannot update:
+  #   - HTML emails already delivered to recipient inboxes (tracking + unsub)
+  #   - Desktop clients compiled and distributed with freela.ge base URL
+  #     (auth, license, update check, quota, tracking report).
+  #
+  # freela.ge is the forever-host for these URLs. When the mailer is split
+  # onto mailer.freela.ge, freela.ge reverse-proxies (NOT 301-redirects)
+  # each path to the mailer upstream so <img> pixels, 302 click redirects,
+  # and desktop POST bodies continue to work unchanged.
+  #
+  # ACTIVATION
+  #   Phase 4 only. Before flipping from `#activate-compat` to `activate-compat`:
+  #     - mailer.freela.ge vhost below is live and healthy
+  #     - {$MAILER_UPSTREAM} is set in deploy/.env (e.g. MAILER_UPSTREAM=mailer-app:3000)
+  #     - DB split completed; mailer-app + mailer-worker containers are running
+  #   See docs/phase4-cutover-runbook.md.
+  #
+  # SCOPE RULES
+  #   - Only paths already embedded in external artifacts belong here.
+  #   - No internal endpoints (/api/internal/*, /api/admin/*, /api/desktop/admin/*).
+  #   - No freela-owned endpoints.
+  #   - No business logic, no header rewriting, no auth. Pure forwarding.
+  #   - If a future request asks to "just add one more path", refuse and
+  #     refer to this comment. The list is closed.
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # Path-mounted mailer UI (pre-subdomain launch).
+  #
+  # This block fronts the standalone freela-mailer container under
+  # https://freela.ge/mailer before mailer.freela.ge goes live. It is
+  # independent from the compat-allowlist below.
+  #
+  #   /mailer/*          → mailer UI (pages + /mailer/api/* admin calls).
+  #                        No path strip — the mailer app physically serves
+  #                        routes under src/app/mailer/*, and Next.js
+  #                        `rewrites` inside freela-mailer strip the leading
+  #                        /mailer from API sub-paths back to /api/*.
+  #
+  #   /_mailer-next/*    → mailer static asset bundle. handle_path strips
+  #                        the prefix, `rewrite * /_next{uri}` re-adds /_next,
+  #                        so the upstream serves its content-hashed assets
+  #                        via its own `assetPrefix="/_mailer-next"` without
+  #                        colliding with freela's own /_next/* path.
+  #
+  # ACTIVATION
+  #   - set MAILER_UPSTREAM in freela/.env (e.g. mailer-app:3000)
+  #   - ensure the freela-mailer container is up and reachable on that host
+  #   - uncomment the two handle blocks below
+  #   - `caddy reload` — no restart needed
+  #
+  # ROLLBACK
+  #   - re-comment the two handle blocks below
+  #   - `caddy reload`. /mailer/* and /_mailer-next/* return to 404 served
+  #     by the freela default handle (below). Freela itself is unaffected.
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # handle /mailer* {
+  #   reverse_proxy {$MAILER_UPSTREAM} {
+  #     flush_interval -1
+  #   }
+  # }
+  #
+  # handle_path /_mailer-next/* {
+  #   header Cache-Control "public, max-age=31536000, immutable"
+  #   rewrite * /_next{uri}
+  #   reverse_proxy {$MAILER_UPSTREAM} {
+  #     flush_interval -1
+  #   }
+  # }
+
+  # DISABLED until Phase 4 cutover. To activate: uncomment this entire
+  # block (matcher + handle) and nothing else. Do not edit individual
+  # paths in production — the allowlist is frozen.
+  #
+  # @mailer_compat {
+  #   # ── Tracking (baked into every historical email) ──
+  #   path /api/tracking/pixel
+  #   path /api/tracking/pixel/*
+  #   path /api/tracking/click
+  #   path /api/tracking/click/*
+  #   path /api/tracking/report
+  #   path /api/tracking/stats
+  #   path /api/tracking/events
+  #   # ── Unsubscribe (baked into every historical email; user-facing page) ──
+  #   path /unsub
+  #   path /unsub/*
+  #   path /api/unsubscribed
+  #   # ── Desktop client (compiled into the distributed binary) ──
+  #   path /api/desktop/auth/login
+  #   path /api/desktop/auth/register
+  #   path /api/desktop/auth/refresh
+  #   path /api/desktop/account/me
+  #   path /api/desktop/quota/reserve
+  #   path /api/desktop/quota/report
+  #   path /api/desktop/campaigns
+  #   path /api/desktop/campaigns/*
+  #   path /api/desktop/contacts
+  #   path /api/desktop/contacts/*
+  #   path /api/desktop/templates
+  #   path /api/desktop/templates/*
+  #   path /api/desktop/smtp
+  #   path /api/desktop/smtp/*
+  #   path /api/desktop/sending-accounts
+  #   path /api/desktop/sending-accounts/*
+  #   path /api/desktop/billing
+  #   path /api/desktop/billing/*
+  #   path /api/desktop/reports
+  #   path /api/desktop/reports/*
+  #   path /api/license/activate
+  #   path /api/license/validate
+  #   path /api/updates/check
+  #   path /api/app/version
+  # }
+  # handle @mailer_compat {
+  #   reverse_proxy {$MAILER_UPSTREAM} {
+  #     flush_interval -1
+  #   }
+  # }
+
+  # Default: everything that did not match the mailer routes above goes to
+  # the freela app. Wrapped in `handle` so it is mutually exclusive with
+  # /mailer*, /_mailer-next/*, and the (disabled) compat allowlist.
+  handle {
+    reverse_proxy app:3000 {
+      # Active health checks — Caddy polls /api/health every 15s.
+      # If the container is unhealthy Caddy stops sending traffic
+      # until it recovers ("fail_duration 30s" = 2 consecutive failures).
+      health_uri      /api/health
+      health_interval 15s
+      health_timeout  5s
+      health_status   200
+      fail_duration   30s
+
+      # Passive health checks — mark unhealthy on real-traffic errors
+      lb_try_duration  5s
+      lb_try_interval  250ms
+
+      # Give Next.js time to finish in-flight requests on shutdown
+      flush_interval -1
+    }
+  }
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# mailer.freela.ge — canonical mailer host (Phase 4 only).
+#
+# DISABLED today (single-container deployment). Activate only after:
+#   - mailer-app container is up on {$MAILER_UPSTREAM}
+#   - DNS A/AAAA record for mailer.freela.ge points to this Caddy
+#   - TLS cert provisioned (Caddy auto-issues on first hit)
+# ═══════════════════════════════════════════════════════════════════════════
+#
+mailer.freela.ge {
+  encode gzip zstd
+
+  header -Server
+  header X-Content-Type-Options "nosniff"
+  header X-Frame-Options "SAMEORIGIN"
+  header Referrer-Policy "strict-origin-when-cross-origin"
+
+  reverse_proxy {$MAILER_UPSTREAM} {
     health_uri      /api/health
     health_interval 15s
     health_timeout  5s
     health_status   200
     fail_duration   30s
-
-    # Passive health checks — mark unhealthy on real-traffic errors
-    lb_try_duration  5s
-    lb_try_interval  250ms
-
-    # Give Next.js time to finish in-flight requests on shutdown
-    flush_interval -1
+    lb_try_duration 5s
+    lb_try_interval 250ms
+    flush_interval  -1
   }
 }
-
