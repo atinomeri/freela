@@ -64,9 +64,18 @@
       "Bash(find /c/Users/admin/Desktop/freela/src/app -type d -name \"api\" -exec find {} -maxdepth 1 -type d)",
       "Bash(wc -l /c/Users/admin/Desktop/freela/src/app/api/*/*.ts)",
       "Bash(find /c/Users/admin/Desktop/freela -name *.spec.ts -o -name *.test.ts)",
-      "WebFetch(domain:www.upwork.com)"
+      "WebFetch(domain:www.upwork.com)",
+      "WebFetch(domain:freela.ge)"
     ],
     "deny": [],
     "ask": []
+  },
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "freela.ge",
+        "*.freela.ge"
+      ]
+    }
   }
 }
